@@ -3,7 +3,7 @@
 
 ## 👤 Integrantes: 
 - Vinicius Padilha
-- Matheus Marcondes 
+- Matheus Marcondes Muller
 - Germano Lagana
 
 ## 📖 Descrição
