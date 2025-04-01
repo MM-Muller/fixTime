@@ -10,7 +10,27 @@ $conexao = new mysqli($server, $user, $pass, $db_name);
 
 // Verificar conexão (corrigido para usar $conexao)
 if ($conexao->connect_error) {
-    die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
+  die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $nome = $conexao->real_escape_string($_POST['first_name']);
+  $cpf = $conexao->real_escape_string($_POST['cpf']);
+  $telefone = $conexao->real_escape_string($_POST['telefone']);
+  $email = $conexao->real_escape_string($_POST['email']);
+  $senha = $conexao->real_escape_string($_POST['senha']);
+
+  // Hash da senha
+  $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+
+  // Inserir dados no banco
+  $sql = "INSERT INTO cliente (nome, cpf, telefone, email, senha) VALUES ('$nome', '$cpf', '$telefone', '$email', '$senha_hash')";
+
+  if ($conexao->query($sql) === TRUE) {
+  echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
+  } else {
+  echo "Erro: " . $sql . "<br>" . $conexao->error;
+  }
 }
 
 ?>
