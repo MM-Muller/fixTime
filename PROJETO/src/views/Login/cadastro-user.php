@@ -2,7 +2,7 @@
 // Configurações do banco de dados
 $db_name = "fixTime";
 $user = "root";
-$pass = "";
+$pass = "mullersql14";
 $server = "localhost:3306";
 
 // Criar conexão
