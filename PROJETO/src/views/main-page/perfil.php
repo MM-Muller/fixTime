@@ -1,3 +1,48 @@
+<?php
+    $db_name = "fixTime";
+    $user = "root";
+    $pass = "";
+    $server = "localhost:3306";
+  
+    // Criar conexão
+    $conexao = new mysqli($server, $user, $pass, $db_name);
+  
+    // Verificar conexão
+    if ($conexao->connect_error) {
+        die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
+    }
+  
+    session_start();
+
+    if (!isset($_SESSION['id_usuario'])) {
+        die("Usuário não está logado.");
+    }
+
+    $user_id = $_SESSION['id_usuario'];
+
+    $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user_data = $result->fetch_assoc();
+        echo "<script>
+            document.getElementById('nome-perfil').value = '{$user_data['nome_usuario']}';
+            document.getElementById('cpf-perfil').value = '{$user_data['cpf']}';
+            document.getElementById('telefone-perfil').value = '{$user_data['telefone_usuario']}';
+            document.getElementById('email-perfil').value = '{$user_data['email_usuario']}';
+        </script>";
+    } else {
+        die("Usuário não encontrado.");
+    }
+
+    $stmt->close();
+    $conexao->close();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -87,22 +132,22 @@
             <div class="space-y-7">
                 <div class="">
                     <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
-                    <input type="text" id="nome-perfil" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                    <input type="text" id="nome-perfil" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
                 </div> 
     
                 <div class="">
-                    <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
-                    <input type="text" id="nome-perfil" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                    <label for="cpf-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
+                    <input type="text" id="cpf-perfil" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
                 </div> 
     
                 <div class="">
-                    <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                    <input type="text" id="nome-perfil" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                    <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
+                    <input type="text" id="telefone-perfil" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
                 </div> 
     
                 <div class="">
-                    <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                    <input type="text" id="nome-perfil" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                    <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
+                    <input type="text" id="email-perfil" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
                 </div> 
                 
             </div>

@@ -1,4 +1,6 @@
 <?php 
+  session_start();
+
   $db_name = "fixTime";
   $user = "root";
   $pass = "";
@@ -17,18 +19,21 @@
     $senha_usuario = $_POST['senha'] ?? '';
 
     // Usar prepared statements para evitar SQL Injection
-    $stmt = $conexao->prepare("SELECT senha_usuario FROM cliente WHERE email_usuario = ?");
+    $stmt = $conexao->prepare("SELECT id_usuario, senha_usuario FROM cliente WHERE email_usuario = ?");
     $stmt->bind_param("s", $email_usuario);
     $stmt->execute();
     $stmt->store_result();
 
     // Verificar se encontrou o usuário
     if ($stmt->num_rows > 0) {
-      $stmt->bind_result($hash_senha);
+      $stmt->bind_result($id_usuario, $hash_senha);
       $stmt->fetch();
 
       // Verificar senha
       if (password_verify($senha_usuario, $hash_senha)) {
+        // Armazenar o ID do usuário na sessão
+        $_SESSION['id_usuario'] = $id_usuario;
+
         echo "<script>window.location.href = '/fixTime/PROJETO/src/views/main-page/main.html';</script>";
         exit();
       } else {
