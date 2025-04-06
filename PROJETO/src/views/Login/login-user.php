@@ -1,7 +1,7 @@
 <?php 
   $db_name = "fixTime";
   $user = "root";
-  $pass = "mullersql14";
+  $pass = "";
   $server = "localhost:3306";
 
   // Criar conexão
@@ -13,12 +13,12 @@
   }
 
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $senha = $_POST['senha'] ?? '';
+    $email_usuario = $_POST['email'] ?? '';
+    $senha_usuario = $_POST['senha'] ?? '';
 
     // Usar prepared statements para evitar SQL Injection
-    $stmt = $conexao->prepare("SELECT senha FROM cliente WHERE email = ?");
-    $stmt->bind_param("s", $email);
+    $stmt = $conexao->prepare("SELECT senha_usuario FROM cliente WHERE email_usuario = ?");
+    $stmt->bind_param("s", $email_usuario);
     $stmt->execute();
     $stmt->store_result();
 
@@ -28,7 +28,7 @@
       $stmt->fetch();
 
       // Verificar senha
-      if (password_verify($senha, $hash_senha)) {
+      if (password_verify($senha_usuario, $hash_senha)) {
         echo "<script>window.location.href = '/fixTime/PROJETO/src/views/main-page/main.html';</script>";
         exit();
       } else {

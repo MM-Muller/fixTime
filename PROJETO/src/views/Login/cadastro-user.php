@@ -2,34 +2,35 @@
 // Configurações do banco de dados
 $db_name = "fixTime";
 $user = "root";
-$pass = "mullersql14";
+$pass = "";
 $server = "localhost:3306";
 
 // Criar conexão
 $conexao = new mysqli($server, $user, $pass, $db_name);
 
-// Verificar conexão (corrigido para usar $conexao)
+// Verificar conexão
 if ($conexao->connect_error) {
   die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $nome = $conexao->real_escape_string($_POST['first_name']);
+  $nome_usuario = $conexao->real_escape_string($_POST['first_name']);
   $cpf = $conexao->real_escape_string($_POST['cpf']);
-  $telefone = $conexao->real_escape_string($_POST['telefone']);
-  $email = $conexao->real_escape_string($_POST['email']);
-  $senha = $conexao->real_escape_string($_POST['senha']);
+  $telefone_usuario = $conexao->real_escape_string($_POST['telefone']);
+  $email_usuario = $conexao->real_escape_string($_POST['email']);
+  $senha_usuario = $conexao->real_escape_string($_POST['senha']);
 
   // Hash da senha
-  $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+  $senha_hash = password_hash($senha_usuario, PASSWORD_DEFAULT);
 
   // Inserir dados no banco
-  $sql = "INSERT INTO cliente (nome, cpf, telefone, email, senha) VALUES ('$nome', '$cpf', '$telefone', '$email', '$senha_hash')";
+  $sql = "INSERT INTO cliente (nome_usuario, cpf, telefone_usuario, email_usuario, senha_usuario) 
+          VALUES ('$nome_usuario', '$cpf', '$telefone_usuario', '$email_usuario', '$senha_hash')";
 
   if ($conexao->query($sql) === TRUE) {
-  echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
+    echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
   } else {
-  echo "Erro: " . $sql . "<br>" . $conexao->error;
+    echo "Erro: " . $sql . "<br>" . $conexao->error;
   }
 }
 
