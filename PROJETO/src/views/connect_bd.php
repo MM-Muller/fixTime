@@ -3,7 +3,7 @@
         $db_name = "fixTime";
         $user = "root";
         $pass = "";
-        $server = "localhost:3306";
+        $server = "localhost:3310";
 
         // Criar conexão
         $conexao = new mysqli($server, $user, $pass, $db_name);
