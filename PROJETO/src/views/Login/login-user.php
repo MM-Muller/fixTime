@@ -1,18 +1,12 @@
 <?php 
-  session_start();
+  include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+  $conexao = connect_db();
 
-  $db_name = "fixTime";
-  $user = "root";
-  $pass = "";
-  $server = "localhost:3306";
-
-  // Criar conexão
-  $conexao = new mysqli($server, $user, $pass, $db_name);
-
-  // Verificar conexão
-  if ($conexao->connect_error) {
-    die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
+  if (!isset($conexao) || !$conexao) {
+    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
   }
+
+  session_start();
 
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_usuario = $_POST['email'] ?? '';

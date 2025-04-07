@@ -1,15 +1,9 @@
 <?php
-    $db_name = "fixTime";
-    $user = "root";
-    $pass = "";
-    $server = "localhost:3306";
+    include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+    $conexao = connect_db();
   
-    // Criar conexão
-    $conexao = new mysqli($server, $user, $pass, $db_name);
-  
-    // Verificar conexão
-    if ($conexao->connect_error) {
-        die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
+    if (!isset($conexao) || !$conexao) {
+      die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
     }
   
     session_start();

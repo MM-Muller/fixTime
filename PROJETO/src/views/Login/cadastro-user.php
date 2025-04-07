@@ -1,39 +1,33 @@
 <?php
-// Configurações do banco de dados
-$db_name = "fixTime";
-$user = "root";
-$pass = "";
-$server = "localhost:3306";
+  include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+  $conexao = connect_db();
 
-// Criar conexão
-$conexao = new mysqli($server, $user, $pass, $db_name);
-
-// Verificar conexão
-if ($conexao->connect_error) {
-  die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $nome_usuario = $conexao->real_escape_string($_POST['first_name']);
-  $cpf = $conexao->real_escape_string($_POST['cpf']);
-  $telefone_usuario = $conexao->real_escape_string($_POST['telefone']);
-  $email_usuario = $conexao->real_escape_string($_POST['email']);
-  $senha_usuario = $conexao->real_escape_string($_POST['senha']);
-
-  // Hash da senha
-  $senha_hash = password_hash($senha_usuario, PASSWORD_DEFAULT);
-
-  // Inserir dados no banco
-  $sql = "INSERT INTO cliente (nome_usuario, cpf, telefone_usuario, email_usuario, senha_usuario) 
-          VALUES ('$nome_usuario', '$cpf', '$telefone_usuario', '$email_usuario', '$senha_hash')";
-
-  if ($conexao->query($sql) === TRUE) {
-    echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
-  } else {
-    echo "Erro: " . $sql . "<br>" . $conexao->error;
+  if (!isset($conexao) || !$conexao) {
+    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
   }
-}
 
+  session_start();
+
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $nome_usuario = $conexao->real_escape_string($_POST['first_name']);
+    $cpf = $conexao->real_escape_string($_POST['cpf']);
+    $telefone_usuario = $conexao->real_escape_string($_POST['telefone']);
+    $email_usuario = $conexao->real_escape_string($_POST['email']);
+    $senha_usuario = $conexao->real_escape_string($_POST['senha']);
+
+    // Hash da senha
+    $senha_hash = password_hash($senha_usuario, PASSWORD_DEFAULT);
+
+    // Inserir dados no banco
+    $sql = "INSERT INTO cliente (nome_usuario, cpf, telefone_usuario, email_usuario, senha_usuario) 
+            VALUES ('$nome_usuario', '$cpf', '$telefone_usuario', '$email_usuario', '$senha_hash')";
+
+    if ($conexao->query($sql) === TRUE) {
+      echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
+    } else {
+      echo "Erro: " . $sql . "<br>" . $conexao->error;
+    }
+  }
 ?>
 
 <!DOCTYPE html>
