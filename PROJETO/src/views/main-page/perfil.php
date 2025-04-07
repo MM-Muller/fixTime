@@ -9,9 +9,10 @@
     session_start();
 
     if (!isset($_SESSION['id_usuario'])) {
-        die("Usuário não está logado.");
+        header("Location: /fixTime/PROJETO/src/views/login.html");
+        exit();
     }
-
+    
     $user_id = $_SESSION['id_usuario'];
 
     $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
@@ -22,12 +23,7 @@
 
     if ($result->num_rows > 0) {
         $user_data = $result->fetch_assoc();
-        echo "<script>
-            document.getElementById('nome-perfil').value = '{$user_data['nome_usuario']}';
-            document.getElementById('cpf-perfil').value = '{$user_data['cpf']}';
-            document.getElementById('telefone-perfil').value = '{$user_data['telefone_usuario']}';
-            document.getElementById('email-perfil').value = '{$user_data['email_usuario']}';
-        </script>";
+        
     } else {
         die("Usuário não encontrado.");
     }
@@ -159,7 +155,7 @@
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
-                        Excluir perfil
+                        Excluir
                     </button>
                 </div>
 
