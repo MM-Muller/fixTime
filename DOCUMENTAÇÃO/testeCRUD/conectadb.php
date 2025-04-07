@@ -1,6 +1,6 @@
 <?php
 	function conecta_db(){
-		$db_name = "fixTime";
+		$db_name = "db_teste";
 		$user    = "root";
 		$pass    = "";
 		$server  = "localhost:3306";
