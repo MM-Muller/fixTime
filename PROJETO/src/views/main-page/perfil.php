@@ -1,19 +1,40 @@
 <?php
     include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
     $conexao = connect_db();
-  
+
     if (!isset($conexao) || !$conexao) {
       die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
     }
-  
-    session_start();
 
+    session_start();
     if (!isset($_SESSION['id_usuario'])) {
         header("Location: /fixTime/PROJETO/src/views/login.html");
         exit();
     }
-    
+
     $user_id = $_SESSION['id_usuario'];
+
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['salvar_perfil'])) {
+        $nome = trim($_POST['nome']);
+        $cpf = trim($_POST['cpf']);
+        $telefone = trim($_POST['telefone']);
+        $email = trim($_POST['email']);
+
+        $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
+        $stmtUpdate = $conexao->prepare($sqlUpdate);
+        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id);
+
+        
+        if ($stmtUpdate->execute()) {
+            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
+            exit();
+        } else {
+            echo "Erro ao atualizar perfil: " . $conexao->error;
+        }
+
+        $stmtUpdate->close();
+    }
 
     $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
     $stmt = $conexao->prepare($sql);
@@ -23,15 +44,14 @@
 
     if ($result->num_rows > 0) {
         $user_data = $result->fetch_assoc();
-        
     } else {
         die("Usuário não encontrado.");
     }
 
     $stmt->close();
     $conexao->close();
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -103,7 +123,7 @@
                 </li>
 
                 <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/perfil.html" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+                    <a href="/fixTime/PROJETO/src/views/main-page/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"  data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                         </svg>
@@ -119,31 +139,35 @@
     <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
 
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <form id="formPerfil" method="POST" action="perfil.php">
+
             <div class="space-y-7">
                 <div class="">
-                    <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
-                    <input type="text" id="nome-perfil" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
+                    <label for="nome-perfil"  class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
+                    <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
                 </div> 
     
                 <div class="">
-                    <label for="cpf-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
-                    <input type="text" id="cpf-perfil" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
+                    <label for="cpf-perfil"  class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
+                    <input type="text" id="cpf-perfil" name="cpf" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
                 </div> 
     
                 <div class="">
                     <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                    <input type="text" id="telefone-perfil" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
+                    <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
                 </div> 
     
                 <div class="">
                     <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                    <input type="text" id="email-perfil" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
+                    <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled/>
                 </div> 
                 
             </div>
+            <input type="hidden" name="salvar_perfil" value="1">
+
 
             <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
-                    <button id="editarPerfilBtn" type="button" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
@@ -151,19 +175,18 @@
                         Editar
                     </button>     
                 
-                    <button id="excluirPerfilBtn" type="button" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                    <button id="excluirPerfilBtn" type="button" name="excluir_perfil" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
                         Excluir
                     </button>
-                </div>
+            </div>
+            <input type="hidden" name="excluir_perfil" id="inputExcluirPerfil" value="" >
+
+            </form>
 
         </div>
-
-        
-        
-        
     </div>
 
     <script>
@@ -185,24 +208,40 @@
     </script>
 
     <script>
-        document.getElementById('editarPerfilBtn').addEventListener('click', function () {
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.disabled = false;
-            input.classList.remove('cursor-not-allowed');
-        });
-
+        document.addEventListener('DOMContentLoaded', function () {
         const editarBtn = document.getElementById('editarPerfilBtn');
-        editarBtn.textContent = 'Salvar';
+        const form = document.getElementById('formPerfil'); // supondo que seu form tenha esse ID
+        let modoEdicao = false;
 
-        editarBtn.removeEventListener('click', salvarPerfil);
-        editarBtn.addEventListener('click', salvarPerfil);
+        editarBtn.addEventListener('click', function () {
+            if (!modoEdicao) {
+                // Modo EDIÇÃO
+                document.querySelectorAll('input').forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('cursor-not-allowed');
+                });
+
+                editarBtn.textContent = 'Salvar';
+                modoEdicao = true;
+
+                $('#telefone-perfil').mask('(00) 00000-0000');
+                $('#cpf-perfil').mask('000.000.000-00', {reverse: true});
+            } else {
+                // Modo SALVAR — agora sim envia o formulário
+                form.submit();
+            }
         });
+    });
+
     </script>
-    
+
+
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
+    <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
 </body>
+
 </html>
 
 
