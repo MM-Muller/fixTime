@@ -7,6 +7,53 @@
     }
   
     session_start();
+    if (!isset($_SESSION['id_usuario'])) {
+        echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/login-user.php';</script>";
+        exit;
+    }
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $tipo = $_POST['tipo_veiculos'] ?? '';
+        $marca = $_POST['marca_veiculo'] ?? '';
+        $modelo = $_POST['modelo_veiculo'] ?? '';
+        $ano = $_POST['ano_veiculo'] ?? '';
+        $cor = $_POST['cor_veiculo'] ?? '';
+        $placa = $_POST['placa_veiculo'] ?? '';
+        $quilometragem = $_POST['quilometragem_veiculo'] ?? '';
+        $id_usuario = $_SESSION['id_usuario'];
+
+        if ($id_usuario && $tipo && $marca && $modelo && $ano && $cor && $placa && $quilometragem) {
+            $stmt = $conexao->prepare("INSERT INTO veiculos (tipo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
+
+            if ($stmt->execute()) {
+                echo "<script>alert('Veículo cadastrado com sucesso!');</script>";
+            } else {
+                echo "<script>alert('Erro ao cadastrar veículo.');</script>";
+            }
+
+            $stmt->close();
+        } else {
+            echo "<script>alert('Preencha todos os campos corretamente.');</script>";
+        }
+    }
+
+    $id_usuario = $_SESSION['id_usuario'] ?? null;
+    $veiculos = [];
+
+    if ($id_usuario) {
+        $stmt = $conexao->prepare("SELECT * FROM veiculos WHERE id_usuario = ?");
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $veiculos[] = $row;
+        }
+
+        $stmt->close();
+    }
+    ?>
 ?>
 
 <!DOCTYPE html>
@@ -95,7 +142,7 @@
 
         <!-- cadastrar veiculos --> 
         <div>
-            <form>
+            <form action="/fixTime/PROJETO/src/views/main-page/veiculos.php" method="POST">
                 <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
                     <div class="lg:col-span-1 col-span-6">
                         <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900 ">Tipo de veículo</label>
@@ -173,7 +220,6 @@
             </form>
             
         </div>
-        <!-- cadastrar veiculos--> 
 
         <!-- veiculos --> 
         <div class="mt-10 ">
@@ -248,7 +294,6 @@
             </div>
 
         </div>
-        <!--veiculos --> 
     </div>
 
     
@@ -279,10 +324,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
