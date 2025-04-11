@@ -167,7 +167,7 @@ if ($id_usuario) {
                     <!-- Tipo -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900">Tipo de veículo</label>
-                        <select name="tipo_veiculos" id="tipo_veiculos" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
+                        <select name="tipo_veiculos" id="tipo_veiculos" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
                             <option value="">Selecione</option>
                             <option value="carro">Carro</option>
                             <option value="moto">Moto</option>
@@ -180,37 +180,37 @@ if ($id_usuario) {
                     <!-- Marca -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="marca_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Marca</label>
-                        <input name="marca_veiculo" type="text" id="marca_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Honda" required>
+                        <input name="marca_veiculo" type="text" id="marca_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Honda" required>
                     </div>
 
                     <!-- Modelo -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="modelo_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Modelo</label>
-                        <input name="modelo_veiculo" type="text" id="modelo_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Civic" required>
+                        <input name="modelo_veiculo" type="text" id="modelo_veiculo" class=" focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Civic" required>
                     </div>
 
                     <!-- Ano -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="ano_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Ano</label>
-                        <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="2020" required>
+                        <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="2020" required>
                     </div>
 
                     <!-- Cor -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="cor_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Cor</label>
-                        <input name="cor_veiculo" type="text" id="cor_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required>
+                        <input name="cor_veiculo" type="text" id="cor_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required>
                     </div>
 
                     <!-- Placa -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="placa_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Placa</label>
-                        <input name="placa_veiculo" type="text" id="placa_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="ABC1D23" required>
+                        <input name="placa_veiculo" type="text" id="placa_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="ABC1D23" required>
                     </div>
 
                     <!-- Quilometragem -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="quilometragem_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Quilometragem</label>
-                        <input name="quilometragem_veiculo" type="number" id="quilometragem_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
+                        <input name="quilometragem_veiculo" type="number" id="quilometragem_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
                     </div>
 
                     <!-- Botão -->
