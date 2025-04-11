@@ -224,41 +224,83 @@ if ($id_usuario) {
 
             </form>
 
+
             <?php if (!empty($veiculos)): ?>
                 <h2 class="text-xl font-bold mt-10 mb-4">Veículos cadastrados</h2>
-                <div class="overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left text-gray-700">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">Tipo</th>
-                                <th scope="col" class="px-6 py-3">Marca</th>
-                                <th scope="col" class="px-6 py-3">Modelo</th>
-                                <th scope="col" class="px-6 py-3">Ano</th>
-                                <th scope="col" class="px-6 py-3">Cor</th>
-                                <th scope="col" class="px-6 py-3">Placa</th>
-                                <th scope="col" class="px-6 py-3">Quilometragem</th>
-                                <th scope="col" class="px-6 py-3">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($veiculos as $veiculo): ?>
-                                <tr class="bg-white border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['tipo']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['marca']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['modelo']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['ano']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['cor']) ?></td>
-                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['placa']) ?></td>
-                                    <td class="px-6 py-4"><?= number_format($veiculo['quilometragem'], 0, '', '.') ?> km</td>
-                                    <td class="px-6 py-4">
-                                        <a href="editar_veiculo.php?id=<?= $veiculo['id'] ?>" class="font-medium text-blue-600 hover:text-blue-800 mr-3">Editar</a>
-                                        <a href="excluir_veiculo.php?id=<?= $veiculo['id'] ?>" class="font-medium text-red-600 hover:text-red-800" onclick="return confirm('Tem certeza que deseja excluir este veículo?')">Excluir</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+
+                <?php foreach ($veiculos as $veiculo): ?>
+                    <div class="mt-6">
+                        <hr class="h-px my-8 bg-gray-200 border-0">
+
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                            <div class="">
+                                <form action="">
+
+                                    <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 grid-cols-2">
+
+                                        <div class="col-span-1">
+                                            <label for="disabled-input-id" class="block mb-1 text-sm font-medium text-gray-900">ID</label>
+                                            <input type="text" id="disabled-input-id" value="<?= htmlspecialchars($veiculo['id']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="lg:col-span-2 col-span-1">
+                                            <label for="disabled-input-tipo" class="block mb-1 text-sm font-medium text-gray-900">Tipo Veículo</label>
+                                            <input type="text" id="disabled-input-tipo" value="<?= htmlspecialchars($veiculo['tipo']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="lg:col-span-2 col-span-1">
+                                            <label for="disabled-input-marca" class="block mb-1 text-sm font-medium text-gray-900">Marca</label>
+                                            <input type="text" id="disabled-input-marca" value="<?= htmlspecialchars($veiculo['marca']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="col-span-1">
+                                            <label for="disabled-input-modelo" class="block mb-1 text-sm font-medium text-gray-900">Modelo</label>
+                                            <input type="text" id="disabled-input-modelo" value="<?= htmlspecialchars($veiculo['modelo']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="col-span-1">
+                                            <label for="disabled-input-ano" class="block mb-1 text-sm font-medium text-gray-900">Ano</label>
+                                            <input type="text" id="disabled-input-ano" value="<?= htmlspecialchars($veiculo['ano']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="lg:col-span-2 col-span-1">
+                                            <label for="disabled-input-cor" class="block mb-1 text-sm font-medium text-gray-900">Cor</label>
+                                            <input type="text" id="disabled-input-cor" value="<?= htmlspecialchars($veiculo['cor']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="lg:col-span-2 col-span-1">
+                                            <label for="disabled-input-placa" class="block mb-1 text-sm font-medium text-gray-900">Placa</label>
+                                            <input type="text" id="disabled-input-placa" value="<?= htmlspecialchars($veiculo['placa']) ?>" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+
+                                        <div class="col-span-1">
+                                            <label for="disabled-input-quilometragem" class="block mb-1 text-sm font-medium text-gray-900">Quilometragem</label>
+                                            <input type="text" id="disabled-input-quilometragem" value="<?= number_format($veiculo['quilometragem'], 0, '', '.') ?> km" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+
+                            <div class="lg:gap-6 gap-4 items-center grid grid-cols-6">
+                                <a href="editar_veiculo.php?id=<?= $veiculo['id'] ?>" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Editar
+                                </a>
+
+                                <a href="excluir_veiculo.php?id=<?= $veiculo['id'] ?>" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" onclick="return confirm('Tem certeza que deseja excluir este veículo?')">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             <?php else: ?>
                 <div class="p-4 mt-10 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
                     <span class="font-medium">Nenhum veículo cadastrado.</span> Adicione seu primeiro veículo usando o formulário acima.
@@ -267,107 +309,27 @@ if ($id_usuario) {
 
 
 
-        </div>
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 
-        <!-- veiculos -->
-        <div class="mt-10 ">
-            <hr class="h-px my-8 bg-gray-200 border-0">
+            <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
 
-            <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div class="">
-                    <form action="">
+            <script>
+                // Menu Hamburguer (Abre/Fecha)
+                const hamburgerButton = document.getElementById('hamburgerButton');
+                const closeHamburgerButton = document.getElementById('closeHamburgerButton');
+                const sidebar = document.getElementById('sidebar');
 
-                        <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 grid-cols-2">
+                // Abre o menu
+                hamburgerButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
 
-                            <div class="col-span-1">
-                                <label for="disabled-input-id" class="block mb-1 text-sm font-medium text-gray-900 ">ID</label>
-                                <input type="text" id="disabled-input-id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="lg:col-span-2 col-span-1">
-                                <label for="disabled-input-tipo" class="block mb-1 text-sm font-medium text-gray-900 ">Tipo Veículo</label>
-                                <input type="text" id="disabled-input-tipo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="lg:col-span-2 col-span-1">
-                                <label for="disabled-input-marca" class="block mb-1 text-sm font-medium text-gray-900 ">Marca</label>
-                                <input type="text" id="disabled-input-marca" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="col-span-1">
-                                <label for="disabled-input-modelo" class="block mb-1 text-sm font-medium text-gray-900 ">Modelo</label>
-                                <input type="text" id="disabled-input-modelo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="col-span-1">
-                                <label for="disabled-input-ano" class="block mb-1 text-sm font-medium text-gray-900 ">Ano</label>
-                                <input type="text" id="disabled-input-ano" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="lg:col-span-2 col-span-1">
-                                <label for="disabled-input-cor" class="block mb-1 text-sm font-medium text-gray-900 ">Cor</label>
-                                <input type="text" id="disabled-input-cor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-
-                            <div class="lg:col-span-2 col-span-1">
-                                <label for="disabled-input-placa" class="block mb-1 text-sm font-medium text-gray-900 ">Placa</label>
-                                <input type="text" id="disabled-input-placa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-                            <div class="col-span-1">
-                                <label for="disabled-input-quilometragem" class="block mb-1 text-sm font-medium text-gray-900 ">Quilometragem</label>
-                                <input type="text" id="disabled-input-quilometragem" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-
-                <div class="lg:gap-6 gap-4 items-center grid grid-cols-6">
-                    <button type="button" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        Editar
-                    </button>
-
-                    <button type="button" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        Remover
-                    </button>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-
-
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
-
-    <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
-
-    <script>
-        // Menu Hamburguer (Abre/Fecha)
-        const hamburgerButton = document.getElementById('hamburgerButton');
-        const closeHamburgerButton = document.getElementById('closeHamburgerButton');
-        const sidebar = document.getElementById('sidebar');
-
-        // Abre o menu
-        hamburgerButton.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-        });
-
-        // Fecha o menu
-        closeHamburgerButton.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-        });
-    </script>
+                // Fecha o menu
+                closeHamburgerButton.addEventListener('click', () => {
+                    sidebar.classList.add('-translate-x-full');
+                });
+            </script>
 
 </body>
 
