@@ -1,53 +1,88 @@
 <?php
     include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
-    $conexao = connect_db();
+    $conexao = connect_db(); // conecta com o bd
 
     if (!isset($conexao) || !$conexao) {
       die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-    }
+    } // verifica se a conexão deu tudo certo
 
+    //inicia sessão
     session_start();
-    if (!isset($_SESSION['id_usuario'])) {
-        header("Location: /fixTime/PROJETO/src/views/login.html");
-        exit();
-    }
 
+    //OBTEM O ID DO USER 
     $user_id = $_SESSION['id_usuario'];
 
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['salvar_perfil'])) {
-        $nome = trim($_POST['nome']);
-        $cpf = trim($_POST['cpf']);
-        $telefone = trim($_POST['telefone']);
-        $email = trim($_POST['email']);
+    //verifica se o form foi enviado via post
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // verifica se o botão de excluir foi pressionado
+        if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
 
-        $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
-        $stmtUpdate = $conexao->prepare($sqlUpdate);
-        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id);
+            $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
+            $stmtDelete = $conexao->prepare($sqlDelete);
+            $stmtDelete->bind_param("i", $user_id); // associa o id do user
+    
 
-        
-        if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
-            exit();
-        } else {
-            echo "Erro ao atualizar perfil: " . $conexao->error;
+            //executa a exclusão
+            if ($stmtDelete->execute()) {
+                session_destroy(); // encerra a sessão do user
+                echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
+                exit(); // interrompe o script
+            } else {
+                // caso de erro de exclusão
+                echo "Erro ao excluir perfil: " . $conexao->error;
+            }
+    
+            $stmtDelete->close();
         }
+    
+        // caso seja para editar
+        else if (isset($_POST['salvar_perfil'])) {
+            // recupera os dados do form
+            // usa um (vazio) ' ' caso nao tenha sido enviado no POST 
+            $nome = trim($_POST['nome'] ?? '');
+            $cpf = trim($_POST['cpf'] ?? '');
+            $telefone = trim($_POST['telefone'] ?? '');
+            $email = trim($_POST['email'] ?? '');
+    
 
-        $stmtUpdate->close();
+            // prepara a query de atualização dos dados do usuário
+
+            // monta a query SQL, mas com valores ?, evita sql injection, valores são passados depois, separadamente
+            $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
+            $stmtUpdate = $conexao->prepare($sqlUpdate); //prepara a query no banco
+            $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id); //"ssssi" representa cada tipo de dado que esta sendo passado
+    
+            // executa a atualização 
+            if ($stmtUpdate->execute()) {
+                echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
+                exit(); // Interrompe o script
+            } else {
+                // em caso de erro
+                echo "Erro ao atualizar perfil: " . $conexao->error;
+            }
+    
+            $stmtUpdate->close();
+        }
     }
-
+    
+    //busca os dados atuais do user 
     $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
     $stmt = $conexao->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
+    $stmt->bind_param("i", $user_id); // associa o id do user 
+    $stmt->execute(); // executa a query
     $result = $stmt->get_result();
 
+    // verifica se encontrou o user 
     if ($result->num_rows > 0) {
-        $user_data = $result->fetch_assoc();
+        $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
     } else {
-        die("Usuário não encontrado.");
+        die("Usuário não encontrado."); // interrompe se o usuário não existir
     }
 
+
+
+    // Fecha o statement e a conexão
     $stmt->close();
     $conexao->close();
 ?>
@@ -235,6 +270,44 @@
 
     </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editarBtn = document.getElementById('editarPerfilBtn');
+        const excluirBtn = document.getElementById('excluirPerfilBtn');
+        const form = document.getElementById('formPerfil');
+        let modoEdicao = false;
+
+        editarBtn.addEventListener('click', function () {
+            if (!modoEdicao) {
+                // Modo edição
+                document.querySelectorAll('input').forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('cursor-not-allowed');
+                });
+
+                editarBtn.textContent = 'Salvar';
+                modoEdicao = true;
+
+                $('#telefone-perfil').mask('(00) 00000-0000');
+                $('#cpf-perfil').mask('000.000.000-00', {reverse: true});
+            } else {
+                // Submeter formulário para salvar
+                form.submit();
+            }
+        });
+
+        excluirBtn.addEventListener('click', function () {
+            const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
+            if (confirmar) {
+                // Define o valor do input hidden e envia o form
+                document.getElementById('inputExcluirPerfil').value = '1';
+                form.submit();
+            }
+        });
+    });
+</script>
+
+
 
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -243,10 +316,4 @@
 </body>
 
 </html>
-
-
-
-
-
-
 
