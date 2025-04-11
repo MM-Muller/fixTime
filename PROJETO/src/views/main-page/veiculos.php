@@ -350,8 +350,8 @@ if ($id_usuario) {
                 </svg>
                 Salvar
             `;
-                            this.classList.remove('bg-blue-700');
-                            this.classList.add('bg-green-600', 'hover:bg-green-700');
+                            this.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
+                            this.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
 
                             // Mudar botão Excluir para Cancelar
                             const excluirBtn = form.querySelector('.excluir-btn');
@@ -361,8 +361,8 @@ if ($id_usuario) {
                 </svg>
                 Cancelar
             `;
-                            excluirBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
-                            excluirBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                            excluirBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
+                            excluirBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                         } else {
                             // Enviar formulário para salvar
                             form.submit();
