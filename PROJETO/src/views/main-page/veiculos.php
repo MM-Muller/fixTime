@@ -1,48 +1,64 @@
 <?php
-    include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
-    $conexao = connect_db();
-  
-    if (!isset($conexao) || !$conexao) {
-      die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-    }
-  
-    session_start();
-    if (!isset($_SESSION['id_usuario'])) {
-        echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/login-user.php';</script>";
-        exit;
-    }
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $tipo = $_POST['tipo_veiculos'] ?? '';
-        $marca = $_POST['marca_veiculo'] ?? '';
-        $modelo = $_POST['modelo_veiculo'] ?? '';
-        $ano = $_POST['ano_veiculo'] ?? '';
-        $cor = $_POST['cor_veiculo'] ?? '';
-        $placa = $_POST['placa_veiculo'] ?? '';
-        $quilometragem = $_POST['quilometragem_veiculo'] ?? '';
-        $id_usuario = $_SESSION['id_usuario'];
+include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+$conexao = connect_db();
 
-        if ($id_usuario && $tipo && $marca && $modelo && $ano && $cor && $placa && $quilometragem) {
-            $stmt = $conexao->prepare("INSERT INTO veiculos (tipo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+if (!isset($conexao) || !$conexao) {
+    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
+}
+
+session_start();
+if (!isset($_SESSION['id_usuario'])) {
+    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/login-user.php';</script>";
+    exit;
+}
+
+$mensagem = '';
+$veiculos = [];
+$id_usuario = $_SESSION['id_usuario'] ?? null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Sanitização segura dos dados de entrada
+    $tipo = isset($_POST['tipo_veiculos']) ? htmlspecialchars($_POST['tipo_veiculos'], ENT_QUOTES, 'UTF-8') : '';
+    $marca = isset($_POST['marca_veiculo']) ? htmlspecialchars($_POST['marca_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+    $modelo = isset($_POST['modelo_veiculo']) ? htmlspecialchars($_POST['modelo_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+    $ano = isset($_POST['ano_veiculo']) ? (int)$_POST['ano_veiculo'] : 0;
+    $cor = isset($_POST['cor_veiculo']) ? htmlspecialchars($_POST['cor_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+    $placa = isset($_POST['placa_veiculo']) ? htmlspecialchars($_POST['placa_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+    $quilometragem = isset($_POST['quilometragem_veiculo']) ? (int)$_POST['quilometragem_veiculo'] : 0;
+
+    // Validação dos campos
+    if (
+        empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
+        empty($cor) || empty($placa) || $quilometragem < 0
+    ) {
+        $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
+    } else {
+        try {
+            $stmt = $conexao->prepare("INSERT INTO veiculos (tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
 
             if ($stmt->execute()) {
-                echo "<script>alert('Veículo cadastrado com sucesso!');</script>";
+                $mensagem = "<script>alert('Veículo cadastrado com sucesso!');</script>";
+                // Recarrega a página para mostrar o novo veículo
+                echo "<script>window.location.href = window.location.href;</script>";
+                exit;
             } else {
-                echo "<script>alert('Erro ao cadastrar veículo.');</script>";
+                $mensagem = "<script>alert('Erro ao cadastrar veículo: " . addslashes($stmt->error) . "');</script>";
             }
 
             $stmt->close();
-        } else {
-            echo "<script>alert('Preencha todos os campos corretamente.');</script>";
+        } catch (Exception $e) {
+            $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($e->getMessage()) . "');</script>";
         }
     }
+}
 
-    $id_usuario = $_SESSION['id_usuario'] ?? null;
-    $veiculos = [];
-
-    if ($id_usuario) {
-        $stmt = $conexao->prepare("SELECT * FROM veiculos WHERE id_usuario = ?");
+// Buscar veículos do usuário
+if ($id_usuario) {
+    try {
+        $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, cor, placa, quilometragem 
+                          FROM veiculos WHERE id_usuario = ? ORDER BY id DESC");
         $stmt->bind_param("i", $id_usuario);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -52,12 +68,15 @@
         }
 
         $stmt->close();
+    } catch (Exception $e) {
+        $mensagem = "<script>alert('Erro ao buscar veículos: " . addslashes($e->getMessage()) . "');</script>";
     }
-    ?>
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,25 +84,26 @@
     <title>Fix Time</title>
 </head>
 
+<?php echo $mensagem; ?>
 
 <body class="">
-    
+
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
-    
+
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50">
             <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
                 <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                    <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
-                      <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                    <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
-                    <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
-            
+                <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
+
             </a>
             <ul class="space-y-2 font-medium">
 
@@ -91,8 +111,8 @@
                     <a href="/fixTime/PROJETO/src/views/main-page/agendamentos.html" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"></path>
-                      </svg>
-                      <span class="ms-3">Meus agendamentos</span>
+                        </svg>
+                        <span class="ms-3">Meus agendamentos</span>
                     </a>
                 </li>
 
@@ -109,7 +129,7 @@
 
                 <li>
                     <a href="/fixTime/PROJETO/src/views/main-page/prestadores-servico.html" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" >
+                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"></path>
                         </svg>
                         <span class="flex-1 ms-3 whitespace-nowrap">Prestadores de serviços</span>
@@ -127,10 +147,10 @@
 
                 <li>
                     <a href="/fixTime/PROJETO/src/views/main-page/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"  data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" >
+                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                         </svg>
-                       <span class="flex-1 ms-3 whitespace-nowrap">Perfil</span>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Perfil</span>
                     </a>
                 </li>
 
@@ -140,138 +160,166 @@
 
     <div class=" lg:ml-64 p-4 lg:p-14">
 
-        <!-- cadastrar veiculos --> 
+        <!-- cadastrar veiculos -->
         <div>
             <form action="/fixTime/PROJETO/src/views/main-page/veiculos.php" method="POST">
                 <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
+                    <!-- Tipo -->
                     <div class="lg:col-span-1 col-span-6">
-                        <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900 ">Tipo de veículo</label>
-                        <select id="tipo_veiculos" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none cursor-pointer">
-                          <option class="cursor-pointer" value="carro">Carro</option>
-                          <option class="cursor-pointer" value="moto">Moto</option>
-                          <option class="cursor-pointer" value="caminhao">Caminhão</option>
-                          <option class="cursor-pointer" value="van">Van</option>
-                          <option class="cursor-pointer" value="onibus">Ônibus</option>
+                        <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900">Tipo de veículo</label>
+                        <select name="tipo_veiculos" id="tipo_veiculos" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
+                            <option value="">Selecione</option>
+                            <option value="carro">Carro</option>
+                            <option value="moto">Moto</option>
+                            <option value="caminhao">Caminhão</option>
+                            <option value="van">Van</option>
+                            <option value="onibus">Ônibus</option>
                         </select>
                     </div>
 
+                    <!-- Marca -->
                     <div class="lg:col-span-2 col-span-6">
-                        <label for="marca_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Marca</label>
-                        <input type="text" 
-                        id="marca_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none" 
-                        placeholder="Ex: Honda" 
-                        required />
+                        <label for="marca_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Marca</label>
+                        <input name="marca_veiculo" type="text" id="marca_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Honda" required>
                     </div>
 
+                    <!-- Modelo -->
                     <div class="lg:col-span-2 col-span-6">
-                        <label for="modelo_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Modelo</label>
-                        <input type="text" 
-                        id="modelo_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none" 
-                        placeholder="Ex: Civic" 
-                        required/>
-                    </div>  
-
-                    <div class="lg:col-span-1 col-span-3">
-                        <label for="ano_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Ano</label>
-                        <input type="number" 
-                        id="ano_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none " 
-                        placeholder="Ex: 2012" 
-                        required >
+                        <label for="modelo_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Modelo</label>
+                        <input name="modelo_veiculo" type="text" id="modelo_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Civic" required>
                     </div>
 
-                    <div class="lg:col-span-1 col-span-3">
-                        <label for="cor_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Cor</label>
-                        <input type="text" 
-                        id="cor_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none" 
-                        placeholder="Ex: Cinza" 
-                        required >
+                    <!-- Ano -->
+                    <div class="lg:col-span-1 col-span-6">
+                        <label for="ano_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Ano</label>
+                        <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="2020" required>
                     </div>
 
+                    <!-- Cor -->
+                    <div class="lg:col-span-1 col-span-6">
+                        <label for="cor_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Cor</label>
+                        <input name="cor_veiculo" type="text" id="cor_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required>
+                    </div>
+
+                    <!-- Placa -->
                     <div class="lg:col-span-2 col-span-6">
-                        <label for="placa_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Placa</label>
-                        <input type="text" 
-                        id="placa_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none " 
-                        placeholder="Ex: AAA1234 ou AAA1B23" 
-                        required
-                        maxlength="7">
-                    </div>
-                    
-                    <div class="lg:col-span-2 col-span-6">
-                        <label for="quilometragem_veiculo" class="block mb-2 text-sm font-medium text-gray-900 ">Quilometragem</label>
-                        <input type="text" 
-                        id="quilometragem_veiculo" 
-                        class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 outline-none" 
-                        placeholder="Ex: 50.000" 
-                        required />
+                        <label for="placa_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Placa</label>
+                        <input name="placa_veiculo" type="text" id="placa_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="ABC1D23" required>
                     </div>
 
-                    <div class="col-span-1 flex">
+                    <!-- Quilometragem -->
+                    <div class="lg:col-span-2 col-span-6">
+                        <label for="quilometragem_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Quilometragem</label>
+                        <input name="quilometragem_veiculo" type="number" id="quilometragem_veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="lg:col-span-1 flex">
                         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm lg:w-full w-auto px-5 py-2.5 text-center cursor-pointer mt-7">Registrar</button>
-    
+
                     </div>
                 </div>
 
 
+
             </form>
-            
+
+            <?php if (!empty($veiculos)): ?>
+                <h2 class="text-xl font-bold mt-10 mb-4">Veículos cadastrados</h2>
+                <div class="overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Tipo</th>
+                                <th scope="col" class="px-6 py-3">Marca</th>
+                                <th scope="col" class="px-6 py-3">Modelo</th>
+                                <th scope="col" class="px-6 py-3">Ano</th>
+                                <th scope="col" class="px-6 py-3">Cor</th>
+                                <th scope="col" class="px-6 py-3">Placa</th>
+                                <th scope="col" class="px-6 py-3">Quilometragem</th>
+                                <th scope="col" class="px-6 py-3">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($veiculos as $veiculo): ?>
+                                <tr class="bg-white border-b hover:bg-gray-50">
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['tipo']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['marca']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['modelo']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['ano']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['cor']) ?></td>
+                                    <td class="px-6 py-4"><?= htmlspecialchars($veiculo['placa']) ?></td>
+                                    <td class="px-6 py-4"><?= number_format($veiculo['quilometragem'], 0, '', '.') ?> km</td>
+                                    <td class="px-6 py-4">
+                                        <a href="editar_veiculo.php?id=<?= $veiculo['id'] ?>" class="font-medium text-blue-600 hover:text-blue-800 mr-3">Editar</a>
+                                        <a href="excluir_veiculo.php?id=<?= $veiculo['id'] ?>" class="font-medium text-red-600 hover:text-red-800" onclick="return confirm('Tem certeza que deseja excluir este veículo?')">Excluir</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php else: ?>
+                <div class="p-4 mt-10 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
+                    <span class="font-medium">Nenhum veículo cadastrado.</span> Adicione seu primeiro veículo usando o formulário acima.
+                </div>
+            <?php endif; ?>
+
+
+
         </div>
 
-        <!-- veiculos --> 
+        <!-- veiculos -->
         <div class="mt-10 ">
             <hr class="h-px my-8 bg-gray-200 border-0">
 
             <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
                 <div class="">
-                    <form action="" >
+                    <form action="">
 
                         <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 grid-cols-2">
 
                             <div class="col-span-1">
                                 <label for="disabled-input-id" class="block mb-1 text-sm font-medium text-gray-900 ">ID</label>
-                                <input type="text" id="disabled-input-id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="lg:col-span-2 col-span-1">
                                 <label for="disabled-input-tipo" class="block mb-1 text-sm font-medium text-gray-900 ">Tipo Veículo</label>
-                                <input type="text" id="disabled-input-tipo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-tipo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="lg:col-span-2 col-span-1">
                                 <label for="disabled-input-marca" class="block mb-1 text-sm font-medium text-gray-900 ">Marca</label>
-                                <input type="text" id="disabled-input-marca" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-marca" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="col-span-1">
                                 <label for="disabled-input-modelo" class="block mb-1 text-sm font-medium text-gray-900 ">Modelo</label>
-                                <input type="text" id="disabled-input-modelo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-modelo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="col-span-1">
                                 <label for="disabled-input-ano" class="block mb-1 text-sm font-medium text-gray-900 ">Ano</label>
-                                <input type="text" id="disabled-input-ano" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-ano" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="lg:col-span-2 col-span-1">
                                 <label for="disabled-input-cor" class="block mb-1 text-sm font-medium text-gray-900 ">Cor</label>
-                                <input type="text" id="disabled-input-cor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-cor" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
 
                             <div class="lg:col-span-2 col-span-1">
                                 <label for="disabled-input-placa" class="block mb-1 text-sm font-medium text-gray-900 ">Placa</label>
-                                <input type="text" id="disabled-input-placa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-placa" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
                             <div class="col-span-1">
                                 <label for="disabled-input-quilometragem" class="block mb-1 text-sm font-medium text-gray-900 ">Quilometragem</label>
-                                <input type="text" id="disabled-input-quilometragem" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled/>
+                                <input type="text" id="disabled-input-quilometragem" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                             </div>
                         </div>
                     </form>
-                    
+
                 </div>
 
                 <div class="lg:gap-6 gap-4 items-center grid grid-cols-6">
@@ -281,8 +329,8 @@
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
                         </svg>
                         Editar
-                    </button>     
-                
+                    </button>
+
                     <button type="button" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -296,9 +344,9 @@
         </div>
     </div>
 
-    
-    
-    
+
+
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 
@@ -319,8 +367,8 @@
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-
     </script>
 
 </body>
+
 </html>
