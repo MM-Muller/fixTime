@@ -42,5 +42,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-header("Location: /fixTime/PROJETO/src/views/main-page/veiculos.php");
+header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
 exit;
