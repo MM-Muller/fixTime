@@ -9,12 +9,12 @@ if (!isset($_SESSION['id_usuario'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
-    $tipo = filter_input(INPUT_POST, 'tipo_veiculo', FILTER_SANITIZE_STRING);
-    $marca = filter_input(INPUT_POST, 'marca', FILTER_SANITIZE_STRING);
-    $modelo = filter_input(INPUT_POST, 'modelo', FILTER_SANITIZE_STRING);
+    $tipo = htmlspecialchars($_POST['tipo_veiculo'] ?? '', ENT_QUOTES, 'UTF-8');
+    $marca = htmlspecialchars($_POST['marca'] ?? '', ENT_QUOTES, 'UTF-8');
+    $modelo = htmlspecialchars($_POST['modelo'] ?? '', ENT_QUOTES, 'UTF-8');
     $ano = filter_input(INPUT_POST, 'ano', FILTER_SANITIZE_NUMBER_INT);
-    $cor = filter_input(INPUT_POST, 'cor', FILTER_SANITIZE_STRING);
-    $placa = filter_input(INPUT_POST, 'placa', FILTER_SANITIZE_STRING);
+    $cor = htmlspecialchars($_POST['cor'] ?? '', ENT_QUOTES, 'UTF-8');
+    $placa = htmlspecialchars($_POST['placa'] ?? '', ENT_QUOTES, 'UTF-8');
     $quilometragem = filter_input(INPUT_POST, 'quilometragem', FILTER_SANITIZE_NUMBER_INT);
 
     try {
