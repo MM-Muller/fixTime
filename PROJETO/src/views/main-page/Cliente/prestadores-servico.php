@@ -95,8 +95,29 @@ session_start();
     </aside>
 
     <div class=" lg:ml-64 p-10 ">
+        <div>
 
-    </div>
+        </div>
+
+        <hr class="h-px my-8 bg-gray-200 border-0">
+
+        <div>
+            <div class="">
+                <div class="mx-auto grid max-w-screen-xl rounded-lg bg-gray-50 p-4 lg:grid-cols-12 lg:gap-8 lg:p-6 border border-gray-200 shadow-sm">
+                  <div class="me-auto place-self-center lg:col-span-7">
+                    <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-4xl">
+                      Nome da empresa
+                    </h1>
+                    <p class="mb-1 text-gray-500 ">Email: </p>
+                    <p class="mb-1 text-gray-500 ">Telefone: </p>
+                    <p class="mb-1 text-gray-500 ">Bairro: </p>
+                    <p class="mb-1 text-gray-500 ">Endereço: </p>
+                    <a href="#" class="mt-5 inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-center text-base font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 ">Agendar</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
 
     <script>
         // Menu Hamburguer (Abre/Fecha)
