@@ -192,19 +192,19 @@ if ($id_usuario) {
                     <!-- Ano -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="ano_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Ano</label>
-                        <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="2020" required>
+                        <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 2020" required>
                     </div>
 
                     <!-- Cor -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="cor_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Cor</label>
-                        <input name="cor_veiculo" type="text" id="cor_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required>
+                        <input name="cor_veiculo" type="text" id="cor_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required >
                     </div>
 
                     <!-- Placa -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="placa_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Placa</label>
-                        <input name="placa_veiculo" type="text" id="placa_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="ABC1D23" required>
+                        <input name="placa_veiculo" type="text" id="placa_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: ABC1234 ou ABC1D23" required maxlength="7">
                     </div>
 
                     <!-- Quilometragem -->
@@ -246,7 +246,7 @@ if ($id_usuario) {
 
                                     <div class="lg:col-span-2 col-span-1">
                                         <label for="tipo-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Tipo Veículo</label>
-                                        <select name="tipo_veiculo" id="tipo-<?= $veiculo['id'] ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <select name="tipo_veiculo" id="tipo-<?= $veiculo['id'] ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                             <option value="carro" <?= $veiculo['tipo'] == 'carro' ? 'selected' : '' ?>>Carro</option>
                                             <option value="moto" <?= $veiculo['tipo'] == 'moto' ? 'selected' : '' ?>>Moto</option>
                                             <option value="caminhao" <?= $veiculo['tipo'] == 'caminhao' ? 'selected' : '' ?>>Caminhão</option>
@@ -257,32 +257,32 @@ if ($id_usuario) {
 
                                     <div class="lg:col-span-2 col-span-1">
                                         <label for="marca-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Marca</label>
-                                        <input name="marca" type="text" id="marca-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['marca']) ?>" class=" focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="marca" type="text" id="marca-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['marca']) ?>" class=" focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="col-span-1">
                                         <label for="modelo-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Modelo</label>
-                                        <input name="modelo" type="text" id="modelo-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['modelo']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="modelo" type="text" id="modelo-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['modelo']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="col-span-1">
                                         <label for="ano-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Ano</label>
-                                        <input name="ano" type="number" id="ano-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['ano']) ?>" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="ano" type="number" id="ano-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['ano']) ?>" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-2 col-span-1">
                                         <label for="cor-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Cor</label>
-                                        <input name="cor" type="text" id="cor-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['cor']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="cor" type="text" id="cor-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['cor']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-2 col-span-1">
                                         <label for="placa-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Placa</label>
-                                        <input name="placa" type="text" id="placa-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['placa']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="placa" type="text" id="placa-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['placa']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="col-span-1">
                                         <label for="quilometragem-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Quilometragem</label>
-                                        <input name="quilometragem" type="number" id="quilometragem-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['quilometragem']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none" disabled>
+                                        <input name="quilometragem" type="number" id="quilometragem-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['quilometragem']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
                                 </div>
 
@@ -310,7 +310,7 @@ if ($id_usuario) {
                 <?php endforeach; ?>
             <?php else: ?>
                 <hr class="h-px my-8 bg-gray-200 border-0">
-                <div class="mt-10 p-4 rounded-lg bg-gray-100 border border-blue-300 text-blue-900 shadow-2xl flex items-center justify-between ">
+                <div class="mt-10 p-4 rounded-lg bg-gray-100 border shadow-2xl flex items-center justify-between ">
                     <div>
                       <p class="font-medium">Nenhum veículo cadastrado.</p>
                       <p class="text-sm">Adicione seu primeiro veículo usando o formulário acima.</p>
@@ -322,8 +322,12 @@ if ($id_usuario) {
 
 
 
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
+    <script>
+        $('#quilometragem_veiculo').mask('000.000', {reverse: true});
+        $('#ano_veiculo').mask('0000');
+    </script>
 
             <script>
                 // Menu Hamburguer 
@@ -339,6 +343,8 @@ if ($id_usuario) {
                     sidebar.classList.add('-translate-x-full');
                 });
 
+
+
                 // Controle de edição de veículos
                 document.querySelectorAll('.editar-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -348,6 +354,16 @@ if ($id_usuario) {
                         const isEditing = this.textContent.trim() === 'Editar';
 
                         if (isEditing) {
+                            inputs.forEach(input => {
+                                input.disabled = false;
+                                input.classList.remove('cursor-not-allowed'); // remove o cursor bloqueado
+                            });
+
+                                inputs.forEach(input => {
+                                input.disabled = true;
+                                input.classList.add('cursor-not-allowed'); // adiciona o cursor bloqueado de volta
+                            });
+                        
                             // Habilitar edição
                             inputs.forEach(input => input.disabled = false);
                             this.innerHTML = `
