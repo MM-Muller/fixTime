@@ -159,7 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="col-span-1">
-          <label for="complemento" class="block mb-1 text-sm font-medium text-gray-900">Complemento</label>
+          <label for="complemento" class="block mb-1 text-sm font-medium text-gray-900">Complemento (Opcional)</label>
           <input type="text" name="complemento" id="complemento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="Sala 12" />
         </div>
 
@@ -222,6 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       });
     });
   </script>
+
 </body>
 
 </html>

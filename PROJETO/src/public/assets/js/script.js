@@ -8,19 +8,18 @@ $('#cep').mask('00000-000');
 $('#cpf').mask('000.000.000-00', {reverse: true});
 $('#cpf-perfil').mask('000.000.000-00', {reverse: true});
 
-// Função de consultar CEP
 function consultarCep() {
-  const cep = document.getElementById('cep').value.replace(/\D/g, ''); // remove tudo que não for número
+  const cep = document.getElementById('cep_oficina').value.replace(/\D/g, ''); // remove tudo que não for número
 
   if (cep.length === 8) { //confere se tem 8 números
       fetch(`https://viacep.com.br/ws/${cep}/json/`)
           .then(response => response.json())
           .then(data => {
               if (!data.erro) { // substitui os endereços de acordo com o que aparece na API
-                  document.getElementById('endereco').value = data.logradouro; // rua
-                  document.getElementById('bairro').value = data.bairro;
-                  document.getElementById('cidade').value = data.localidade;
-                  document.getElementById('estado').value = data.uf;
+                  document.getElementById('endereco_oficina').value = data.logradouro; // rua
+                  document.getElementById('bairro_oficina').value = data.bairro;
+                  document.getElementById('cidade_oficina').value = data.localidade;
+                  document.getElementById('estado_oficina').value = data.uf;
               } else {
                   alert('CEP não encontrado!');
               }
