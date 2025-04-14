@@ -24,7 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ano = isset($_POST['ano_veiculo']) ? (int)$_POST['ano_veiculo'] : 0;
     $cor = isset($_POST['cor_veiculo']) ? htmlspecialchars($_POST['cor_veiculo'], ENT_QUOTES, 'UTF-8') : '';
     $placa = isset($_POST['placa_veiculo']) ? htmlspecialchars($_POST['placa_veiculo'], ENT_QUOTES, 'UTF-8') : '';
-    $quilometragem = isset($_POST['quilometragem_veiculo']) ? (int)$_POST['quilometragem_veiculo'] : 0;
+    $quilometragem = isset($_POST['quilometragem_veiculo']) 
+    ? (int) str_replace('.', '', $_POST['quilometragem_veiculo']) 
+    : 0;
+
 
     // Validação dos campos
     if (
@@ -210,7 +213,7 @@ if ($id_usuario) {
                     <!-- Quilometragem -->
                     <div class="lg:col-span-2 col-span-6">
                         <label for="quilometragem_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Quilometragem</label>
-                        <input name="quilometragem_veiculo" type="number" id="quilometragem_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
+                        <input name="quilometragem_veiculo" type="text" id="quilometragem_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
                     </div>
 
                     <!-- Botão -->
@@ -267,7 +270,7 @@ if ($id_usuario) {
 
                                     <div class="col-span-1">
                                         <label for="ano-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Ano</label>
-                                        <input name="ano" type="number" id="ano-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['ano']) ?>" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
+                                        <input name="ano" type="number" id="ano-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['ano']) ?>" min="1900" max="2099" class="mascara-ano focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-2 col-span-1">
@@ -282,7 +285,7 @@ if ($id_usuario) {
 
                                     <div class="col-span-1">
                                         <label for="quilometragem-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Quilometragem</label>
-                                        <input name="quilometragem" type="number" id="quilometragem-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['quilometragem']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
+                                        <input name="quilometragem" type="text" id="quilometragem-<?= $veiculo['id'] ?>" value="<?= number_format($veiculo['quilometragem'], 0, '', '.') ?>" class="mascara-quilometragem focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
                                 </div>
 
@@ -359,11 +362,8 @@ if ($id_usuario) {
                                 input.classList.remove('cursor-not-allowed'); // remove o cursor bloqueado
                             });
 
-                                inputs.forEach(input => {
-                                input.disabled = true;
-                                input.classList.add('cursor-not-allowed'); // adiciona o cursor bloqueado de volta
-                            });
-                        
+
+                    
                             // Habilitar edição
                             inputs.forEach(input => input.disabled = false);
                             this.innerHTML = `

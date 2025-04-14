@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ano = filter_input(INPUT_POST, 'ano', FILTER_SANITIZE_NUMBER_INT);
     $cor = filter_input(INPUT_POST, 'cor', FILTER_SANITIZE_STRING);
     $placa = filter_input(INPUT_POST, 'placa', FILTER_SANITIZE_STRING);
-    $quilometragem = filter_input(INPUT_POST, 'quilometragem', FILTER_SANITIZE_NUMBER_INT);
-
+    $quilometragemStr = $_POST['quilometragem'] ?? '0';
+    $quilometragem = (int) str_replace(['.', ','], '', $quilometragemStr);
     try {
         $stmt = $conexao->prepare("UPDATE veiculos SET 
             tipo_veiculo = ?, 
