@@ -15,6 +15,25 @@
     $email_usuario = $conexao->real_escape_string($_POST['email']);
     $senha_usuario = $conexao->real_escape_string($_POST['senha']);
 
+    
+    //verifica cpf
+    $verificaCpf = "SELECT cpf FROM cliente WHERE cpf = '$cpf'";
+    $resultadoCpf = $conexao->query($verificaCpf);
+
+    if ($resultadoCpf->num_rows > 0) {
+      echo "<script>alert('CPF já cadastrado. Faça login ou use outro CPF.'); window.location.href='/fixTime/PROJETO/src/views/Login/cadastro-user.php';</script>";
+      exit();
+    }
+
+
+    // verifica email
+    $verificaEmail = "SELECT email_usuario FROM cliente WHERE email_usuario = '$email_usuario'";
+    $resultadoEmail = $conexao->query($verificaEmail);
+    if ($resultadoEmail->num_rows > 0) {
+      echo "<script>alert('E-mail já cadastrado. Faça login ou use outro e-mail.'); window.location.href='/fixTime/PROJETO/src/views/Login/cadastro-user.php';</script>";
+      exit();
+    }
+
     // Hash da senha
     $senha_hash = password_hash($senha_usuario, PASSWORD_DEFAULT);
 
@@ -23,11 +42,15 @@
             VALUES ('$nome_usuario', '$cpf', '$telefone_usuario', '$email_usuario', '$senha_hash')";
 
     if ($conexao->query($sql) === TRUE) {
+      header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
       echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
+      exit();
     } else {
       echo "Erro: " . $sql . "<br>" . $conexao->error;
     }
   }
+
+
 ?>
 
 <!DOCTYPE html>
