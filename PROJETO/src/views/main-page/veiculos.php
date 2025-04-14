@@ -244,7 +244,7 @@ if ($id_usuario) {
 
                                     <div class="col-span-1">
                                         <label class="block mb-1 text-sm font-medium text-gray-900">ID</label>
-                                        <input type="text" value="<?= htmlspecialchars($veiculo['id']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
+                                        <input type="text" value="<?= htmlspecialchars($veiculo['id']) ?>" class="campo-id focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                                     </div>
 
                                     <div class="lg:col-span-2 col-span-1">
@@ -280,7 +280,7 @@ if ($id_usuario) {
 
                                     <div class="lg:col-span-2 col-span-1">
                                         <label for="placa-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Placa</label>
-                                        <input name="placa" type="text" id="placa-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['placa']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
+                                        <input name="placa" type="text" id="placa-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['placa']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled maxlength="7">
                                     </div>
 
                                     <div class="col-span-1">
@@ -330,6 +330,11 @@ if ($id_usuario) {
     <script>
         $('#quilometragem_veiculo').mask('000.000', {reverse: true});
         $('#ano_veiculo').mask('0000');
+
+        $(document).ready(function() {
+            $('.mascara-quilometragem').mask('000.000', { reverse: true });
+            $('.mascara-ano').mask('0000');
+        });
     </script>
 
             <script>
@@ -353,7 +358,7 @@ if ($id_usuario) {
                     btn.addEventListener('click', function() {
                         const id = this.getAttribute('data-id');
                         const form = this.closest('.form-veiculo');
-                        const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+                        const inputs = form.querySelectorAll('input:not([type="hidden"]):not(.campo-id), select');
                         const isEditing = this.textContent.trim() === 'Editar';
 
                         if (isEditing) {
