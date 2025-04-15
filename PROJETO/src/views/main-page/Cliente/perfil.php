@@ -16,7 +16,7 @@ $user_id = $_SESSION['id_usuario'];
 //verifica se o form foi enviado via post
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // verifica se o botão de excluir foi pressionado
-    if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
+    if (isset($_POST['excluir_perfil']) && $_PST['excluir_perfil'] === '1') {
 
         $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
         $stmtDelete = $conexao->prepare($sqlDelete);
