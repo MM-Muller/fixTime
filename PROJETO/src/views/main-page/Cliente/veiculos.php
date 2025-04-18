@@ -312,8 +312,8 @@ if ($id_usuario) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <hr class="h-px my-8 bg-gray-200 border-0">
-                <div class="mt-10 p-4 rounded-lg bg-gray-100 border shadow-2xl flex items-center justify-between ">
+                <hr class="h-px my-8 bg-gray-300 border-0">
+                <div class="mt-10 p-4 rounded-lg bg-gray-100 border border-gray-400 shadow-xl flex items-center justify-between ">
                     <div>
                         <p class="font-medium">Nenhum veículo cadastrado.</p>
                         <p class="text-sm">Adicione seu primeiro veículo usando o formulário acima.</p>
