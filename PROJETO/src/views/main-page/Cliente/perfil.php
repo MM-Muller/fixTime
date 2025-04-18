@@ -78,6 +78,13 @@ $stmt->bind_param("i", $user_id); // associa o id do user
 $stmt->execute(); // executa a query
 $result = $stmt->get_result();
 
+// verifica se encontrou o user 
+if ($result->num_rows > 0) {
+    $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+} else {
+    die("Usuário não encontrado."); // interrompe se o usuário não existir
+}
+
 
 // Fecha o statement e a conexão
 $stmt->close();
@@ -163,7 +170,17 @@ $conexao->close();
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                             </svg>
-                            <span class="flex-1 ms-3 whitespace-nowrap">Perfil</span>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                <?php
+                                    // Pega o nome completo do usuário
+                                    $nomeCompleto = htmlspecialchars($user_data['nome_usuario']);
+                                    // Divide o nome completo em palavras e pega o primeiro nome
+                                    $primeiroNome = explode(' ', $nomeCompleto)[0];
+                                    // Limita a 17 caracteres e adiciona "..." se necessário
+                                    $nomeExibido = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
+                                    echo $nomeExibido;
+                                ?>
+                            </span>
                         </a>
                     </li>
 
