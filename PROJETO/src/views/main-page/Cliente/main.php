@@ -1,12 +1,7 @@
 <?php
 session_start();
-
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
-
-if (!isset($conexao) || !$conexao) {
-    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-}
 
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
@@ -33,7 +28,6 @@ $stmt->close();
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,13 +37,13 @@ $stmt->close();
 
 
 <body class="">
-
+    
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
-
+    
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
 
@@ -130,46 +124,49 @@ $stmt->close();
     </aside>
 
     <div class=" lg:ml-64 p-10 ">
-        <div>
-            <h1>Oficinas Parceiras</h1>
-        </div>
+        
+        <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
+            <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
+                <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                </svg>
+            </div>
 
-        <hr class="h-px my-8 bg-gray-200 border-0">
-
-        <div>
-            <div class="">
-                <div class="mx-auto grid max-w-screen-xl rounded-lg bg-gray-50 p-4 lg:grid-cols-12 lg:gap-8 lg:p-6 border border-gray-200 shadow-sm">
-                    <div class="me-auto place-self-center lg:col-span-7">
-                        <?php
-                        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria FROM oficina";
-                        $result = mysqli_query($conexao, $query);
-
-                        if ($result && mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
-                                echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
-                                echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Telefone: ' . htmlspecialchars($row['telefone_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Endereço: ' . htmlspecialchars($row['endereco_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                                echo '<button id="agendar" type="button" name="agendar" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                                </svg>
-                                Agendar
-                                </button>';
-                                echo '</div>';
-                            }
-                        } else {
-                            echo '<p class="text-gray-500">Nenhuma oficina cadastrada.</p>';
-                        }
-                        ?>
-                    </div>
-                </div>
+            <div class="w-full">
+                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[440px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[460px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[360px]"></div>
             </div>
         </div>
+
+        <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
+            <div class="w-full">
+                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[440px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[460px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[360px]"></div>
+            </div>
+            <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
+                <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                </svg>
+            </div>
+        </div>
+  
+
+        <div role="status" class="mt-5 space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
+            <div class="w-full">
+                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
+                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
+                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
+            </div>
+        </div>
+        
     </div>
 
     <script>
@@ -187,7 +184,15 @@ $stmt->close();
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-    </script>
-</body>
 
+    </script>
+
+</body>
 </html>
+
+
+
+
+
+
+
