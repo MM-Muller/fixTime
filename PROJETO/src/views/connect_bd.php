@@ -15,5 +15,3 @@ function connect_db()
     }
     return $conexao;
 }
-?>
-

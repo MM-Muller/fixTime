@@ -119,9 +119,9 @@ $stmt->close();
             </div>
 
             <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group">
-             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
-            </svg>
+                <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" />
+                </svg>
 
                 <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
             </a>
@@ -130,46 +130,62 @@ $stmt->close();
     </aside>
 
     <div class=" lg:ml-64 p-10 ">
-        <div>
-            <h1>Oficinas Parceiras</h1>
+        <div class="flex justify-center items-center">
+            <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
         </div>
 
-        <hr class="h-px my-8 bg-gray-200 border-0">
+        <hr class=" h-px my-8 bg-gray-200 border-0">
 
-        <div>
-            <div class="">
-                <div class="mx-auto grid max-w-screen-xl rounded-lg bg-gray-50 p-4 lg:grid-cols-12 lg:gap-8 lg:p-6 border border-gray-200 shadow-sm">
-                    <div class="me-auto place-self-center lg:col-span-7">
-                        <?php
-                        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria FROM oficina";
-                        $result = mysqli_query($conexao, $query);
+        <?php
+        $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
-                        if ($result && mysqli_num_rows($result) > 0) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
-                                echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
-                                echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Telefone: ' . htmlspecialchars($row['telefone_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Endereço: ' . htmlspecialchars($row['endereco_oficina']) . '</p>';
-                                echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                                echo '<button id="agendar" type="button" name="agendar" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                                </svg>
-                                Agendar
-                                </button>';
-                                echo '</div>';
-                            }
-                        } else {
-                            echo '<p class="text-gray-500">Nenhuma oficina cadastrada.</p>';
-                        }
-                        ?>
-                    </div>
-                </div>
-            </div>
-        </div>
+        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria FROM oficina";
+        if (!empty($filter)) {
+            $query .= " WHERE categoria = ?";
+        }
+
+        $stmt = $conexao->prepare($query);
+        if (!empty($filter)) {
+            $stmt->bind_param("s", $filter);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        ?>
+        <form method="GET" class="mb-4">
+            <label for="filter" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por categoria:</label>
+            <select name="filter" id="filter" class="block w-full p-2.5 border border-gray-300 rounded-lg">
+                <option value="">Todas</option>
+                <option value="Borracharia" <?php echo $filter === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
+                <option value="Auto Elétrica" <?php echo $filter === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
+                <option value="Oficina Mecânica" <?php echo $filter === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
+                <option value="Lava Car" <?php echo $filter === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
+            </select>
+            <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
+        </form>
+        <?php
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
+                echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
+                echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Telefone: ' . htmlspecialchars($row['telefone_oficina']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Endereço: ' . htmlspecialchars($row['endereco_oficina']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
+                echo '<button id="agendar" type="button" name="agendar" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+            </svg>
+            Agendar
+            </button>';
+                echo '</div>';
+            }
+        } else {
+            echo '<p class="text-gray-500">Nenhuma oficina encontrada para o filtro selecionado.</p>';
+        }
+        ?>
+
     </div>
 
     <script>
