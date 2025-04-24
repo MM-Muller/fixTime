@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Armazenar o ID do usuário na sessão
       $_SESSION['id_usuario'] = $id_usuario;
 
-      echo "<script>window.location.href = '/fixTime/PROJETO/src/views/main-page/Cliente/main.html';</script>";
+      echo "<script>window.location.href = '/fixTime/PROJETO/src/views/main-page/Cliente/main.php';</script>";
       exit();
     } else {
       $erro = "Email ou senha inválidos.";

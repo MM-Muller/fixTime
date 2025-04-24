@@ -65,7 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt->close();
         } catch (Exception $e) {
-            $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($e->getMessage()) . "');</script>";
+            $erro = $e->getMessage();
+
+            if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
+                $mensagem = "<script>alert('Essa placa já está cadastrada no sistema. Por favor, verifique os dados.');</script>";
+            } else {
+                $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
+            }
         }
     }
 }
