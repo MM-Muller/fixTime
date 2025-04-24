@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="col-span-1">
           <label for="numero_oficina" class="block mb-1 text-sm font-medium text-gray-900">Número</label>
-          <input type="text" name="numero_oficina" id="numero_oficina" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="812" required />
+          <input type="text" name="numero_oficina" id="numero_oficina" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="812" required maxlength="10" />
         </div>
 
         <div class="col-span-1">
