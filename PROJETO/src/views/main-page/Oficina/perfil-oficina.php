@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validação básica
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
-            echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
         if (!in_array($categoria, $validCategorias)) {
-            echo "<script>alert('Categoria inválida.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Categoria inválida.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
 
@@ -69,10 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // executa a atualização
         if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         } else {
-            echo "<script>alert('Erro ao atualizar perfil: " . addslashes($conexao->error) . "'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Erro ao atualizar perfil: " . addslashes($conexao->error) . "'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
 
@@ -169,7 +169,7 @@ $conexao->close();
     <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
 
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <form id="formPerfil" method="POST" action="perfil.php">
+            <form id="formPerfil" method="POST" action="perfil-oficina.php">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="">
                         <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Oficina</label>
@@ -183,7 +183,7 @@ $conexao->close();
 
                     <div class="">
                     <label for="categoria-perfil" class="block mb-1 text-sm font-medium text-gray-900">Categoria</label>
-                    <select id="categoria-perfil" name="categoria" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
+                    <select id="categoria-perfil" name="categoria" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled >
                         <option value="Borracharia" <?php echo $user_data['categoria'] === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
                         <option value="Auto Elétrica" <?php echo $user_data['categoria'] === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
                         <option value="Oficina Mecânica" <?php echo $user_data['categoria'] === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
@@ -203,7 +203,7 @@ $conexao->close();
 
                     <div class="">
                         <label for="cep-perfil" class="block mb-1 text-sm font-medium text-gray-900">CEP</label>
-                        <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled onblur="consultarCep()"/>
                     </div>
 
                     <div class="">
@@ -224,6 +224,11 @@ $conexao->close();
                     <div class="">
                         <label for="cidade-perfil" class="block mb-1 text-sm font-medium text-gray-900">Cidade</label>
                         <input type="text" id="cidade-perfil" name="cidade" value="<?php echo htmlspecialchars($user_data['cidade_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
+
+                    <div class="">
+                        <label for="estado-perfil" class="block mb-1 text-sm font-medium text-gray-900">Estado</label>
+                        <input type="text" id="estado-perfil" name="estado" value="<?php echo htmlspecialchars($user_data['estado_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
                     <div class="">

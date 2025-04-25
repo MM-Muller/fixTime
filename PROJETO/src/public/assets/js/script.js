@@ -47,5 +47,3 @@ document.getElementById('confirma_senha').addEventListener('input', function() {
     errorMessage.classList.add('hidden');
   }
 });
-
-

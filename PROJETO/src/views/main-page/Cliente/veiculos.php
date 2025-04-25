@@ -1,100 +1,102 @@
-<?php
-include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
-$conexao = connect_db();
+    <?php
+    include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+    $conexao = connect_db();
 
-if (!isset($conexao) || !$conexao) {
-    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-}
+    if (!isset($conexao) || !$conexao) {
+        die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
+    }
 
-session_start();
-if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
-    exit;
-}
+    session_start();
+    if (!isset($_SESSION['id_usuario'])) {
+        echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+        exit;
+    }
 
-$id_usuario = $_SESSION['id_usuario'] ?? null; // <-- MOVIDO PARA CIMA
+    $id_usuario = $_SESSION['id_usuario'] ?? null; // <-- MOVIDO PARA CIMA
 
-// BUSCA O PRIMEIRO NOME
-$primeiroNome = '';
-$stmtNome = $conexao->prepare("SELECT nome_usuario FROM cliente WHERE id_usuario = ?");
-$stmtNome->bind_param("i", $id_usuario);
-$stmtNome->execute();
-$resultNome = $stmtNome->get_result();
+    // BUSCA O PRIMEIRO NOME
+    $primeiroNome = '';
+    $stmtNome = $conexao->prepare("SELECT nome_usuario FROM cliente WHERE id_usuario = ?");
+    $stmtNome->bind_param("i", $id_usuario);
+    $stmtNome->execute();
+    $resultNome = $stmtNome->get_result();
 
-if ($rowNome = $resultNome->fetch_assoc()) {
-    $nomeCompleto = htmlspecialchars($rowNome['nome_usuario']);
-    $primeiroNome = explode(' ', $nomeCompleto)[0];
-    $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
-}
-$stmtNome->close();
+    if ($rowNome = $resultNome->fetch_assoc()) {
+        $nomeCompleto = htmlspecialchars($rowNome['nome_usuario']);
+        $primeiroNome = explode(' ', $nomeCompleto)[0];
+        $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
+    }
+    $stmtNome->close();
 
-$mensagem = '';
-$veiculos = [];
+    $mensagem = '';
+    $veiculos = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitização segura dos dados de entrada
-    $tipo = isset($_POST['tipo_veiculos']) ? htmlspecialchars($_POST['tipo_veiculos'], ENT_QUOTES, 'UTF-8') : '';
-    $marca = isset($_POST['marca_veiculo']) ? htmlspecialchars($_POST['marca_veiculo'], ENT_QUOTES, 'UTF-8') : '';
-    $modelo = isset($_POST['modelo_veiculo']) ? htmlspecialchars($_POST['modelo_veiculo'], ENT_QUOTES, 'UTF-8') : '';
-    $ano = isset($_POST['ano_veiculo']) ? (int)$_POST['ano_veiculo'] : 0;
-    $cor = isset($_POST['cor_veiculo']) ? htmlspecialchars($_POST['cor_veiculo'], ENT_QUOTES, 'UTF-8') : '';
-    $placa = isset($_POST['placa_veiculo']) ? htmlspecialchars($_POST['placa_veiculo'], ENT_QUOTES, 'UTF-8') : '';
-    $quilometragem = isset($_POST['quilometragem_veiculo']) 
-        ? (int) str_replace('.', '', $_POST['quilometragem_veiculo']) 
-        : 0;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Sanitização segura dos dados de entrada
+        $tipo = isset($_POST['tipo_veiculos']) ? htmlspecialchars($_POST['tipo_veiculos'], ENT_QUOTES, 'UTF-8') : '';
+        $marca = isset($_POST['marca_veiculo']) ? htmlspecialchars($_POST['marca_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+        $modelo = isset($_POST['modelo_veiculo']) ? htmlspecialchars($_POST['modelo_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+        $ano = isset($_POST['ano_veiculo']) ? (int)$_POST['ano_veiculo'] : 0;
+        $cor = isset($_POST['cor_veiculo']) ? htmlspecialchars($_POST['cor_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+        $placa = isset($_POST['placa_veiculo']) ? htmlspecialchars($_POST['placa_veiculo'], ENT_QUOTES, 'UTF-8') : '';
+        $quilometragem = isset($_POST['quilometragem_veiculo']) 
+            ? (int) str_replace('.', '', $_POST['quilometragem_veiculo']) 
+            : 0;
 
-    // Validação dos campos
-    if (
-        empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
-        empty($cor) || empty($placa) || $quilometragem < 0
-    ) {
-        $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
-    } else {
+        // Validação dos campos
+        if (
+            empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
+            empty($cor) || empty($placa) || $quilometragem < 0
+        ) {
+            $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
+        } else {
+            try {
+                $stmt = $conexao->prepare("INSERT INTO veiculos (tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
+
+                if ($stmt->execute()) {
+                    $mensagem = "<script>alert('Veículo cadastrado com sucesso!');</script>";
+                    echo "<script>window.location.href = window.location.href;</script>";
+                    exit;
+                } else {
+                    $mensagem = "<script>alert('Erro ao cadastrar veículo: " . addslashes($stmt->error) . "');</script>";
+                }
+
+                $stmt->close();
+            } catch (Exception $e) {
+                $erro = $e->getMessage();
+
+                if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
+                    $mensagem = "<script>alert('Essa placa já está cadastrada no sistema. Por favor, verifique os dados.');</script>";
+                } else {
+                    $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
+                }
+            }
+        }
+    }
+
+    // Buscar veículos do usuário
+    if ($id_usuario) {
         try {
-            $stmt = $conexao->prepare("INSERT INTO veiculos (tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
+            $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, cor, placa, quilometragem 
+                            FROM veiculos WHERE id_usuario = ? ORDER BY id DESC");
+            $stmt->bind_param("i", $id_usuario);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-            if ($stmt->execute()) {
-                $mensagem = "<script>alert('Veículo cadastrado com sucesso!');</script>";
-                echo "<script>window.location.href = window.location.href;</script>";
-                exit;
-            } else {
-                $mensagem = "<script>alert('Erro ao cadastrar veículo: " . addslashes($stmt->error) . "');</script>";
+            while ($row = $result->fetch_assoc()) {
+                $veiculos[] = $row;
             }
 
             $stmt->close();
         } catch (Exception $e) {
-            $erro = $e->getMessage();
-
-            if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
-                $mensagem = "<script>alert('Essa placa já está cadastrada no sistema. Por favor, verifique os dados.');</script>";
-            } else {
-                $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
-            }
+            $mensagem = "<script>alert('Erro ao buscar veículos: " . addslashes($e->getMessage()) . "');</script>";
         }
     }
-}
 
-// Buscar veículos do usuário
-if ($id_usuario) {
-    try {
-        $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, cor, placa, quilometragem 
-                          FROM veiculos WHERE id_usuario = ? ORDER BY id DESC");
-        $stmt->bind_param("i", $id_usuario);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        while ($row = $result->fetch_assoc()) {
-            $veiculos[] = $row;
-        }
-
-        $stmt->close();
-    } catch (Exception $e) {
-        $mensagem = "<script>alert('Erro ao buscar veículos: " . addslashes($e->getMessage()) . "');</script>";
-    }
-}
-?>
+  
+    ?>
 
 
 <!DOCTYPE html>
