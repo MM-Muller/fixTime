@@ -162,6 +162,32 @@ $stmt->close();
             </select>
             <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
         </form>
+        <form method="GET" class="mb-4">
+            <label for="bairro" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por bairro:</label>
+            <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Digite o bairro">
+            <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
+        </form>
+
+        <?php
+        $bairroFilter = isset($_GET['bairro']) ? trim($_GET['bairro']) : '';
+
+        if (!empty($bairroFilter)) {
+            $query .= empty($filter) ? " WHERE bairro_oficina LIKE ?" : " AND bairro_oficina LIKE ?";
+        }
+
+        $stmt = $conexao->prepare($query);
+        if (!empty($filter) && !empty($bairroFilter)) {
+            $bairroFilter = '%' . $bairroFilter . '%';
+            $stmt->bind_param("ss", $filter, $bairroFilter);
+        } elseif (!empty($filter)) {
+            $stmt->bind_param("s", $filter);
+        } elseif (!empty($bairroFilter)) {
+            $bairroFilter = '%' . $bairroFilter . '%';
+            $stmt->bind_param("s", $bairroFilter);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        ?>
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
