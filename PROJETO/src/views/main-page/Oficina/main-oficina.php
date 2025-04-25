@@ -1,3 +1,42 @@
+<?php
+include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
+$conexao = connect_db(); // conecta com o bd
+
+if (!isset($conexao) || !$conexao) {
+    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
+} // verifica se a conexão deu tudo certo
+
+// inicia a sessão
+session_start();
+
+// Obtém o ID da oficina
+$oficina_id = $_SESSION['id_oficina'] ?? null;
+
+if (!$oficina_id) {
+    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    exit();
+}
+
+// Busca os dados atuais da oficina
+$sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $oficina_id); // associa o id da oficina
+$stmt->execute();
+$result = $stmt->get_result();
+
+// verifica se encontrou a oficina
+if ($result->num_rows > 0) {
+    $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+} else {
+    die("Oficina não encontrada."); // interrompe se a oficina não existir
+}
+
+// Fecha o statement e a conexão
+$stmt->close();
+$conexao->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -17,29 +56,48 @@
     </button>
     
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50">
-            <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
-                <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                    <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
-                      <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-                    </svg>
-                </button>
-                    <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
-            
-            </a>
-            <ul class="space-y-2 font-medium">
+        <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
 
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"  data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+            <div>
+                <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                        <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
+                          <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
-                       <span class="flex-1 ms-3 whitespace-nowrap">Perfil</span>
-                    </a>
-                </li>
+                    </button>
+                        <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
 
-            </ul>
-        </div>
+                </a>
+                <ul class="space-y-2 font-medium">
+
+                    <li>
+                        <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                <?php
+                                    $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
+                                    $partes = explode(' ', $nomeCompleto);
+                                    $duasPalavras = implode(' ', array_slice($partes, 0, 2));
+                                    echo $duasPalavras;
+                                ?>
+                            </span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div>
+                <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
+                </a>
+            </div>
+
     </aside>
 
     <div class=" lg:ml-64 p-10 ">

@@ -91,7 +91,8 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
 } else {
-    die("Oficina não encontrada."); // interrompe se a oficina não existir
+    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    exit();
 }
 
 // Fecha o statement e a conexão
@@ -120,36 +121,48 @@ $conexao->close();
     </button>
 
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50">
-            <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
-                <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                    <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
-                    </svg>
-                </button>
-                <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
+        <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
 
-            </a>
-            <ul class="space-y-2 font-medium">
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+            <div>
+                <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                        <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
+                          <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">
-                            <?php
-                                $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
-                                $partes = explode(' ', $nomeCompleto);
-                                $duasPalavras = implode(' ', array_slice($partes, 0, 2));
-                                echo $duasPalavras;
-                            ?>
-                        </span>
-                    </a>
-                </li>
+                    </button>
+                        <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
 
-            </ul>
-        </div>
+                </a>
+                <ul class="space-y-2 font-medium">
+
+                    <li>
+                        <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                <?php
+                                    $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
+                                    $partes = explode(' ', $nomeCompleto);
+                                    $duasPalavras = implode(' ', array_slice($partes, 0, 2));
+                                    echo $duasPalavras;
+                                ?>
+                            </span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div>
+                <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
+                </a>
+            </div>
+
     </aside>
 
 
@@ -157,8 +170,7 @@ $conexao->close();
 
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
             <form id="formPerfil" method="POST" action="perfil.php">
-
-                <div class="space-y-7">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="">
                         <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Oficina</label>
                         <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
@@ -169,7 +181,7 @@ $conexao->close();
                         <input type="text" id="cnpj-perfil" name="cnpj" value="<?php echo htmlspecialchars($user_data['cnpj']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
-                    <div class=""></div>
+                    <div class="">
                     <label for="categoria-perfil" class="block mb-1 text-sm font-medium text-gray-900">Categoria</label>
                     <select id="categoria-perfil" name="categoria" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
                         <option value="Borracharia" <?php echo $user_data['categoria'] === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
@@ -177,47 +189,47 @@ $conexao->close();
                         <option value="Oficina Mecânica" <?php echo $user_data['categoria'] === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
                         <option value="Lava Car" <?php echo $user_data['categoria'] === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
                     </select>
-                </div>
+                    </div>
 
-                <div class="">
-                    <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                    <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
+                        <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                    <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_oficina']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
+                        <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_oficina']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="cep-perfil" class="block mb-1 text-sm font-medium text-gray-900">CEP</label>
-                    <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="cep-perfil" class="block mb-1 text-sm font-medium text-gray-900">CEP</label>
+                        <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="endereco-perfil" class="block mb-1 text-sm font-medium text-gray-900">Endereço</label>
-                    <input type="text" id="endereco-perfil" name="endereco" value="<?php echo htmlspecialchars($user_data['endereco_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="endereco-perfil" class="block mb-1 text-sm font-medium text-gray-900">Endereço</label>
+                        <input type="text" id="endereco-perfil" name="endereco" value="<?php echo htmlspecialchars($user_data['endereco_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="bairro-perfil" class="block mb-1 text-sm font-medium text-gray-900">Bairro</label>
-                    <input type="text" id="bairro-perfil" name="bairro" value="<?php echo htmlspecialchars($user_data['bairro_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="bairro-perfil" class="block mb-1 text-sm font-medium text-gray-900">Bairro</label>
+                        <input type="text" id="bairro-perfil" name="bairro" value="<?php echo htmlspecialchars($user_data['bairro_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="numero-perfil" class="block mb-1 text-sm font-medium text-gray-900">Número</label>
-                    <input type="text" id="numero-perfil" name="numero" value="<?php echo htmlspecialchars($user_data['numero_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="numero-perfil" class="block mb-1 text-sm font-medium text-gray-900">Número</label>
+                        <input type="text" id="numero-perfil" name="numero" value="<?php echo htmlspecialchars($user_data['numero_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="cidade-perfil" class="block mb-1 text-sm font-medium text-gray-900">Cidade</label>
-                    <input type="text" id="cidade-perfil" name="cidade" value="<?php echo htmlspecialchars($user_data['cidade_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="cidade-perfil" class="block mb-1 text-sm font-medium text-gray-900">Cidade</label>
+                        <input type="text" id="cidade-perfil" name="cidade" value="<?php echo htmlspecialchars($user_data['cidade_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="complemento-perfil" class="block mb-1 text-sm font-medium text-gray-900">Complemento</label>
-                    <input type="text" id="complemento-perfil" name="complemento" value="<?php echo htmlspecialchars($user_data['complemento']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="complemento-perfil" class="block mb-1 text-sm font-medium text-gray-900">Complemento</label>
+                        <input type="text" id="complemento-perfil" name="complemento" value="<?php echo htmlspecialchars($user_data['complemento']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
         </div>
         <input type="hidden" name="salvar_perfil" value="1">
