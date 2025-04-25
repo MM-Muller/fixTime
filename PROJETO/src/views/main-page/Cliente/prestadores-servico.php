@@ -152,20 +152,25 @@ $stmt->close();
         $result = $stmt->get_result();
         ?>
         <form method="GET" class="mb-4">
-            <label for="filter" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por categoria:</label>
-            <select name="filter" id="filter" class="block w-full p-2.5 border border-gray-300 rounded-lg">
-                <option value="">Todas</option>
-                <option value="Borracharia" <?php echo $filter === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
-                <option value="Auto Elétrica" <?php echo $filter === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
-                <option value="Oficina Mecânica" <?php echo $filter === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
-                <option value="Lava Car" <?php echo $filter === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
-            </select>
-            <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
-        </form>
-        <form method="GET" class="mb-4">
-            <label for="bairro" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por bairro:</label>
-            <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Digite o bairro">
-            <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
+            <div class="flex flex-wrap gap-4">
+                <div class="flex-1">
+                    <label for="filter" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por categoria:</label>
+                    <select name="filter" id="filter" class="block w-full p-2.5 border border-gray-300 rounded-lg">
+                        <option value="">Todas</option>
+                        <option value="Borracharia" <?php echo $filter === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
+                        <option value="Auto Elétrica" <?php echo $filter === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
+                        <option value="Oficina Mecânica" <?php echo $filter === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
+                        <option value="Lava Car" <?php echo $filter === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="bairro" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por bairro:</label>
+                    <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Digite o bairro">
+                </div>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
+            </div>
         </form>
 
         <?php
