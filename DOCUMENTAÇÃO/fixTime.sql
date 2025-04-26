@@ -45,6 +45,19 @@ CREATE TABLE veiculos (
     FOREIGN KEY (id_usuario) REFERENCEs cliente (id_usuario)
 );
 
+CREATE TABLE IF NOT EXISTS funcionarios (
+    id_funcionario INT AUTO_INCREMENT PRIMARY KEY,
+    nome_funcionario VARCHAR(100) NOT NULL,
+    cargo_funcionario VARCHAR(50) NOT NULL,
+    telefone_funcionario VARCHAR(15),
+    email_funcionario VARCHAR(100) UNIQUE,
+    data_admissao DATE NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id_oficina INT NOT NULL,
+    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
+);
+
 CREATE TABLE IF NOT EXISTS servico (
     id_servico INT AUTO_INCREMENT PRIMARY KEY,
     data_servico TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,4 +66,12 @@ CREATE TABLE IF NOT EXISTS servico (
     id_oficina INT NOT NULL,
     FOREIGN KEY (id_veiculo) REFERENCES veiculos(id),
     FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
+);
+
+CREATE TABLE IF NOT EXISTS servico_funcionario (
+    id_servico_funcionario INT AUTO_INCREMENT PRIMARY KEY,
+    id_servico INT NOT NULL,
+    id_funcionario INT NOT NULL,
+    FOREIGN KEY (id_servico) REFERENCES servico(id_servico),
+    FOREIGN KEY (id_funcionario) REFERENCES funcionarios(id_funcionario)
 );
