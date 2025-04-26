@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $_SESSION['id_oficina'] = $id_oficina;
 
       // Redirecionamento seguro
-      header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/main.html");
+      header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/main-oficina.php");
       exit();
     } else {
       $erro = "Email ou senha inválidos.";

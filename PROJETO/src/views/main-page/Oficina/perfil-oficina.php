@@ -54,11 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validação básica
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
-            echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
         if (!in_array($categoria, $validCategorias)) {
-            echo "<script>alert('Categoria inválida.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Categoria inválida.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
 
@@ -69,10 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // executa a atualização
         if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         } else {
-            echo "<script>alert('Erro ao atualizar perfil: " . addslashes($conexao->error) . "'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php';</script>";
+            echo "<script>alert('Erro ao atualizar perfil: " . addslashes($conexao->error) . "'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
             exit();
         }
 
@@ -91,7 +91,8 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
 } else {
-    die("Oficina não encontrada."); // interrompe se a oficina não existir
+    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    exit();
 }
 
 // Fecha o statement e a conexão
@@ -120,76 +121,56 @@ $conexao->close();
     </button>
 
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50">
-            <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
-                <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                    <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+        <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
+
+            <div>
+                <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                        <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
+                          <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        </svg>
+                    </button>
+                        <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
+
+                </a>
+                <ul class="space-y-2 font-medium">
+
+                    <li>
+                        <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                            </svg>
+                            <span class="flex-1 ms-3 whitespace-nowrap">
+                                <?php
+                                    $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
+                                    $partes = explode(' ', $nomeCompleto);
+                                    $duasPalavras = implode(' ', array_slice($partes, 0, 2));
+                                    echo $duasPalavras;
+                                ?>
+                            </span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+
+            <div>
+                <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
                     </svg>
-                </button>
-                <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
+                    <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
+                </a>
+            </div>
 
-            </a>
-            <ul class="space-y-2 font-medium">
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/agendamentos.html" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"></path>
-                        </svg>
-                        <span class="ms-3">Meus agendamentos</span>
-                    </a>
-                </li>
-
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/historico-servicos.html" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"></path>
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Histórico de serviços</span>
-                    </a>
-                </li>
-
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.html" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"></path>
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Prestadores de serviços</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"></path>
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Meus veículos</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
-                        </svg>
-                        <span class="flex-1 ms-3 whitespace-nowrap">Perfil</span>
-                    </a>
-                </li>
-
-            </ul>
-        </div>
     </aside>
 
 
     <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
 
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <form id="formPerfil" method="POST" action="perfil.php">
-
-                <div class="space-y-7">
+            <form id="formPerfil" method="POST" action="perfil-oficina.php">
+                <div class="grid grid-cols-2 gap-4">
                     <div class="">
                         <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Oficina</label>
                         <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
@@ -200,55 +181,60 @@ $conexao->close();
                         <input type="text" id="cnpj-perfil" name="cnpj" value="<?php echo htmlspecialchars($user_data['cnpj']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
-                    <div class=""></div>
+                    <div class="">
                     <label for="categoria-perfil" class="block mb-1 text-sm font-medium text-gray-900">Categoria</label>
-                    <select id="categoria-perfil" name="categoria" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
+                    <select id="categoria-perfil" name="categoria" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled >
                         <option value="Borracharia" <?php echo $user_data['categoria'] === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
                         <option value="Auto Elétrica" <?php echo $user_data['categoria'] === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
                         <option value="Oficina Mecânica" <?php echo $user_data['categoria'] === 'Oficina Mecânica' ? 'selected' : ''; ?>>Oficina Mecânica</option>
                         <option value="Lava Car" <?php echo $user_data['categoria'] === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
                     </select>
-                </div>
+                    </div>
 
-                <div class="">
-                    <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                    <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
+                        <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                    <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_oficina']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
+                        <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_oficina']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="cep-perfil" class="block mb-1 text-sm font-medium text-gray-900">CEP</label>
-                    <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="cep-perfil" class="block mb-1 text-sm font-medium text-gray-900">CEP</label>
+                        <input type="text" id="cep-perfil" name="cep" value="<?php echo htmlspecialchars($user_data['cep_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled onblur="consultarCep()"/>
+                    </div>
 
-                <div class="">
-                    <label for="endereco-perfil" class="block mb-1 text-sm font-medium text-gray-900">Endereço</label>
-                    <input type="text" id="endereco-perfil" name="endereco" value="<?php echo htmlspecialchars($user_data['endereco_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="endereco-perfil" class="block mb-1 text-sm font-medium text-gray-900">Endereço</label>
+                        <input type="text" id="endereco-perfil" name="endereco" value="<?php echo htmlspecialchars($user_data['endereco_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="bairro-perfil" class="block mb-1 text-sm font-medium text-gray-900">Bairro</label>
-                    <input type="text" id="bairro-perfil" name="bairro" value="<?php echo htmlspecialchars($user_data['bairro_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="bairro-perfil" class="block mb-1 text-sm font-medium text-gray-900">Bairro</label>
+                        <input type="text" id="bairro-perfil" name="bairro" value="<?php echo htmlspecialchars($user_data['bairro_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="numero-perfil" class="block mb-1 text-sm font-medium text-gray-900">Número</label>
-                    <input type="text" id="numero-perfil" name="numero" value="<?php echo htmlspecialchars($user_data['numero_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="numero-perfil" class="block mb-1 text-sm font-medium text-gray-900">Número</label>
+                        <input type="text" id="numero-perfil" name="numero" value="<?php echo htmlspecialchars($user_data['numero_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="cidade-perfil" class="block mb-1 text-sm font-medium text-gray-900">Cidade</label>
-                    <input type="text" id="cidade-perfil" name="cidade" value="<?php echo htmlspecialchars($user_data['cidade_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="cidade-perfil" class="block mb-1 text-sm font-medium text-gray-900">Cidade</label>
+                        <input type="text" id="cidade-perfil" name="cidade" value="<?php echo htmlspecialchars($user_data['cidade_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
-                <div class="">
-                    <label for="complemento-perfil" class="block mb-1 text-sm font-medium text-gray-900">Complemento</label>
-                    <input type="text" id="complemento-perfil" name="complemento" value="<?php echo htmlspecialchars($user_data['complemento']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                </div>
+                    <div class="">
+                        <label for="estado-perfil" class="block mb-1 text-sm font-medium text-gray-900">Estado</label>
+                        <input type="text" id="estado-perfil" name="estado" value="<?php echo htmlspecialchars($user_data['estado_oficina']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
+
+                    <div class="">
+                        <label for="complemento-perfil" class="block mb-1 text-sm font-medium text-gray-900">Complemento</label>
+                        <input type="text" id="complemento-perfil" name="complemento" value="<?php echo htmlspecialchars($user_data['complemento']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
 
         </div>
         <input type="hidden" name="salvar_perfil" value="1">
