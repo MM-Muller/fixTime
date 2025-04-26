@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <div>
         <p class="text-sm font-light text-gray-500">
-          Ainda não tem conta? <a href="/fixTime/PROJETO/src/views/Login/cadastro-user.html" class="font-medium hover:underline text-blue-500">Crie seu cadastro.</a>
+          Ainda não tem conta? <a href="/fixTime/PROJETO/src/views/Login/cadastro-user.php" class="font-medium hover:underline text-blue-500">Crie seu cadastro.</a>
         </p>
       </div>
     </form>

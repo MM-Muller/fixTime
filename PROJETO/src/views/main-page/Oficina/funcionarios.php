@@ -72,6 +72,30 @@ if ($id_oficina) {
         $mensagem = "<script>alert('Erro ao buscar funcionários: " . addslashes($e->getMessage()) . "');</script>";
     }
 }
+
+// Obtém o ID da oficina
+$oficina_id = $_SESSION['id_oficina'] ?? null;
+
+if (!$oficina_id) {
+    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    exit();
+}
+
+// Busca os dados atuais da oficina
+$sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $oficina_id); // associa o id da oficina
+$stmt->execute();
+$result = $stmt->get_result();
+
+// verifica se encontrou a oficina
+if ($result->num_rows > 0) {
+    $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+} else {
+    die("Oficina não encontrada."); // interrompe se a oficina não existir
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +108,8 @@ if ($id_oficina) {
     <title>Fix Time</title>
 </head>
 
-<?php echo $mensagem; ?>
+<?php if (!empty($mensagem)) echo $mensagem; ?>
+
 
 <body class="">
 
@@ -112,20 +137,25 @@ if ($id_oficina) {
 
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l-1.464-1.464a2 2 0 0 0-2.828 0l-.707.707a2 2 0 0 1-2.828 0l-.707-.707a2 2 0 0 0-2.828 0L3.768 5.232a2 2 0 0 0 0 2.828l.707.707a2 2 0 0 1 0 2.828l-.707.707a2 2 0 0 0 0 2.828l1.464 1.464a2 2 0 0 0 2.828 0l.707-.707a2 2 0 0 1 2.828 0l.707.707a2 2 0 0 0 2.828 0l1.464-1.464a2 2 0 0 0 0-2.828l-.707-.707a2 2 0 0 1 0-2.828l.707-.707a2 2 0 0 0 0-2.828z"></path>
-                            </svg>
+                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M4.5 17H4a1 1 0 0 1-1-1 3 3 0 0 1 3-3h1m0-3.05A2.5 2.5 0 1 1 9 5.5M19.5 17h.5a1 1 0 0 0 1-1 3 3 0 0 0-3-3h-1m0-3.05a2.5 2.5 0 1 0-2-4.45m.5 13.5h-7a1 1 0 0 1-1-1 3 3 0 0 1 3-3h3a3 3 0 0 1 3 3 1 1 0 0 1-1 1Zm-1-9.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                        </svg>
                             <span class="flex-1 ms-3 whitespace-nowrap">Meus Funcionarios</span>
                         </a>
                     </li>
 
                     <li>
-                        <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
+                        <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
                             </svg>
                             <span class="flex-1 ms-3 whitespace-nowrap">
-                                Perfil Oficina
+                                <?php
+                                    $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
+                                    $partes = explode(' ', $nomeCompleto);
+                                    $duasPalavras = implode(' ', array_slice($partes, 0, 2));
+                                    echo $duasPalavras;
+                                ?>
                             </span>
                         </a>
                     </li>
@@ -157,7 +187,7 @@ if ($id_oficina) {
                     </div>
 
                     <!-- Cargo -->
-                    <div class="lg:col-span-1 col-span-6">
+                    <div class="lg:col-span-2 col-span-6">
                         <label for="cargo_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Cargo</label>
                         <select name="cargo_funcionario" id="cargo_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
                             <option value="">Selecione</option>
@@ -169,25 +199,25 @@ if ($id_oficina) {
                     </div>
 
                     <!-- Telefone -->
-                    <div class="lg:col-span-1 col-span-6">
+                    <div class="lg:col-span-2 col-span-6">
                         <label for="telefone_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Telefone</label>
                         <input name="telefone_funcionario" type="text" id="telefone_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: (11) 99999-9999" required>
                     </div>
 
                     <!-- Email -->
-                    <div class="lg:col-span-1 col-span-6">
+                    <div class="lg:col-span-2 col-span-6">
                         <label for="email_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
                         <input name="email_funcionario" type="email" id="email_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: funcionario@email.com" required>
                     </div>
 
                     <!-- Data Admissão -->
-                    <div class="lg:col-span-1 col-span-6">
+                    <div class="lg:col-span-2 col-span-6">
                         <label for="data_admissao" class="block mb-2 text-sm font-medium text-gray-900">Data Admissão</label>
                         <input name="data_admissao" type="date" id="data_admissao" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" required>
                     </div>
 
                     <!-- Botão -->
-                    <div class="lg:col-span-1 flex">
+                    <div class="lg:col-span-2 flex col-span-6">
                         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm lg:w-full w-auto px-5 py-2.5 text-center cursor-pointer mt-7">Registrar</button>
                     </div>
                 </div>
@@ -204,19 +234,19 @@ if ($id_oficina) {
                             <form action="atualizar_funcionario.php" method="POST" class="form-funcionario">
                                 <input type="hidden" name="id" value="<?= $funcionario['id_funcionario'] ?>">
 
-                                <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 grid-cols-2">
+                                <div class="grid lg:gap-6 gap-4 mb-6 lg:grid-cols-6 grid-cols-2">
 
                                     <div class="col-span-1">
                                         <label class="block mb-1 text-sm font-medium text-gray-900">ID</label>
                                         <input type="text" value="<?= htmlspecialchars($funcionario['id_funcionario']) ?>" class="campo-id focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                                     </div>
 
-                                    <div class="lg:col-span-2 col-span-1">
+                                    <div class="lg:col-span-3 col-span-1">
                                         <label for="nome-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Nome</label>
                                         <input name="nome" type="text" id="nome-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['nome']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
-                                    <div class="lg:col-span-1 col-span-1">
+                                    <div class="lg:col-span-2 col-span-1">
                                         <label for="cargo-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Cargo</label>
                                         <select name="cargo" id="cargo-<?= $funcionario['id_funcionario'] ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                             <option value="Borracheiro" <?= $funcionario['cargo'] == 'Borracheiro' ? 'selected' : '' ?>>Borracheiro</option>
@@ -231,12 +261,12 @@ if ($id_oficina) {
                                         <input name="telefone" type="text" id="telefone-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['telefone']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
-                                    <div class="lg:col-span-1 col-span-1">
+                                    <div class="lg:col-span-3 col-span-1">
                                         <label for="email-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Email</label>
                                         <input name="email" type="email" id="email-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['email']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
-                                    <div class="lg:col-span-1 col-span-1">
+                                    <div class="lg:col-span-2 col-span-1">
                                         <label for="data_admissao-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Data Admissão</label>
                                         <input name="data_admissao" type="date" id="data_admissao-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['data_admissao']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>

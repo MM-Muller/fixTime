@@ -66,25 +66,6 @@ $stmt->close();
 
                 <ul class="space-y-2 font-medium">
 
-                    <li>
-                        <a href="/fixTime/PROJETO/src/views/main-page/Cliente/agendamentos.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"></path>
-                            </svg>
-                            <span class="ms-3">Meus agendamentos</span>
-                        </a>
-                    </li>
-
-
-                    <li>
-                        <a href="/fixTime/PROJETO/src/views/main-page/Cliente/historico-servicos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                            <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"></path>
-                            </svg>
-                            <span class="flex-1 ms-3 whitespace-nowrap">Histórico de serviços</span>
-                        </a>
-                    </li>
-
 
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
@@ -139,7 +120,7 @@ $stmt->close();
         <?php
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
-        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria FROM oficina";
+        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria, numero_oficina, complemento, cidade_oficina FROM oficina";
         if (!empty($filter)) {
             $query .= " WHERE categoria = ?";
         }
@@ -154,8 +135,8 @@ $stmt->close();
         <form method="GET" class="mb-4">
             <div class="flex flex-wrap gap-4">
                 <div class="flex-1">
-                    <label for="filter" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por categoria:</label>
-                    <select name="filter" id="filter" class="block w-full p-2.5 border border-gray-300 rounded-lg">
+                    <label for="filter" class="block mb-2 text-sm font-medium text-gray-900 ">Filtrar por categoria:</label>
+                    <select name="filter" id="filter" class="block w-full p-2.5 border-gray-300 rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 border-2 cursor-pointer">
                         <option value="">Todas</option>
                         <option value="Borracharia" <?php echo $filter === 'Borracharia' ? 'selected' : ''; ?>>Borracharia</option>
                         <option value="Auto Elétrica" <?php echo $filter === 'Auto Elétrica' ? 'selected' : ''; ?>>Auto Elétrica</option>
@@ -165,7 +146,7 @@ $stmt->close();
                 </div>
                 <div class="flex-1">
                     <label for="bairro" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por bairro:</label>
-                    <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5 border border-gray-300 rounded-lg" placeholder="Digite o bairro">
+                    <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5  border-gray-300 rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 border-2 " placeholder="Digite o bairro">
                 </div>
             </div>
             <div class="flex justify-center mt-4">
@@ -196,14 +177,17 @@ $stmt->close();
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
+                echo '<div class=" grid grid-cols-4 mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
                 echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
                 echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Telefone: ' . htmlspecialchars($row['telefone_oficina']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Endereço: ' . htmlspecialchars($row['endereco_oficina']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Número: ' . htmlspecialchars($row['numero_oficina']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Complemento: ' . htmlspecialchars($row['complemento']) . '</p>';
+                echo '<p class="mb-1 text-gray-500">Cidade: ' . htmlspecialchars($row['cidade_oficina']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                echo '<button id="agendar" type="button" name="agendar" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                echo '<button id="agendar" type="button" name="agendar" value="1" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                 <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
