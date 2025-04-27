@@ -149,8 +149,8 @@ $stmt->close();
                     <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5  border-gray-300 rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 border-2 " placeholder="Digite o bairro">
                 </div>
             </div>
-            <div class="flex justify-center mt-4">
-                <button type="submit" class="mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
+            <div class=" flex justify-center mt-4">
+                <button type="submit" class="cursor-pointer mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
             </div>
         </form>
 
@@ -177,7 +177,7 @@ $stmt->close();
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo '<div class=" grid grid-cols-4 mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
+                echo '<div class=" mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
                 echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
                 echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';

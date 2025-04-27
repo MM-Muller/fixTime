@@ -260,12 +260,8 @@
 
                                 <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 grid-cols-2">
 
-                                    <div class="col-span-1">
-                                        <label class="block mb-1 text-sm font-medium text-gray-900">ID</label>
-                                        <input type="text" value="<?= htmlspecialchars($veiculo['id']) ?>" class="campo-id focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
-                                    </div>
 
-                                    <div class="lg:col-span-2 col-span-1">
+                                    <div class="lg:col-span-1 col-span-1">
                                         <label for="tipo-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Tipo Veículo</label>
                                         <select name="tipo_veiculo" id="tipo-<?= $veiculo['id'] ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                             <option value="carro" <?= $veiculo['tipo'] == 'carro' ? 'selected' : '' ?>>Carro</option>
@@ -281,7 +277,7 @@
                                         <input name="marca" type="text" id="marca-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['marca']) ?>" class=" focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
-                                    <div class="col-span-1">
+                                    <div class="col-span-3">
                                         <label for="modelo-<?= $veiculo['id'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Modelo</label>
                                         <input name="modelo" type="text" id="modelo-<?= $veiculo['id'] ?>" value="<?= htmlspecialchars($veiculo['modelo']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>

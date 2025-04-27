@@ -17,18 +17,32 @@ if (!isset($_SESSION['id_usuario'])) {
     exit;
 }
 
-
-//verifica se o form foi enviado via post
+// verifica se o form foi enviado via post
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // verifica se o botão de excluir foi pressionado
-    if (isset($_POST['excluir_perfil']) && $_PST['excluir_perfil'] === '1') {
+    if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
+
+        // Verifica se existem veículos cadastrados para este cliente
+        $sqlCheckVeiculos = "SELECT COUNT(*) as total FROM veiculos WHERE id_usuario = ?";
+        $stmtCheck = $conexao->prepare($sqlCheckVeiculos);
+        $stmtCheck->bind_param("i", $user_id);
+        $stmtCheck->execute();
+        $resultCheck = $stmtCheck->get_result();
+        $row = $resultCheck->fetch_assoc();
+        $totalVeiculos = $row['total'];
+        $stmtCheck->close();
+        
+        if ($totalVeiculos > 0) {
+            // Redireciona para a página de veículos se houver veículos cadastrados
+            echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
+            exit();
+        }
 
         $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
         $stmtDelete = $conexao->prepare($sqlDelete);
         $stmtDelete->bind_param("i", $user_id); // associa o id do user
 
-
-        //executa a exclusão
+        // executa a exclusão
         if ($stmtDelete->execute()) {
             session_destroy(); // encerra a sessão do user
             echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";

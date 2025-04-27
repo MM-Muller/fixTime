@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtDelete->close();
     }
 
-    // caso seja para editar
+
     // caso seja para editar
     else if (isset($_POST['salvar_perfil'])) {
         // recupera os dados do form
