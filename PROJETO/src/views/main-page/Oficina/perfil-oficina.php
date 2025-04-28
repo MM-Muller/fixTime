@@ -9,7 +9,7 @@ if (!isset($conexao) || !$conexao) {
 // inicia sessão
 session_start();
 
-// OBTÉM O ID DA OFICINA
+// obtem o ID da oficina
 $oficina_id = $_SESSION['id_oficina'];
 
 // verifica se o form foi enviado via POST
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtCheck->close();
         
         if ($totalFuncionarios > 0) {
-            // Redireciona para a página de funcionários se houver funcionários cadastrados
+            // redireciona para a página de funcionários se houver funcionários cadastrados
             echo "<script>alert('Você não pode excluir a oficina enquanto houver funcionários cadastrados. Por favor, remova todos os funcionários primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php';</script>";
             exit();
         }
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $telefone = trim($_POST['telefone'] ?? '');
         $email = trim($_POST['email'] ?? '');
 
-        // Validação básica
+        // validação básica
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
             echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
@@ -111,7 +111,7 @@ if ($result->num_rows > 0) {
     exit();
 }
 
-// Fecha o statement e a conexão
+// fecha o statement e a conexão
 $stmt->close();
 $conexao->close();
 ?>
@@ -290,17 +290,17 @@ $conexao->close();
     </div>
 
     <script>
-        // Menu Hamburguer (Abre/Fecha)
+        // Menu Hamburguer abre e fecha
         const hamburgerButton = document.getElementById('hamburgerButton');
         const closeHamburgerButton = document.getElementById('closeHamburgerButton');
         const sidebar = document.getElementById('sidebar');
 
-        // Abre o menu
+        // abre o menu
         hamburgerButton.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
         });
 
-        // Fecha o menu
+        // fecha o menu
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
@@ -315,7 +315,7 @@ $conexao->close();
 
             editarBtn.addEventListener('click', function() {
                 if (!modoEdicao) {
-                    // Modo edição - habilita todos os campos
+                    // modo edição - habilita todos os campos
                     document.querySelectorAll('input, select').forEach(element => {
                         element.disabled = false;
                         element.classList.remove('cursor-not-allowed', 'bg-gray-50');
@@ -325,14 +325,14 @@ $conexao->close();
                     editarBtn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Salvar';
                     modoEdicao = true;
 
-                    // Aplica máscaras
+                    // aplica máscaras
                     $('#telefone-perfil').mask('(00) 00000-0000');
                     $('#cnpj-perfil').mask('00.000.000/0000-00', {
                         reverse: true
                     });
                     $('#cep-perfil').mask('00000-000');
                 } else {
-                    // Validação básica antes de enviar
+                    // validação básica antes de enviar
                     if ($('#nome-perfil').val().trim() === '' ||
                         $('#cnpj-perfil').val().trim() === '' ||
                         $('#email-perfil').val().trim() === '') {
@@ -340,7 +340,7 @@ $conexao->close();
                         return;
                     }
 
-                    // Submeter formulário para salvar
+                    // submeter formulário para salvar
                     form.submit();
                 }
             });

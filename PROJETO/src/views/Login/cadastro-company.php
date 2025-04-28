@@ -9,7 +9,6 @@ if (!isset($conexao) || !$conexao) {
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Sanitização dos dados
   $categoria = $conexao->real_escape_string($_POST['categoria']);
   $nome_oficina = $conexao->real_escape_string($_POST['nome_oficina']);
   $cnpj = $conexao->real_escape_string($_POST['cnpj']);
@@ -24,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $email_oficina = $conexao->real_escape_string($_POST['email_oficina']);
   $senha_oficina = $conexao->real_escape_string($_POST['senha_oficina']);
 
-  // Verifica CNPJ
+  // verifica CNPJ
   $verificaCnpj = "SELECT cnpj FROM oficina WHERE cnpj = '$cnpj'";
   $resultadoCnpj = $conexao->query($verificaCnpj);
 
@@ -33,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
   }
 
-  // Verifica email
+  // verifica email
   $verificaEmail = "SELECT email_oficina FROM oficina WHERE email_oficina = '$email_oficina'";
   $resultadoEmail = $conexao->query($verificaEmail);
   if ($resultadoEmail->num_rows > 0) {
@@ -41,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
   }
 
-  // Hash da senha
+  // hash da senha
   $senha_hash = password_hash($senha_oficina, PASSWORD_DEFAULT);
 
   // Inserir dados no banco

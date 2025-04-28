@@ -9,7 +9,7 @@ if (!isset($conexao) || !$conexao) {
 // inicia a sessão
 session_start();
 
-// Obtém o ID da oficina
+// obtem o ID da oficina
 $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 if (!$oficina_id) {
@@ -17,7 +17,7 @@ if (!$oficina_id) {
     exit();
 }
 
-// Busca os dados atuais da oficina
+// busca os dados atuais da oficina
 $sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $oficina_id); // associa o id da oficina
@@ -31,7 +31,7 @@ if ($result->num_rows > 0) {
     die("Oficina não encontrada."); // interrompe se a oficina não existir
 }
 
-// Fecha o statement e a conexão
+// fecha o statement e a conexão
 $stmt->close();
 $conexao->close();
 ?>
