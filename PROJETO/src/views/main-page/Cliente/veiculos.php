@@ -32,7 +32,6 @@
     $veiculos = [];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Sanitização segura dos dados de entrada
         $tipo = isset($_POST['tipo_veiculos']) ? htmlspecialchars($_POST['tipo_veiculos'], ENT_QUOTES, 'UTF-8') : '';
         $marca = isset($_POST['marca_veiculo']) ? htmlspecialchars($_POST['marca_veiculo'], ENT_QUOTES, 'UTF-8') : '';
         $modelo = isset($_POST['modelo_veiculo']) ? htmlspecialchars($_POST['modelo_veiculo'], ENT_QUOTES, 'UTF-8') : '';
