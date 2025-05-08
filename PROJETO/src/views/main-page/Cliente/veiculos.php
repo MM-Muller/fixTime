@@ -12,7 +12,7 @@
         exit;
     }
 
-    $id_usuario = $_SESSION['id_usuario'] ?? null; // <-- MOVIDO PARA CIMA
+    $id_usuario = $_SESSION['id_usuario'] ?? null;
 
     // BUSCA O PRIMEIRO NOME
     $primeiroNome = '';
@@ -42,7 +42,7 @@
             ? (int) str_replace('.', '', $_POST['quilometragem_veiculo']) 
             : 0;
 
-        // Validação dos campos
+        // validação dos campos
         if (
             empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
             empty($cor) || empty($placa) || $quilometragem < 0
@@ -75,7 +75,7 @@
         }
     }
 
-    // Buscar veículos do usuário
+    // busca os veículos do user 
     if ($id_usuario) {
         try {
             $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, cor, placa, quilometragem 
@@ -184,7 +184,7 @@
         <div>
             <form action="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" method="POST">
                 <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
-                    <!-- Tipo -->
+                    
                     <div class="lg:col-span-1 col-span-6">
                         <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900">Tipo de veículo</label>
                         <select name="tipo_veiculos" id="tipo_veiculos" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
@@ -197,43 +197,43 @@
                         </select>
                     </div>
 
-                    <!-- Marca -->
+                   
                     <div class="lg:col-span-2 col-span-6">
                         <label for="marca_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Marca</label>
                         <input name="marca_veiculo" type="text" id="marca_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Honda" required>
                     </div>
 
-                    <!-- Modelo -->
+                    
                     <div class="lg:col-span-2 col-span-6">
                         <label for="modelo_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Modelo</label>
                         <input name="modelo_veiculo" type="text" id="modelo_veiculo" class=" focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Civic" required>
                     </div>
 
-                    <!-- Ano -->
+                   
                     <div class="lg:col-span-1 col-span-6">
                         <label for="ano_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Ano</label>
                         <input name="ano_veiculo" type="number" id="ano_veiculo" min="1900" max="2099" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 2020" required>
                     </div>
 
-                    <!-- Cor -->
+                    
                     <div class="lg:col-span-1 col-span-6">
                         <label for="cor_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Cor</label>
                         <input name="cor_veiculo" type="text" id="cor_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: Prata" required >
                     </div>
 
-                    <!-- Placa -->
+                   
                     <div class="lg:col-span-2 col-span-6">
                         <label for="placa_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Placa</label>
                         <input name="placa_veiculo" type="text" id="placa_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: ABC1234 ou ABC1D23" required maxlength="7">
                     </div>
 
-                    <!-- Quilometragem -->
+                    
                     <div class="lg:col-span-2 col-span-6">
                         <label for="quilometragem_veiculo" class="block mb-2 text-sm font-medium text-gray-900">Quilometragem</label>
                         <input name="quilometragem_veiculo" type="text" id="quilometragem_veiculo" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: 30000" required>
                     </div>
 
-                    <!-- Botão -->
+                    
                     <div class="lg:col-span-1 flex">
                         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm lg:w-full w-auto px-5 py-2.5 text-center cursor-pointer mt-7">Registrar</button>
 
@@ -303,7 +303,7 @@
                                 </div>
 
                                 <div class="lg:gap-6 gap-4 items-center grid grid-cols-6">
-                                    <!-- Botão Editar/Salvar (alterna entre os dois estados) -->
+                                    <!-- botao editar/salvar (alterna entre os dois estados) -->
                                     <button type="button" class="editar-btn text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $veiculo['id'] ?>">
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
@@ -312,7 +312,7 @@
                                         Editar
                                     </button>
 
-                                    <!-- Botão Excluir/Cancelar (alterna entre os dois estados) -->
+                                    <!-- botao excluir/cancelar (alterna entre os dois estados) -->
                                     <button type="button" class="excluir-btn inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $veiculo['id'] ?>">
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -393,7 +393,7 @@
                             this.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                             this.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
 
-                            // Mudar botão Excluir para Cancelar
+                            // muda botão de 'excluir' para 'cancelar'
                             const excluirBtn = form.querySelector('.excluir-btn');
                             excluirBtn.innerHTML = `
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -404,13 +404,12 @@
                             excluirBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                             excluirBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                         } else {
-                            // Enviar formulário para salvar
                             form.submit();
                         }
                     });
                 });
 
-                // Controle de exclusão/cancelamento
+                // controla exclusao e cancelamento
                 document.querySelectorAll('.excluir-btn').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const id = this.getAttribute('data-id');
@@ -418,7 +417,7 @@
 
                         if (this.textContent.trim() === 'Excluir') {
                             if (confirm('Tem certeza que deseja excluir este veículo?')) {
-                                // Criar formulário temporário para exclusão
+                                //cria um form para exclusão
                                 const deleteForm = document.createElement('form');
                                 deleteForm.action = 'excluir_veiculo.php';
                                 deleteForm.method = 'POST';
@@ -433,11 +432,11 @@
                                 deleteForm.submit();
                             }
                         } else {
-                            // Cancelar edição
+                            // cancela a ediçao
                             const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
                             inputs.forEach(input => input.disabled = true);
 
-                            // Resetar botão Editar
+                            // reseta botão editar
                             const editarBtn = form.querySelector('.editar-btn');
                             editarBtn.innerHTML = `
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -449,7 +448,7 @@
                             editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
                             editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
 
-                            // Resetar botão Cancelar para Excluir
+                            // resetar botão cancelar para Excluir
                             this.innerHTML = `
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -459,7 +458,7 @@
                             this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
                             this.classList.add('bg-red-600', 'hover:bg-red-700');
 
-                            // Recarregar o formulário para descartar alterações
+                            // recarregar o formulário para descartar alterações
                             form.reset();
                         }
                     });

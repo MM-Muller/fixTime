@@ -9,7 +9,7 @@ if (!isset($conexao) || !$conexao) {
 //inicia sessão
 session_start();
 
-//OBTEM O ID DO USER 
+// OBTEM O ID DO USER 
 $user_id = $_SESSION['id_usuario'];
 
 if (!isset($_SESSION['id_usuario'])) {
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtCheck->close();
         
         if ($totalVeiculos > 0) {
-            // Redireciona para a página de veículos se houver veículos cadastrados
+            // redireciona para a página de veículos se houver veículos cadastrados
             echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
             exit();
         }
