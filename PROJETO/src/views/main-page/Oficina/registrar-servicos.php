@@ -1,4 +1,9 @@
 <?php
+
+// Inicia a sessão
+session_start();
+
+// Conecta ao banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
@@ -6,74 +11,7 @@ if (!isset($conexao) || !$conexao) {
     die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
 }
 
-session_start();
-if (!isset($_SESSION['id_oficina'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
-    exit;
-}
-
-$id_usuario = $_SESSION['id_oficina'] ?? null;
-$id_oficina = $id_usuario; // Ensure $id_oficina is defined
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitização segura dos dados de entrada
-    $nome = isset($_POST['nome_funcionario']) ? htmlspecialchars($_POST['nome_funcionario'], ENT_QUOTES, 'UTF-8') : '';
-    $cargo = isset($_POST['cargo_funcionario']) ? htmlspecialchars($_POST['cargo_funcionario'], ENT_QUOTES, 'UTF-8') : '';
-    $telefone = isset($_POST['telefone_funcionario']) ? htmlspecialchars($_POST['telefone_funcionario'], ENT_QUOTES, 'UTF-8') : '';
-    $email = isset($_POST['email_funcionario']) ? htmlspecialchars($_POST['email_funcionario'], ENT_QUOTES, 'UTF-8') : '';
-    $data_admissao = isset($_POST['data_admissao']) ? htmlspecialchars($_POST['data_admissao'], ENT_QUOTES, 'UTF-8') : '';
-
-    // Validação dos campos
-    if (empty($nome) || empty($cargo) || empty($telefone) || empty($email) || empty($data_admissao)) {
-        $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
-    } else {
-        try {
-            $stmt = $conexao->prepare("INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, telefone_funcionario, email_funcionario, data_admissao, id_oficina) 
-                         VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssi", $nome, $cargo, $telefone, $email, $data_admissao, $id_usuario);
-
-            if ($stmt->execute()) {
-                $mensagem = "<script>alert('Funcionário cadastrado com sucesso!');</script>";
-                echo "<script>window.location.href = window.location.href;</script>";
-                exit;
-            } else {
-                $mensagem = "<script>alert('Erro ao cadastrar funcionário: " . addslashes($stmt->error) . "');</script>";
-            }
-
-            $stmt->close();
-        } catch (Exception $e) {
-            $erro = $e->getMessage();
-
-            if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'email_funcionario')) {
-                $mensagem = "<script>alert('Este email já está cadastrado no sistema. Por favor, verifique os dados.');</script>";
-            } else {
-                $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
-            }
-        }
-    }
-}
-
-// Buscar funcionários da oficina
-if ($id_oficina) {
-    try {
-        $stmt = $conexao->prepare("SELECT id_funcionario, nome_funcionario as nome, cargo_funcionario as cargo, telefone_funcionario as telefone, 
-                          email_funcionario as email, data_admissao 
-                          FROM funcionarios WHERE id_oficina = ? ORDER BY id_funcionario DESC");
-        $stmt->bind_param("i", $id_oficina);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        while ($row = $result->fetch_assoc()) {
-            $funcionarios[] = $row;
-        }
-
-        $stmt->close();
-    } catch (Exception $e) {
-        $mensagem = "<script>alert('Erro ao buscar funcionários: " . addslashes($e->getMessage()) . "');</script>";
-    }
-}
-
-// Obtém o ID da oficina
+// Obtem o ID da oficina
 $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 if (!$oficina_id) {
@@ -81,22 +19,53 @@ if (!$oficina_id) {
     exit();
 }
 
-// Busca os dados atuais da oficina
-$sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
+// Busca os dados da oficina
+$sql = "SELECT nome_oficina, categoria FROM oficina WHERE id_oficina = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $oficina_id); // associa o id da oficina
 $stmt->execute();
 $result = $stmt->get_result();
 
-// verifica se encontrou a oficina
+// Verifica se encontrou a oficina
 if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+    $categoria_oficina = $user_data['categoria']; // Armazena a categoria da oficina
 } else {
     die("Oficina não encontrada."); // interrompe se a oficina não existir
 }
 
+// Buscar categoria da oficina
+$sql = "SELECT categoria FROM oficina WHERE id_oficina = ?";
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $oficina_id);
+$stmt->execute();
+$categoria = $stmt->get_result()->fetch_assoc()['categoria'];
+
+// Buscar serviços da categoria
+$servicos = [];
+$sqlServicos = "SELECT id_servico_padrao, nome_servico FROM servicos_padrao WHERE categoria = ?";
+$stmtServicos = $conexao->prepare($sqlServicos);
+$stmtServicos->bind_param("s", $categoria);
+$stmtServicos->execute();
+$resultServicos = $stmtServicos->get_result();
+while ($row = $resultServicos->fetch_assoc()) {
+    $servicos[] = $row;
+}
+
+// Buscar serviços já salvos pela oficina
+$servicosSelecionados = [];
+$sqlSelecionados = "SELECT id_servico_padrao FROM oficina_servicos WHERE id_oficina = ?";
+$stmtSelecionados = $conexao->prepare($sqlSelecionados);
+$stmtSelecionados->bind_param("i", $oficina_id);
+$stmtSelecionados->execute();
+$resultSelecionados = $stmtSelecionados->get_result();
+while ($row = $resultSelecionados->fetch_assoc()) {
+    $servicosSelecionados[] = $row['id_servico_padrao'];
+}
+
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -185,7 +154,34 @@ if ($result->num_rows > 0) {
 
     </aside>
 
-    <div class=" lg:ml-64 p-4 lg:p-14">
+    <div class="lg:ml-64 lg:py-10 py-4 lg:px-48 px-8 ">
+    
+        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+            
+            <div class="">
+                <h2 class="text-2xl font-bold mb-6">Categoria: <?php echo htmlspecialchars($categoria_oficina); ?></h2>
+
+                <form method="POST" action="salvar_servicos.php">
+                    <h2>Selecione os serviços que sua oficina oferece:</h2>
+                
+                    <?php foreach ($servicos as $servico): ?>
+                        <label>
+                            <input
+                                class="cursor-pointer mt-3"
+                                type="checkbox"
+                                name="servicos[]"
+                                value="<?= $servico['id_servico_padrao'] ?>"
+                                <?= in_array($servico['id_servico_padrao'], $servicosSelecionados) ? 'checked' : '' ?>
+                            >
+                            <?= htmlspecialchars($servico['nome_servico']) ?>
+                        </label><br>
+                    <?php endforeach; ?>
+                    
+                    <button type="submit" class="mt-5 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">Salvar</button>
+                </form>
+                    
+            </div>
+        </div>
 
     </div>
 
