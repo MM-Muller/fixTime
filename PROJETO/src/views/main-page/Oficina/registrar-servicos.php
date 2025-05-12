@@ -1,15 +1,17 @@
 <?php
+
+// Inicia a sessão
+session_start();
+
+// Conecta ao banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
-$conexao = connect_db(); // conecta com o bd
+$conexao = connect_db();
 
 if (!isset($conexao) || !$conexao) {
     die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-} // verifica se a conexão deu tudo certo
+}
 
-// inicia a sessão
-session_start();
-
-// obtem o ID da oficina
+// Obtem o ID da oficina
 $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 if (!$oficina_id) {
@@ -17,28 +19,57 @@ if (!$oficina_id) {
     exit();
 }
 
-// busca os dados atuais da oficina
-$sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
+// Busca os dados da oficina
+$sql = "SELECT nome_oficina, categoria FROM oficina WHERE id_oficina = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $oficina_id); // associa o id da oficina
 $stmt->execute();
 $result = $stmt->get_result();
 
-// verifica se encontrou a oficina
+// Verifica se encontrou a oficina
 if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+    $categoria_oficina = $user_data['categoria']; // Armazena a categoria da oficina
 } else {
     die("Oficina não encontrada."); // interrompe se a oficina não existir
 }
 
-// fecha o statement e a conexão
-$stmt->close();
-$conexao->close();
+// Buscar categoria da oficina
+$sql = "SELECT categoria FROM oficina WHERE id_oficina = ?";
+$stmt = $conexao->prepare($sql);
+$stmt->bind_param("i", $oficina_id);
+$stmt->execute();
+$categoria = $stmt->get_result()->fetch_assoc()['categoria'];
+
+// Buscar serviços da categoria
+$servicos = [];
+$sqlServicos = "SELECT id_servico_padrao, nome_servico FROM servicos_padrao WHERE categoria = ?";
+$stmtServicos = $conexao->prepare($sqlServicos);
+$stmtServicos->bind_param("s", $categoria);
+$stmtServicos->execute();
+$resultServicos = $stmtServicos->get_result();
+while ($row = $resultServicos->fetch_assoc()) {
+    $servicos[] = $row;
+}
+
+// Buscar serviços já salvos pela oficina
+$servicosSelecionados = [];
+$sqlSelecionados = "SELECT id_servico_padrao FROM oficina_servicos WHERE id_oficina = ?";
+$stmtSelecionados = $conexao->prepare($sqlSelecionados);
+$stmtSelecionados->bind_param("i", $oficina_id);
+$stmtSelecionados->execute();
+$resultSelecionados = $stmtSelecionados->get_result();
+while ($row = $resultSelecionados->fetch_assoc()) {
+    $servicosSelecionados[] = $row['id_servico_padrao'];
+}
+
+
 ?>
 
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,28 +77,31 @@ $conexao->close();
     <title>Fix Time</title>
 </head>
 
+<?php if (!empty($mensagem)) echo $mensagem; ?>
+
 
 <body class="">
-    
+
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
-    
+
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
 
             <div>
                 <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
                     <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                        <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
-                          <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
                     </button>
-                        <img  src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 "/>
+                    <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
 
                 </a>
+
                 <ul class="space-y-2 font-medium">
 
                     <li>
@@ -75,12 +109,10 @@ $conexao->close();
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M4.5 17H4a1 1 0 0 1-1-1 3 3 0 0 1 3-3h1m0-3.05A2.5 2.5 0 1 1 9 5.5M19.5 17h.5a1 1 0 0 0 1-1 3 3 0 0 0-3-3h-1m0-3.05a2.5 2.5 0 1 0-2-4.45m.5 13.5h-7a1 1 0 0 1-1-1 3 3 0 0 1 3-3h3a3 3 0 0 1 3 3 1 1 0 0 1-1 1Zm-1-9.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
                         </svg>
-
                             <span class="flex-1 ms-3 whitespace-nowrap">Meus Funcionarios</span>
                         </a>
                     </li>
 
-                    
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -92,14 +124,14 @@ $conexao->close();
                                     $partes = explode(' ', $nomeCompleto);
                                     $duasPalavras = implode(' ', array_slice($partes, 0, 2));
                                     echo $duasPalavras;
-                                    ?>
+                                ?>
                             </span>
                         </a>
                     </li>
-                    
+
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Oficina/registrar-servicos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
-                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.583 8.445h.01M10.86 19.71l-6.573-6.63a.993.993 0 0 1 0-1.4l7.329-7.394A.98.98 0 0 1 12.31 4l5.734.007A1.968 1.968 0 0 1 20 5.983v5.5a.992.992 0 0 1-.316.727l-7.44 7.5a.974.974 0 0 1-1.384.001Z"/>
                         </svg>
 
@@ -107,83 +139,70 @@ $conexao->close();
                             <span class="flex-1 ms-3 whitespace-nowrap">Registrar serviços</span>
                         </a>
                     </li>
+
                 </ul>
             </div>
 
-            <div>
-                <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                    <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
-                    </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
-                </a>
-            </div>
+            <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group">
+                <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" />
+                </svg>
+
+                <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
+            </a>
+        </div>
 
     </aside>
 
-    <div class=" lg:ml-64 p-10 ">
-        
-        <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
-            <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
-                <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
-                </svg>
-            </div>
+    <div class="lg:ml-64 lg:py-10 py-4 lg:px-48 px-8 ">
+    
+        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+            
+            <div class="">
+                <h2 class="text-2xl font-bold mb-6">Categoria: <?php echo htmlspecialchars($categoria_oficina); ?></h2>
 
-            <div class="w-full">
-                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[440px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[460px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[360px]"></div>
+                <form method="POST" action="salvar_servicos.php">
+                    <h2>Selecione os serviços que sua oficina oferece:</h2>
+                
+                    <?php foreach ($servicos as $servico): ?>
+                        <label>
+                            <input
+                                class="cursor-pointer mt-3"
+                                type="checkbox"
+                                name="servicos[]"
+                                value="<?= $servico['id_servico_padrao'] ?>"
+                                <?= in_array($servico['id_servico_padrao'], $servicosSelecionados) ? 'checked' : '' ?>
+                            >
+                            <?= htmlspecialchars($servico['nome_servico']) ?>
+                        </label><br>
+                    <?php endforeach; ?>
+                    
+                    <button type="submit" class="mt-5 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">Salvar</button>
+                </form>
+                    
             </div>
         </div>
 
-        <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
-            <div class="w-full">
-                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[440px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[460px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[360px]"></div>
-            </div>
-            <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
-                <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                    <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
-                </svg>
-            </div>
-        </div>
-  
-
-        <div role="status" class="mt-5 space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
-            <div class="w-full">
-                <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
-                <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
-                <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
-            </div>
-        </div>
-        
     </div>
 
-    <script>
-        // Menu Hamburguer (Abre/Fecha)
-        const hamburgerButton = document.getElementById('hamburgerButton');
-        const closeHamburgerButton = document.getElementById('closeHamburgerButton');
-        const sidebar = document.getElementById('sidebar');
 
-        // Abre o menu
-        hamburgerButton.addEventListener('click', () => {
-            sidebar.classList.toggle('-translate-x-full');
-        });
+            <script>
+                // Menu Hamburguer 
+                const hamburgerButton = document.getElementById('hamburgerButton');
+                const closeHamburgerButton = document.getElementById('closeHamburgerButton');
+                const sidebar = document.getElementById('sidebar');
 
-        // Fecha o menu
-        closeHamburgerButton.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-        });
+                hamburgerButton.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
 
-    </script>
+                closeHamburgerButton.addEventListener('click', () => {
+                    sidebar.classList.add('-translate-x-full');
+                });
+            
+              
+            </script>
 
 </body>
+
 </html>
