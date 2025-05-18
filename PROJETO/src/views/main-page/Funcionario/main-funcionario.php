@@ -3,21 +3,27 @@ session_start();
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
-if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+if (!isset($_SESSION['id_funcionario'])) {
+    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-funcionario.php';</script>";
     exit;
 }
 
-$id_usuario = $_SESSION['id_usuario'];
+$id_usuario = $_SESSION['id_funcionario'];
 $primeiroNome = '';
 
-$stmt = $conexao->prepare("SELECT nome_usuario FROM cliente WHERE id_usuario = ?");
+$stmt = $conexao->prepare("SELECT nome_funcionario FROM funcionarios WHERE id_funcionario = ?");
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($row = $result->fetch_assoc()) {
-    $nomeCompleto = htmlspecialchars($row['nome_usuario']);
+    $nomeCompleto = htmlspecialchars($row['nome_funcionario']);
+    $primeiroNome = explode(' ', $nomeCompleto)[0];
+    $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
+}
+
+if ($row = $result->fetch_assoc()) {
+    $nomeCompleto = htmlspecialchars($row['nome_funcionario']);
     $primeiroNome = explode(' ', $nomeCompleto)[0];
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 }

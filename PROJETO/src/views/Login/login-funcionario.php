@@ -9,38 +9,35 @@ if (!isset($conexao) || !$conexao) {
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email_oficina = $_POST['email_oficina'] ?? '';
-  $senha_oficina = $_POST['senha_oficina'] ?? '';
+  $email_funcionario = $_POST['email_funcionario'] ?? '';
+  $cpf_funcionario = $_POST['cpf_funcionario'] ?? '';
 
-  // Usar prepared statements para evitar SQL Injection
-  $stmt = $conexao->prepare("SELECT id_oficina, senha_oficina FROM oficina WHERE email_oficina = ?");
-  $stmt->bind_param("s", $email_oficina);
+  // Prepared statement seguro
+  $stmt = $conexao->prepare("SELECT id_funcionario, cpf_funcionario FROM funcionarios WHERE email_funcionario = ?");
+  $stmt->bind_param("s", $email_funcionario);
   $stmt->execute();
   $stmt->store_result();
 
-  // Verificar se encontrou o usuário
   if ($stmt->num_rows > 0) {
-    $stmt->bind_result($id_oficina, $hash_senha);
+    $stmt->bind_result($id_funcionario, $cpf_banco);
     $stmt->fetch();
 
-    // Verificar senha
-    if (password_verify($senha_oficina, $hash_senha)) {
-      // Armazenar dados do usuário na sessão
-      $_SESSION['id_oficina'] = $id_oficina;
-
-      // Redirecionamento seguro
-      header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/main-oficina.php");
+    // Se CPF for armazenado em texto plano
+    if ($cpf_funcionario === $cpf_banco) {
+      $_SESSION['id_funcionario'] = $id_funcionario;
+      header("Location: /fixTime/PROJETO/src/views/main-page/Funcionario/main-funcionario.php");
       exit();
     } else {
-      $erro = "Email ou senha inválidos.";
+      $erro = "Email ou CPF inválidos.";
     }
   } else {
-    $erro = "Email ou senha inválidos.";
+    $erro = "Email ou CPF inválidos.";
   }
 
   $stmt->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -72,13 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form class="space-y-3" method="POST" action="">
       <div class="lg:space-y-4 space-y-3">
         <div class="">
-          <label for="email_oficina" class="block mb-1 text-sm font-medium text-gray-900">Email</label>
-          <input type="email" name="email_oficina" id="email_oficina" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="contato@oficina.com" required />
+          <label for="email_funcionario" class="block mb-1 text-sm font-medium text-gray-900">Email</label>
+          <input type="email" name="email_funcionario" id="email_funcionario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="joao@oficina.com" required />
         </div>
 
         <div class="" id="senha-container">
-          <label for="cpf" class="block mb-1 text-sm font-medium text-gray-900">CPF</label>
-          <input type="text" name="cpf" id="cpf" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="••••••••••••" required />
+          <label for="cpf_funcionario" class="block mb-1 text-sm font-medium text-gray-900">CPF</label>
+          <input type="text" name="cpf_funcionario" id="cpf_funcionario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="123.456.789-10" required />
         </div>
       </div>
 
