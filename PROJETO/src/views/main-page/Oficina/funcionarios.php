@@ -13,24 +13,23 @@ if (!isset($_SESSION['id_oficina'])) {
 }
 
 $id_usuario = $_SESSION['id_oficina'] ?? null;
-$id_oficina = $id_usuario; // Ensure $id_oficina is defined
+$id_oficina = $id_usuario;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitização segura dos dados de entrada
     $nome = isset($_POST['nome_funcionario']) ? htmlspecialchars($_POST['nome_funcionario'], ENT_QUOTES, 'UTF-8') : '';
     $cargo = isset($_POST['cargo_funcionario']) ? htmlspecialchars($_POST['cargo_funcionario'], ENT_QUOTES, 'UTF-8') : '';
     $telefone = isset($_POST['telefone_funcionario']) ? htmlspecialchars($_POST['telefone_funcionario'], ENT_QUOTES, 'UTF-8') : '';
     $email = isset($_POST['email_funcionario']) ? htmlspecialchars($_POST['email_funcionario'], ENT_QUOTES, 'UTF-8') : '';
+    $cpf = isset($_POST['cpf_funcionario']) ? htmlspecialchars($_POST['cpf_funcionario'], ENT_QUOTES, 'UTF-8') : '';
     $data_admissao = isset($_POST['data_admissao']) ? htmlspecialchars($_POST['data_admissao'], ENT_QUOTES, 'UTF-8') : '';
 
-    // Validação dos campos
-    if (empty($nome) || empty($cargo) || empty($telefone) || empty($email) || empty($data_admissao)) {
+    if (empty($nome) || empty($cargo) || empty($telefone) || empty($email) || empty($cpf) || empty($data_admissao)) {
         $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
     } else {
         try {
-            $stmt = $conexao->prepare("INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, telefone_funcionario, email_funcionario, data_admissao, id_oficina) 
-                         VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssi", $nome, $cargo, $telefone, $email, $data_admissao, $id_usuario);
+            $stmt = $conexao->prepare("INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, telefone_funcionario, email_funcionario, cpf_funcionario,  data_admissao, id_oficina) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssi", $nome, $cargo, $telefone, $email, $cpf, $data_admissao, $id_usuario);
 
             if ($stmt->execute()) {
                 $mensagem = "<script>alert('Funcionário cadastrado com sucesso!');</script>";
@@ -53,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Buscar funcionários da oficina
+
 if ($id_oficina) {
     try {
         $stmt = $conexao->prepare("SELECT id_funcionario, nome_funcionario as nome, cargo_funcionario as cargo, telefone_funcionario as telefone, 
-                          email_funcionario as email, data_admissao 
+                          email_funcionario as email, cpf_funcionario as cpf, data_admissao 
                           FROM funcionarios WHERE id_oficina = ? ORDER BY id_funcionario DESC");
         $stmt->bind_param("i", $id_oficina);
         $stmt->execute();
@@ -187,48 +186,55 @@ if ($result->num_rows > 0) {
 
     <div class=" lg:ml-64 p-4 lg:p-14">
 
-        <!-- cadastrar funcionários -->
         <div>
             <form action="/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php" method="POST">
                 <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
-                    <!-- Nome -->
+                    
                     <div class="lg:col-span-2 col-span-6">
                         <label for="nome_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Nome Completo</label>
                         <input name="nome_funcionario" type="text" id="nome_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: João Silva" required>
                     </div>
 
-                    <!-- Cargo -->
                     <div class="lg:col-span-2 col-span-6">
-                        <label for="cargo_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Cargo</label>
-                        <select name="cargo_funcionario" id="cargo_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none cursor-pointer" required>
-                            <option value="">Selecione</option>
-                            <option value="Borracheiro">Borracheiro</option>
-                            <option value="Eletricista">Eletricista</option>
-                            <option value="Mecânico">Mecânico</option>
-                            <option value="Lavador de automoveis">Lavador de automoveis</option>
-                        </select>
+                        <label for="cargo_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Cargo / Função</label>
+                        <input
+                            type="text"
+                            name="cargo_funcionario"
+                            id="cargo_funcionario"
+                            placeholder="Digite o cargo do funcionário"
+                            class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
+                            required />
                     </div>
 
-                    <!-- Telefone -->
+
                     <div class="lg:col-span-2 col-span-6">
                         <label for="telefone_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Telefone</label>
                         <input name="telefone_funcionario" type="text" id="telefone_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: (11) 99999-9999" required>
                     </div>
-
-                    <!-- Email -->
+                    
                     <div class="lg:col-span-2 col-span-6">
                         <label for="email_funcionario" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
                         <input name="email_funcionario" type="email" id="email_funcionario" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" placeholder="Ex: funcionario@email.com" required>
                     </div>
 
-                    <!-- Data Admissão -->
                     <div class="lg:col-span-2 col-span-6">
+                        <label for="cpf_funcionario" class="block mb-2 text-sm font-medium text-gray-900">CPF</label>
+                        <input
+                            name="cpf_funcionario"
+                            type="text"
+                            id="cpf_funcionario"
+                            class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none"
+                            placeholder="Ex: 123.456.789-00"
+                            required />
+                    </div>
+
+       
+                    <div class="lg:col-span-1 col-span-6">
                         <label for="data_admissao" class="block mb-2 text-sm font-medium text-gray-900">Data Admissão</label>
                         <input name="data_admissao" type="date" id="data_admissao" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50  border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none" required>
                     </div>
 
-                    <!-- Botão -->
-                    <div class="lg:col-span-2 flex col-span-6">
+                    <div class="lg:col-span-1 flex col-span-6">
                         <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm lg:w-full w-auto px-5 py-2.5 text-center cursor-pointer mt-7">Registrar</button>
                     </div>
                 </div>
@@ -252,24 +258,24 @@ if ($result->num_rows > 0) {
                                         <input type="text" value="<?= htmlspecialchars($funcionario['id_funcionario']) ?>" class="campo-id focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 cursor-not-allowed" disabled />
                                     </div>
 
-                                    <div class="lg:col-span-3 col-span-1">
+                                    <div class="lg:col-span-2 col-span-1">
                                         <label for="nome-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Nome</label>
                                         <input name="nome" type="text" id="nome-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['nome']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-2 col-span-1">
-                                        <label for="cargo-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Cargo</label>
-                                        <select name="cargo" id="cargo-<?= $funcionario['id_funcionario'] ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
-                                            <option value="Borracheiro" <?= $funcionario['cargo'] == 'Borracheiro' ? 'selected' : '' ?>>Borracheiro</option>
-                                            <option value="Eletricista" <?= $funcionario['cargo'] == 'Eletricista' ? 'selected' : '' ?>>Eletricista</option>
-                                            <option value="Mecânico" <?= $funcionario['cargo'] == 'Mecânico' ? 'selected' : '' ?>>Mecânico</option>
-                                            <option value="Lavador de automoveis" <?= $funcionario['cargo'] == 'Lavador de automoveis' ? 'selected' : '' ?>>Lavador de automoveis</option>
-                                        </select>
+                                        <label for="cargo-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Cargo / Função</label>
+                                        <input name="cargo" type="text" id="nome-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['cargo']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-1 col-span-1">
-                                        <label for="telefone-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">Telefone</label>
+                                        <label for="telefone-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">telefone</label>
                                         <input name="telefone" type="text" id="telefone-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['telefone']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
+                                    </div>
+
+                                    <div class="lg:col-span-1 col-span-1">
+                                        <label for="cpf-<?= $funcionario['id_funcionario'] ?>" class="block mb-1 text-sm font-medium text-gray-900">CPF</label>
+                                        <input name="cpf" type="text" id="cpf-<?= $funcionario['id_funcionario'] ?>" value="<?= htmlspecialchars($funcionario['cpf']) ?>" class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2 outline-none cursor-not-allowed" disabled>
                                     </div>
 
                                     <div class="lg:col-span-3 col-span-1">
@@ -319,10 +325,8 @@ if ($result->num_rows > 0) {
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
             <script>
                 $(document).ready(function() {
-                    // Máscara para telefone
                     $('#telefone_funcionario').mask('(00) 00000-0000');
-
-                    // Configurar máscaras para os campos de edição
+                    $('#cpf_funcionario').mask('000.000.000-00', {reverse: true});
                     $('input[id^="telefone-"]').each(function() {
                         $(this).mask('(00) 00000-0000');
                     });

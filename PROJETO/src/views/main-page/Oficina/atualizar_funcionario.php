@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
     $nome = htmlspecialchars($_POST['nome'] ?? '', ENT_QUOTES, 'UTF-8');
     $cargo = htmlspecialchars($_POST['cargo'] ?? '', ENT_QUOTES, 'UTF-8');
+    $cpf = htmlspecialchars($_POST['cpf'] ?? '', ENT_QUOTES, 'UTF-8');
     $telefone = htmlspecialchars($_POST['telefone'] ?? '', ENT_QUOTES, 'UTF-8');
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
     $data_admissao = htmlspecialchars($_POST['data_admissao'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -20,11 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             nome_funcionario = ?, 
             cargo_funcionario = ?, 
             telefone_funcionario = ?, 
+            cpf_funcionario = ?, 
             email_funcionario = ?, 
             data_admissao = ? 
             WHERE id_funcionario = ? AND id_oficina = ?");
 
-        $stmt->bind_param("sssssii", $nome, $cargo, $telefone, $email, $data_admissao, $id, $_SESSION['id_oficina']);
+        $stmt->bind_param("ssssssii", $nome, $cargo, $telefone, $cpf, $email, $data_admissao, $id, $_SESSION['id_oficina']);
+
 
         if ($stmt->execute()) {
             $_SESSION['mensagem'] = "<script>alert('Funcionário atualizado com sucesso!');</script>";
