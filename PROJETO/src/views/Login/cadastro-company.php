@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <h1 class="block mb-2 text-md font-medium text-gray-900">Selecione a categoria do seu negócio:</h1>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div class="flex items-center">
-          <input id="borracharia" type="radio" name="categoria" value="Borracharia" class="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300" required>
+          <input id="borracharia" type="radio" name="categoria" value="Borracharia" class="cursor-pointer w-4 h-4 text-blue-600 bg-gray-100 border-gray-300" checked required>
           <label for="borracharia" class="ms-1 text-sm font-medium text-gray-900">Borracharia</label>
         </div>
 

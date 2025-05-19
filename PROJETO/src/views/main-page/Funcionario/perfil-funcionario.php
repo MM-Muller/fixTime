@@ -132,7 +132,7 @@ if ($result->num_rows > 0) {
 
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
             <form id="formPerfil" method="POST" action="perfil-oficina.php">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-6">
                     <div class="">
                         <label for="nome-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">Nome Completo</label>
                         <input type="text" id="nome-funcionario" name="nome-funcionario" value="<?php echo htmlspecialchars($user_data['nome_funcionario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />

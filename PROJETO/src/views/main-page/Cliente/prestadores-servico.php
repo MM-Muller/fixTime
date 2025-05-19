@@ -110,7 +110,7 @@ $stmt->close();
 
     </aside>
 
-    <div class=" lg:ml-64 lg:px-10 lg:py-6">
+    <div class=" lg:ml-64 lg:px-10 lg:py-6 p-10">
         <div class="flex justify-center items-center">
             <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
         </div>
@@ -249,8 +249,8 @@ $stmt->close();
                     <form id="agendamentoForm" class="space-y-4">
                         <!-- Data do Agendamento -->
                         <div>
-                            <label for="data_agendamento" class="block mb-2 text-sm font-medium text-gray-900 text-center">Data do Agendamento</label>
-                            <input type="date" id="data_agendamento" name="data_agendamento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            <label for="data_agendamento" class=" block mb-2 text-sm font-medium text-gray-900 text-center">Data do Agendamento</label>
+                            <input type="date" id="data_agendamento" name="data_agendamento" class="outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>
 
                         <!-- Horário -->

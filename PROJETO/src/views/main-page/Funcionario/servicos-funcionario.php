@@ -153,17 +153,17 @@ $stmt->close();
                 <div class="grid grid-cols-6 gap-6 ">
                     <div class="col-span-2">
                         <label for="nome-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
-                        <input type="text" id="nome-funcionario" name="nome-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <input type="text" id="nome-funcionario" name="nome-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
                     <div class="col-span-2">
                         <label for="cpf-funcionario" class="block mb-1 text-sm font-medium text-gray-900">Data de recebimento</label>
-                        <input type="text" id="cpf-funcionario" name="cpf-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <input type="text" id="cpf-funcionario" name="cpf-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
                     <div class="col-span-2">
                         <label for="telefone-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">Horário de recebimento</label>
-                        <input type="text" id="telefone-funcionario" name="telefone-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <input type="text" id="telefone-funcionario" name="telefone-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
                 </div>
 
@@ -178,12 +178,12 @@ $stmt->close();
                             <div class="col-span-2 space-y-4">
                                 <div class="">
                                     <label for="data-entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
-                                    <input type="date" id="data-entrega" name="data-entrega"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" />
+                                    <input type="date" id="data-entrega" name="data-entrega"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                                 </div>
 
                                 <div class="">
                                     <label for="status" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
-                                    <select id="status" name="status" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
+                                    <select id="status" name="status" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled >
                                         <option value="pendente">Pendente</option>
                                         <option value="em_andamento">Em andamento</option>
                                         <option value="finalizado">Finalizado</option>
@@ -195,10 +195,20 @@ $stmt->close();
 
                             <div class="col-span-4">
                                 <label for="servicos-feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
-                                <textarea id="servicos-feitos" name="servicos-feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none" placeholder="Descreva os serviços realizados..."></textarea>
+                                <textarea id="servicos-feitos" name="servicos-feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none" placeholder="Descreva os serviços realizados..." disabled ></textarea>
                             </div>
 
                         </div>
+                </div>
+
+                <div class="lg:gap-6 gap-4 items-center  mt-6">
+                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer w-full">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Editar
+                    </button>
                 </div>
             </div>
         </div>
@@ -221,6 +231,45 @@ $stmt->close();
             sidebar.classList.add('-translate-x-full');
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editarBtn = document.getElementById('editarPerfilBtn');
+            const form = document.getElementById('formPerfil');
+            let modoEdicao = false;
+        
+            editarBtn.addEventListener('click', function () {
+                if (!modoEdicao) {
+                    // Habilita todos os campos do formulário
+                    document.querySelectorAll('#formPerfil input, #formPerfil select, #formPerfil textarea').forEach(element => {
+                        element.disabled = false;
+                        element.classList.remove('cursor-not-allowed', 'bg-gray-50');
+                        element.classList.add('bg-white');
+                    });
+                
+                    editarBtn.innerHTML = `
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg> Salvar
+                    `;
+                    modoEdicao = true;
+                
+                } else {
+                    // Validação simples (exemplo: data e status não vazios)
+                    const data = document.getElementById('data-entrega').value;
+                    const status = document.getElementById('status').value;
+                
+                    if (data.trim() === '' || status.trim() === '') {
+                        alert('Preencha a data de entrega e o status.');
+                        return;
+                    }
+                
+                    form.submit();
+                }
+            });
+        });
+    </script>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
     <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
