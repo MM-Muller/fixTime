@@ -37,12 +37,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($row = $result->fetch_assoc()) {
-    // Nome do funcionário
+    // nome do funcionário
     $nomeCompleto = htmlspecialchars($row['nome_funcionario']);
     $primeiroNome = explode(' ', $nomeCompleto)[0];
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 
-    // Nome da oficina
+    // nome da oficina
     $nomeOficina = htmlspecialchars($row['nome_oficina']);
 }
 
@@ -172,24 +172,32 @@ $stmt->close();
                 </div>
 
                 <div class="">
-
-                    <form id="formPerfil" method="POST" action="perfil-oficina.php" >
+                    <form id="formPerfil" method="POST" action="" >
                         <div class="grid grid-cols-6 gap-4">
 
-                            <div class="col-span-2">
-                                <label for="email-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                                <input type="email" id="email-funcionario" name="email-funcionario" value="" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            <div class="col-span-2 space-y-4">
+                                <div class="">
+                                    <label for="data-entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
+                                    <input type="date" id="data-entrega" name="data-entrega"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" />
+                                </div>
+
+                                <div class="">
+                                    <label for="status" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                    <select id="status" name="status" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
+                                        <option value="pendente">Pendente</option>
+                                        <option value="em_andamento">Em andamento</option>
+                                        <option value="finalizado">Finalizado</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
                             </div>
-        
-                            <div class="col-span-2">
-                                <label for="cargo-funcionario" class="block mb-1 text-sm font-medium text-gray-900">Cargo / Função</label>
-                                <input type="text" id="cargo-funcionario" name="cargo-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled onblur="consultarCep()"/>
+                           
+
+                            <div class="col-span-4">
+                                <label for="servicos-feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
+                                <textarea id="servicos-feitos" name="servicos-feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none" placeholder="Descreva os serviços realizados..."></textarea>
                             </div>
-        
-                            <div class="col-span-2">
-                                <label for="data-admissao" class="block mb-1 text-sm font-medium text-gray-900">Data de admissão</label>
-                                <input type="text" id="data-admissao" name="data-admissao" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                            </div>
+
                         </div>
                 </div>
             </div>
