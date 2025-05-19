@@ -120,7 +120,7 @@ $stmt->close();
         <?php
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
-        $query = "SELECT nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria, numero_oficina, complemento, cidade_oficina FROM oficina";
+        $query = "SELECT id_oficina, nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria, numero_oficina, complemento, cidade_oficina FROM oficina";
         if (!empty($filter)) {
             $query .= " WHERE categoria = ?";
         }
@@ -177,7 +177,20 @@ $stmt->close();
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo '<div class=" mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
+                // Buscar serviços da oficina
+                $oficina_id = $row['id_oficina'];
+                $sql_servicos = "SELECT sp.nome_servico 
+                                FROM oficina_servicos os 
+                                JOIN servicos_padrao sp ON os.id_servico_padrao = sp.id_servico_padrao 
+                                WHERE os.id_oficina = ?";
+                $stmt_servicos = $conexao->prepare($sql_servicos);
+                $stmt_servicos->bind_param("i", $oficina_id);
+                $stmt_servicos->execute();
+                $result_servicos = $stmt_servicos->get_result();
+                
+                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
+                echo '<div class="grid grid-cols-2 gap-4">';
+                echo '<div>'; // Coluna da esquerda com informações da oficina
                 echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
                 echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
@@ -187,7 +200,23 @@ $stmt->close();
                 echo '<p class="mb-1 text-gray-500">Complemento: ' . htmlspecialchars($row['complemento']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Cidade: ' . htmlspecialchars($row['cidade_oficina']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                echo '<button data-modal-target="agendarModal" data-modal-toggle="agendarModal" type="button" name="agendar" value="1" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                echo '</div>';
+                
+                echo '<div>'; // Coluna da direita com serviços
+                echo '<h2 class="mb-3 text-lg font-semibold text-gray-900">Serviços Oferecidos:</h2>';
+                echo '<div class="space-y-2">';
+                if ($result_servicos->num_rows > 0) {
+                    while ($servico = $result_servicos->fetch_assoc()) {
+                        echo '<p class="text-gray-500"><svg class="w-4 h-4 inline-block mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' . htmlspecialchars($servico['nome_servico']) . '</p>';
+                    }
+                } else {
+                    echo '<p class="text-gray-500">Nenhum serviço cadastrado</p>';
+                }
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                
+                echo '<button data-modal-target="agendarModal" data-modal-toggle="agendarModal" type="button" name="agendar" value="1" class="mt-4 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                 <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
