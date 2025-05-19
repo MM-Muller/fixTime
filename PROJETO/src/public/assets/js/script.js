@@ -1,6 +1,4 @@
-// script.js
-
-// Máscaras de entrada
+// máscaras de entrada
 $('#cnpj').mask('00.000.000/0000-00', {reverse: true});
 $('#telefone').mask('(00) 00000-0000');
 $('#telefone-perfil').mask('(00) 00000-0000');
@@ -11,7 +9,7 @@ $('#cpf-perfil').mask('000.000.000-00', {reverse: true});
 function consultarCep() {
   const cep = document.getElementById('cep_oficina').value.replace(/\D/g, ''); // remove tudo que não for número
 
-  if (cep.length === 8) { //confere se tem 8 números
+  if (cep.length === 8) { // confere se tem 8 números
       fetch(`https://viacep.com.br/ws/${cep}/json/`)
           .then(response => response.json())
           .then(data => {

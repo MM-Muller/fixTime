@@ -1,47 +1,58 @@
 <?php
+session_start();
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
-if (!isset($conexao) || !$conexao) {
-    die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
+if (!isset($_SESSION['id_funcionario'])) {
+    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-funcionario.php';</script>";
+    exit;
 }
 
-session_start();
-
 $id_funcionario = $_SESSION['id_funcionario'];
+$primeiroNome = '';
 
-// Busca os dados do funcionário junto com o nome da oficina
+$stmt = $conexao->prepare("SELECT nome_funcionario FROM funcionarios WHERE id_funcionario = ?");
+$stmt->bind_param("i", $id_funcionario);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($row = $result->fetch_assoc()) {
+    $nomeCompleto = htmlspecialchars($row['nome_funcionario']);
+    $primeiroNome = explode(' ', $nomeCompleto)[0];
+    $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
+}
+
+
+
 $sql = "SELECT 
-            f.nome_funcionario, 
-            f.cargo_funcionario, 
-            f.telefone_funcionario,  
-            f.email_funcionario, 
-            f.data_admissao, 
-            f.cpf_funcionario,
-            o.nome_oficina
+          f.nome_funcionario, 
+          o.nome_oficina 
         FROM funcionarios f
         JOIN oficina o ON f.id_oficina = o.id_oficina
         WHERE f.id_funcionario = ?";
+
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $id_funcionario);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $user_data = $result->fetch_assoc();
-
-    // Processa nome completo e primeiro nome
-    $nomeCompleto = htmlspecialchars($user_data['nome_funcionario']);
+if ($row = $result->fetch_assoc()) {
+    // nome do funcionário
+    $nomeCompleto = htmlspecialchars($row['nome_funcionario']);
     $primeiroNome = explode(' ', $nomeCompleto)[0];
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 
-    // Processa nome da oficina
-    $nomeOficina = htmlspecialchars($user_data['nome_oficina']);
-} else {
-    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
-    exit();
+    // nome da oficina
+    $nomeOficina = htmlspecialchars($row['nome_oficina']);
 }
+
+
+
+
+
+$stmt->close();
 ?>
+
 
 
 
@@ -128,9 +139,71 @@ if ($result->num_rows > 0) {
     </aside>
 
 
-    <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
+    <div class="lg:ml-64 lg:py-9 py-4 lg:px-20 px-8 ">
 
+        <div class="flex flex-col items-center justify-center text-center">
+            <p class="text-gray-400 text-2xl font-medium">
+                Serviços <?php echo $nomeOficina; ?>
+            </p>
+            <div class="w-48 h-px bg-gray-300 mt-6 rounded-sm mb-8"></div>
+        </div>
+
+        <div >
+            <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
+                <div class="grid grid-cols-6 gap-6 ">
+                    <div class="col-span-2">
+                        <label for="nome-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
+                        <input type="text" id="nome-funcionario" name="nome-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="cpf-funcionario" class="block mb-1 text-sm font-medium text-gray-900">Data de recebimento</label>
+                        <input type="text" id="cpf-funcionario" name="cpf-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="telefone-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">Horário de recebimento</label>
+                        <input type="text" id="telefone-funcionario" name="telefone-funcionario" value="" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <div class="w-48 h-px bg-gray-300 mt-10 rounded-sm mb-8"></div>
+                </div>
+
+                <div class="">
+                    <form id="formPerfil" method="POST" action="" >
+                        <div class="grid grid-cols-6 gap-4">
+
+                            <div class="col-span-2 space-y-4">
+                                <div class="">
+                                    <label for="data-entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
+                                    <input type="date" id="data-entrega" name="data-entrega"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" />
+                                </div>
+
+                                <div class="">
+                                    <label for="status" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                    <select id="status" name="status" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none">
+                                        <option value="pendente">Pendente</option>
+                                        <option value="em_andamento">Em andamento</option>
+                                        <option value="finalizado">Finalizado</option>
+                                        <option value="cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                           
+
+                            <div class="col-span-4">
+                                <label for="servicos-feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
+                                <textarea id="servicos-feitos" name="servicos-feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none" placeholder="Descreva os serviços realizados..."></textarea>
+                            </div>
+
+                        </div>
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <script>
         // Menu Hamburguer abre e fecha
