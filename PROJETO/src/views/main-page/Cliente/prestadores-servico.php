@@ -187,7 +187,7 @@ $stmt->close();
                 echo '<p class="mb-1 text-gray-500">Complemento: ' . htmlspecialchars($row['complemento']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Cidade: ' . htmlspecialchars($row['cidade_oficina']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                echo '<button id="agendar" type="button" name="agendar" value="1" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                echo '<button data-modal-target="agendarModal" data-modal-toggle="agendarModal" type="button" name="agendar" value="1" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                 <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
@@ -201,6 +201,31 @@ $stmt->close();
         }
         ?>
 
+    </div>
+
+    <div id="agendarModal" tabindex="-1" aria-hidden="true" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="relative w-full max-w-sm md:w-2/3 lg:w-1/2">
+            <!-- Modal content -->
+            <div class="relative border border-gray-200 rounded-lg shadow-sm bg-white">
+                <!-- Modal header -->
+                <div class="flex items-center justify-center p-4 border-b border-gray-200 rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900 text-center">
+                        Agendar Serviço
+                    </h3>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 space-y-4">
+                    <p class="text-sm text-gray-500">
+                        Aqui você pode adicionar o formulário de agendamento
+                    </p>
+                </div>
+                <!-- Modal footer -->
+                <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b gap-2">
+                    <button data-modal-hide="agendarModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-4 py-2 hover:text-gray-900 focus:z-10">Cancelar</button>
+                    <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">Confirmar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -218,7 +243,47 @@ $stmt->close();
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
+
+        // Modal functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalButtons = document.querySelectorAll('[data-modal-toggle]');
+            const closeModalButtons = document.querySelectorAll('[data-modal-hide]');
+            const modal = document.getElementById('agendarModal');
+            
+            modalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    console.log('Botão clicado - Abrindo modal');
+                    const modalId = button.getAttribute('data-modal-target');
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                });
+            });
+
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    console.log('Botão fechar clicado - Fechando modal');
+                    const modalId = button.getAttribute('data-modal-hide');
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                });
+            });
+
+            // Fechar modal ao clicar fora dele
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        });
     </script>
+
 </body>
 
 </html>
