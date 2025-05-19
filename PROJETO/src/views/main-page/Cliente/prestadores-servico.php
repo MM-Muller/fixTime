@@ -216,7 +216,7 @@ $stmt->close();
                 echo '</div>';
                 echo '</div>';
                 
-                echo '<button data-modal-target="agendarModal" data-modal-toggle="agendarModal" type="button" name="agendar" value="1" class="mt-4 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer">
+                echo '<button onclick="document.getElementById(\'agendarModal\').classList.remove(\'hidden\')" type="button" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                 <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
@@ -232,26 +232,78 @@ $stmt->close();
 
     </div>
 
-    <div id="agendarModal" tabindex="-1" aria-hidden="true" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen p-4 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="relative w-full max-w-sm md:w-2/3 lg:w-1/2">
+    <!-- Modal -->
+    <div id="agendarModal" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen flex items-center justify-center bg-gray-900/50">
+        <div class="relative w-full max-w-sm mx-auto p-4">
             <!-- Modal content -->
-            <div class="relative border border-gray-200 rounded-lg shadow-sm bg-white">
+            <div class="relative bg-white rounded-lg shadow mx-32">
                 <!-- Modal header -->
-                <div class="flex items-center justify-center p-4 border-b border-gray-200 rounded-t">
-                    <h3 class="text-lg font-semibold text-gray-900 text-center">
+                <div class="flex items-center justify-between p-4 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900">
                         Agendar Serviço
                     </h3>
+                    <button type="button" onclick="document.getElementById('agendarModal').classList.add('hidden')" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Fechar modal</span>
+                    </button>
                 </div>
+
                 <!-- Modal body -->
                 <div class="p-4 space-y-4">
-                    <p class="text-sm text-gray-500">
-                        Aqui você pode adicionar o formulário de agendamento
-                    </p>
+                    <form id="agendamentoForm" class="space-y-4">
+                        <!-- Data do Agendamento -->
+                        <div>
+                            <label for="data_agendamento" class="block mb-2 text-sm font-medium text-gray-900">Data do Agendamento</label>
+                            <input type="date" id="data_agendamento" name="data_agendamento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        </div>
+
+                        <!-- Horário -->
+                        <div>
+                            <label for="horario" class="block mb-2 text-sm font-medium text-gray-900">Horário</label>
+                            <select id="horario" name="horario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <option value="">Selecione um horário</option>
+                                <option value="08:00">08:00</option>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="13:00">13:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                                <option value="17:00">17:00</option>
+                            </select>
+                        </div>
+
+                        <!-- Seleção do Veículo -->
+                        <div>
+                            <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900">Selecione o Veículo</label>
+                            <select id="veiculo" name="veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                <option value="">Selecione um veículo</option>
+                                <?php
+                                // Buscar veículos do cliente
+                                $sql_veiculos = "SELECT id_veiculo, marca, modelo, placa FROM veiculo WHERE id_cliente = ?";
+                                $stmt_veiculos = $conexao->prepare($sql_veiculos);
+                                $stmt_veiculos->bind_param("i", $id_usuario);
+                                $stmt_veiculos->execute();
+                                $result_veiculos = $stmt_veiculos->get_result();
+
+                                while ($veiculo = $result_veiculos->fetch_assoc()) {
+                                    echo '<option value="' . $veiculo['id_veiculo'] . '">' . 
+                                         htmlspecialchars($veiculo['marca'] . ' ' . $veiculo['modelo'] . ' - ' . $veiculo['placa']) . 
+                                         '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </form>
                 </div>
+
                 <!-- Modal footer -->
                 <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b gap-2">
-                    <button data-modal-hide="agendarModal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-4 py-2 hover:text-gray-900 focus:z-10">Cancelar</button>
-                    <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">Confirmar</button>
+                    <button onclick="document.getElementById('agendarModal').classList.add('hidden')" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-4 py-2 hover:text-gray-900 focus:z-10">Cancelar</button>
+                    <button type="submit" form="agendamentoForm" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">Confirmar Agendamento</button>
                 </div>
             </div>
         </div>
@@ -273,43 +325,12 @@ $stmt->close();
             sidebar.classList.add('-translate-x-full');
         });
 
-        // Modal functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const modalButtons = document.querySelectorAll('[data-modal-toggle]');
-            const closeModalButtons = document.querySelectorAll('[data-modal-hide]');
+        // Modal click outside
+        window.addEventListener('click', function(event) {
             const modal = document.getElementById('agendarModal');
-            
-            modalButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    console.log('Botão clicado - Abrindo modal');
-                    const modalId = button.getAttribute('data-modal-target');
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.remove('hidden');
-                        modal.classList.add('flex');
-                    }
-                });
-            });
-
-            closeModalButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    console.log('Botão fechar clicado - Fechando modal');
-                    const modalId = button.getAttribute('data-modal-hide');
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.add('hidden');
-                        modal.classList.remove('flex');
-                    }
-                });
-            });
-
-            // Fechar modal ao clicar fora dele
-            window.addEventListener('click', (event) => {
-                if (event.target === modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            });
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
         });
     </script>
 
