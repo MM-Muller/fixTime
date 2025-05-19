@@ -236,18 +236,12 @@ $stmt->close();
     <div id="agendarModal" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen flex items-center justify-center bg-gray-900/50">
         <div class="relative w-full max-w-sm mx-auto p-4">
             <!-- Modal content -->
-            <div class="relative bg-white rounded-lg shadow mx-32">
+            <div class="relative bg-white rounded-lg shadow mx-32 border border-gray-200">
                 <!-- Modal header -->
-                <div class="flex items-center justify-between p-4 border-b rounded-t">
-                    <h3 class="text-lg font-semibold text-gray-900">
+                <div class="relative p-4 border-b border-gray-200 rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-900 text-center w-full">
                         Agendar Serviço
                     </h3>
-                    <button type="button" onclick="document.getElementById('agendarModal').classList.add('hidden')" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                        </svg>
-                        <span class="sr-only">Fechar modal</span>
-                    </button>
                 </div>
 
                 <!-- Modal body -->
@@ -255,13 +249,13 @@ $stmt->close();
                     <form id="agendamentoForm" class="space-y-4">
                         <!-- Data do Agendamento -->
                         <div>
-                            <label for="data_agendamento" class="block mb-2 text-sm font-medium text-gray-900">Data do Agendamento</label>
+                            <label for="data_agendamento" class="block mb-2 text-sm font-medium text-gray-900 text-center">Data do Agendamento</label>
                             <input type="date" id="data_agendamento" name="data_agendamento" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>
 
                         <!-- Horário -->
                         <div>
-                            <label for="horario" class="block mb-2 text-sm font-medium text-gray-900">Horário</label>
+                            <label for="horario" class="block mb-2 text-sm font-medium text-gray-900 text-center">Horário</label>
                             <select id="horario" name="horario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                                 <option value="">Selecione um horário</option>
                                 <option value="08:00">08:00</option>
@@ -278,32 +272,36 @@ $stmt->close();
 
                         <!-- Seleção do Veículo -->
                         <div>
-                            <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900">Selecione o Veículo</label>
+                            <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900 text-center">Selecione o Veículo</label>
                             <select id="veiculo" name="veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                                 <option value="">Selecione um veículo</option>
                                 <?php
                                 // Buscar veículos do cliente
-                                $sql_veiculos = "SELECT id_veiculo, marca, modelo, placa FROM veiculo WHERE id_cliente = ?";
+                                $sql_veiculos = "SELECT id, tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem 
+                                               FROM veiculos 
+                                               WHERE id_usuario = ?";
                                 $stmt_veiculos = $conexao->prepare($sql_veiculos);
                                 $stmt_veiculos->bind_param("i", $id_usuario);
                                 $stmt_veiculos->execute();
                                 $result_veiculos = $stmt_veiculos->get_result();
 
                                 while ($veiculo = $result_veiculos->fetch_assoc()) {
-                                    echo '<option value="' . $veiculo['id_veiculo'] . '">' . 
-                                         htmlspecialchars($veiculo['marca'] . ' ' . $veiculo['modelo'] . ' - ' . $veiculo['placa']) . 
+                                    $tipo = ucfirst($veiculo['tipo_veiculo']); // Primeira letra maiúscula
+                                    echo '<option value="' . $veiculo['id'] . '">' . 
+                                         htmlspecialchars("$tipo - {$veiculo['marca']} {$veiculo['modelo']} ({$veiculo['ano']}) - {$veiculo['cor']} - Placa: {$veiculo['placa']}") . 
                                          '</option>';
                                 }
+                                $stmt_veiculos->close();
                                 ?>
                             </select>
                         </div>
-                    </form>
-                </div>
 
-                <!-- Modal footer -->
-                <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b gap-2">
-                    <button onclick="document.getElementById('agendarModal').classList.add('hidden')" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-4 py-2 hover:text-gray-900 focus:z-10">Cancelar</button>
-                    <button type="submit" form="agendamentoForm" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center">Confirmar Agendamento</button>
+                        <!-- Botões -->
+                        <div class="flex items-center justify-center gap-2 mt-4">
+                            <button type="button" onclick="document.getElementById('agendarModal').classList.add('hidden'); document.getElementById('agendamentoForm').reset();" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-5 py-2.5">Cancelar</button>
+                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-5 py-2.5">Confirmar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -330,6 +328,7 @@ $stmt->close();
             const modal = document.getElementById('agendarModal');
             if (event.target === modal) {
                 modal.classList.add('hidden');
+                document.getElementById('agendamentoForm').reset();
             }
         });
     </script>
