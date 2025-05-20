@@ -1,17 +1,23 @@
 <?php
 function connect_db()
 {
-    $db_name = "fixTime";
-    $user = "root";
-    $pass = "";
-    $server = "localhost:3306";
+    // Configurações do banco de dados
+    $db_name = "fixTime";    // Nome do banco de dados
+    $user = "root";          // Usuário do banco de dados
+    $pass = "";              // Senha do banco de dados (vazia para ambiente de desenvolvimento)
+    $server = "localhost:3306"; // Endereço e porta do servidor MySQL
 
-    // Criar conexão
+    // Cria uma nova conexão com o banco de dados usando a classe mysqli
+    // mysqli é uma extensão do PHP para trabalhar com MySQL
     $conexao = new mysqli($server, $user, $pass, $db_name);
 
-    // Verificar conexão
+    // Verifica se houve erro na conexão
+    // connect_error contém a mensagem de erro se a conexão falhar
     if ($conexao->connect_error) {
+        // Encerra a execução do script e exibe a mensagem de erro
         die("Falha na conexão com o banco de dados: " . $conexao->connect_error);
     }
+
+    // Retorna o objeto de conexão se tudo ocorrer bem
     return $conexao;
 }
