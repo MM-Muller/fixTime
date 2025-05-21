@@ -196,7 +196,8 @@ $stmt->close();
 
         // Exibe as oficinas encontradas
         if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+            $oficinas = $result->fetch_all(MYSQLI_ASSOC);
+            foreach ($oficinas as $row) {
                 // Busca os serviços oferecidos pela oficina
                 $oficina_id = $row['id_oficina'];
                 $sql_servicos = "SELECT sp.nome_servico 
@@ -207,47 +208,54 @@ $stmt->close();
                 $stmt_servicos->bind_param("i", $oficina_id);
                 $stmt_servicos->execute();
                 $result_servicos = $stmt_servicos->get_result();
+                $servicos = $result_servicos->fetch_all(MYSQLI_ASSOC);
+                ?>
                 
-                // Exibe o card da oficina
-                echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
-                echo '<div class="grid grid-cols-2 gap-4">';
-                // Coluna da esquerda com informações da oficina
-                echo '<div>';
-                echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
-                echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Telefone: ' . htmlspecialchars($row['telefone_oficina']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Endereço: ' . htmlspecialchars($row['endereco_oficina']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Número: ' . htmlspecialchars($row['numero_oficina']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Complemento: ' . htmlspecialchars($row['complemento']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Cidade: ' . htmlspecialchars($row['cidade_oficina']) . '</p>';
-                echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
-                echo '</div>';
-                
-                // Coluna da direita com serviços oferecidos
-                echo '<div>';
-                echo '<h2 class="mb-3 text-lg font-semibold text-gray-900">Serviços Oferecidos:</h2>';
-                echo '<div class="space-y-2">';
-                if ($result_servicos->num_rows > 0) {
-                    while ($servico = $result_servicos->fetch_assoc()) {
-                        echo '<p class="text-gray-500"><svg class="w-4 h-4 inline-block mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' . htmlspecialchars($servico['nome_servico']) . '</p>';
-                    }
-                } else {
-                    echo '<p class="text-gray-500">Nenhum serviço cadastrado</p>';
-                }
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                
-                // Botão de agendamento
-                echo '<button onclick="document.getElementById(\'agendarModal\').classList.remove(\'hidden\')" type="button" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Agendar
-                </button>';
-                echo '</div>';
+                <div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Coluna da esquerda com informações da oficina -->
+                        <div>
+                            <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl"><?= htmlspecialchars($row['nome_oficina']) ?></h1>
+                            <p class="mb-1 text-gray-500">Categoria: <?= htmlspecialchars($row['categoria']) ?></p>
+                            <p class="mb-1 text-gray-500">Email: <?= htmlspecialchars($row['email_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Telefone: <?= htmlspecialchars($row['telefone_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Endereço: <?= htmlspecialchars($row['endereco_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Número: <?= htmlspecialchars($row['numero_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Complemento: <?= htmlspecialchars($row['complemento']) ?></p>
+                            <p class="mb-1 text-gray-500">Cidade: <?= htmlspecialchars($row['cidade_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Bairro: <?= htmlspecialchars($row['bairro_oficina']) ?></p>
+                        </div>
+                        
+                        <!-- Coluna da direita com serviços oferecidos -->
+                        <div>
+                            <h2 class="mb-3 text-lg font-semibold text-gray-900">Serviços Oferecidos:</h2>
+                            <div class="space-y-2">
+                                <?php if (!empty($servicos)): ?>
+                                    <?php foreach ($servicos as $servico): ?>
+                                        <p class="text-gray-500">
+                                            <svg class="w-4 h-4 inline-block mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <?= htmlspecialchars($servico['nome_servico']) ?>
+                                        </p>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="text-gray-500">Nenhum serviço cadastrado</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão de agendamento -->
+                    <button onclick="document.getElementById('agendarModal').classList.remove('hidden')" type="button" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Agendar
+                    </button>
+                </div>
+                <?php
             }
         } else {
             echo '<p class="text-gray-500">Nenhuma oficina encontrada para o filtro selecionado.</p>';
