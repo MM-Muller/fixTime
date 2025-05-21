@@ -120,13 +120,13 @@ $stmt->close();
     </aside>
 
     <!-- Conteúdo principal da página -->
-    <div class=" lg:ml-64 lg:px-10 lg:py-6">
+    <div class=" lg:ml-64 p-10 ">
         <!-- Título da página -->
         <div class="flex justify-center items-center">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
+            <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
         </div>
 
-        <hr class="h-px my-8 bg-gray-200 border-0">
+        <hr class=" h-px my-8 bg-gray-200 border-0">
 
         <?php
         // Obtém o filtro de categoria da URL
