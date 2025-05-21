@@ -1,5 +1,6 @@
 <?php
-session_start(); // Inicia sessão para poder destruí-la
+// Inicia sessão para poder destruí-la
+session_start();
 
 // Destrói todos os dados da sessão
 session_unset();
