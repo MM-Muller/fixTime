@@ -1,27 +1,29 @@
 <?php
+// Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db(); // conecta com o bd
 
+// Verifica se a conexão foi estabelecida corretamente
 if (!isset($conexao) || !$conexao) {
     die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-} // verifica se a conexão deu tudo certo
+}
 
-//inicia sessão
+// Inicia a sessão para gerenciar dados do usuário
 session_start();
 
-// OBTEM O ID DO USER 
+// Obtém o ID do usuário da sessão
 $user_id = $_SESSION['id_usuario'];
 
+// Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
     exit;
 }
 
-// verifica se o form foi enviado via post
+// Processa o formulário quando enviado via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // verifica se o botão de excluir foi pressionado
+    // Verifica se o botão de excluir perfil foi pressionado
     if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
-
         // Verifica se existem veículos cadastrados para este cliente
         $sqlCheckVeiculos = "SELECT COUNT(*) as total FROM veiculos WHERE id_usuario = ?";
         $stmtCheck = $conexao->prepare($sqlCheckVeiculos);
@@ -32,52 +34,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalVeiculos = $row['total'];
         $stmtCheck->close();
         
+        // Se houver veículos cadastrados, impede a exclusão do perfil
         if ($totalVeiculos > 0) {
-            // redireciona para a página de veículos se houver veículos cadastrados
             echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
             exit();
         }
 
+        // Prepara e executa a query para excluir o perfil
         $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
         $stmtDelete = $conexao->prepare($sqlDelete);
-        $stmtDelete->bind_param("i", $user_id); // associa o id do user
+        $stmtDelete->bind_param("i", $user_id);
 
-        // executa a exclusão
+        // Executa a exclusão e verifica o resultado
         if ($stmtDelete->execute()) {
-            session_destroy(); // encerra a sessão do user
+            session_destroy(); // Encerra a sessão do usuário
             echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
-            exit(); // interrompe o script
+            exit();
         } else {
-            // caso de erro de exclusão
             echo "Erro ao excluir perfil: " . $conexao->error;
         }
 
         $stmtDelete->close();
     }
-
-    // caso seja para editar
+    // Processa a atualização do perfil
     else if (isset($_POST['salvar_perfil'])) {
-        // recupera os dados do form
-        // usa um (vazio) ' ' caso nao tenha sido enviado no POST 
+        // Recupera e sanitiza os dados do formulário
         $nome = trim($_POST['nome'] ?? '');
         $cpf = trim($_POST['cpf'] ?? '');
         $telefone = trim($_POST['telefone'] ?? '');
         $email = trim($_POST['email'] ?? '');
 
-
-        // prepara a query de atualização dos dados do usuário
-
-        // monta a query SQL, mas com valores ?, evita sql injection, valores são passados depois, separadamente
+        // Prepara a query de atualização
         $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
-        $stmtUpdate = $conexao->prepare($sqlUpdate); //prepara a query no banco
-        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id); //"ssssi" representa cada tipo de dado que esta sendo passado
+        $stmtUpdate = $conexao->prepare($sqlUpdate);
+        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id);
 
-        // executa a atualização 
+        // Executa a atualização e verifica o resultado
         if ($stmtUpdate->execute()) {
             echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
-            exit(); // Interrompe o script
+            exit();
         } else {
-            // em caso de erro
             echo "Erro ao atualizar perfil: " . $conexao->error;
         }
 
@@ -85,63 +81,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-//busca os dados atuais do user 
+// Busca os dados atuais do usuário
 $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
 $stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $user_id); // associa o id do user 
-$stmt->execute(); // executa a query
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
 $result = $stmt->get_result();
 
-// verifica se encontrou o user 
+// Verifica se encontrou o usuário
 if ($result->num_rows > 0) {
-    $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+    $user_data = $result->fetch_assoc();
 } else {
-    die("Usuário não encontrado."); // interrompe se o usuário não existir
+    die("Usuário não encontrado.");
 }
 
-
-// Fecha o statement e a conexão
+// Fecha as conexões com o banco de dados
 $stmt->close();
 $conexao->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-
 <head>
+    <!-- Meta tags para configuração do documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time</title>
 </head>
 
-
 <body class="">
-
+    <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
 
+    <!-- Barra lateral (sidebar) -->
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
-
+            <!-- Cabeçalho da sidebar -->
             <div>
                 <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <!-- Botão para fechar o menu em dispositivos móveis -->
                     <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                         <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
                     </button>
+                    <!-- Logo da aplicação -->
                     <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
-
                 </a>
 
+                <!-- Menu de navegação -->
                 <ul class="space-y-2 font-medium">
-
-
+                    <!-- Link para Prestadores de Serviço -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -151,6 +147,7 @@ $conexao->close();
                         </a>
                     </li>
 
+                    <!-- Link para Meus Veículos -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -160,6 +157,7 @@ $conexao->close();
                         </a>
                     </li>
 
+                    <!-- Link para Perfil do Usuário -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -167,64 +165,66 @@ $conexao->close();
                             </svg>
                             <span class="flex-1 ms-3 whitespace-nowrap">
                                 <?php
-                                    // Pega o nome completo do usuário
+                                    // Processa o nome do usuário para exibição
                                     $nomeCompleto = htmlspecialchars($user_data['nome_usuario']);
-                                    // Divide o nome completo em palavras e pega o primeiro nome
                                     $primeiroNome = explode(' ', $nomeCompleto)[0];
-                                    // Limita a 17 caracteres e adiciona "..." se necessário
                                     $nomeExibido = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
                                     echo $nomeExibido;
                                 ?>
                             </span>
                         </a>
                     </li>
-
                 </ul>
             </div>
 
+            <!-- Link para Logout -->
             <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group">
-             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
-            </svg>
-
+                <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+                </svg>
                 <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
             </a>
         </div>
-
     </aside>
 
-
+    <!-- Conteúdo principal da página -->
     <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
-
+        <!-- Formulário de perfil -->
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
             <form id="formPerfil" method="POST" action="perfil.php">
-
+                <!-- Campos do formulário -->
                 <div class="space-y-7">
+                    <!-- Campo Nome -->
                     <div class="">
                         <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
                         <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
+                    <!-- Campo CPF -->
                     <div class="">
                         <label for="cpf-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
                         <input type="text" id="cpf-perfil" name="cpf" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
+                    <!-- Campo Telefone -->
                     <div class="">
                         <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
                         <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
 
+                    <!-- Campo Email -->
                     <div class="">
                         <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
                         <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                     </div>
-
                 </div>
+
+                <!-- Campo oculto para controle de salvamento -->
                 <input type="hidden" name="salvar_perfil" value="1">
 
-
+                <!-- Botões de ação -->
                 <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
+                    <!-- Botão Editar -->
                     <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
@@ -233,6 +233,7 @@ $conexao->close();
                         Editar
                     </button>
 
+                    <!-- Botão Excluir -->
                     <button id="excluirPerfilBtn" type="button" name="excluir_perfil" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -240,15 +241,15 @@ $conexao->close();
                         Excluir
                     </button>
                 </div>
+                <!-- Campo oculto para controle de exclusão -->
                 <input type="hidden" name="excluir_perfil" id="inputExcluirPerfil" value="">
-
             </form>
-
         </div>
     </div>
 
+    <!-- Scripts JavaScript -->
     <script>
-        // Menu Hamburguer (Abre/Fecha)
+        // Controle do menu hamburguer
         const hamburgerButton = document.getElementById('hamburgerButton');
         const closeHamburgerButton = document.getElementById('closeHamburgerButton');
         const sidebar = document.getElementById('sidebar');
@@ -265,14 +266,16 @@ $conexao->close();
     </script>
 
     <script>
+        // Controle do formulário de perfil
         document.addEventListener('DOMContentLoaded', function() {
             const editarBtn = document.getElementById('editarPerfilBtn');
-            const form = document.getElementById('formPerfil'); // supondo que seu form tenha esse ID
+            const form = document.getElementById('formPerfil');
             let modoEdicao = false;
 
+            // Manipula o botão de edição
             editarBtn.addEventListener('click', function() {
                 if (!modoEdicao) {
-                    // Modo EDIÇÃO
+                    // Habilita edição dos campos
                     document.querySelectorAll('input').forEach(input => {
                         input.disabled = false;
                         input.classList.remove('cursor-not-allowed');
@@ -281,12 +284,13 @@ $conexao->close();
                     editarBtn.textContent = 'Salvar';
                     modoEdicao = true;
 
+                    // Aplica máscaras nos campos
                     $('#telefone-perfil').mask('(00) 00000-0000');
                     $('#cpf-perfil').mask('000.000.000-00', {
                         reverse: true
                     });
                 } else {
-                    // Modo SALVAR — agora sim envia o formulário
+                    // Envia o formulário
                     form.submit();
                 }
             });
@@ -294,15 +298,17 @@ $conexao->close();
     </script>
 
     <script>
+        // Controle dos botões de edição e exclusão
         document.addEventListener('DOMContentLoaded', function() {
             const editarBtn = document.getElementById('editarPerfilBtn');
             const excluirBtn = document.getElementById('excluirPerfilBtn');
             const form = document.getElementById('formPerfil');
             let modoEdicao = false;
 
+            // Manipula o botão de edição
             editarBtn.addEventListener('click', function() {
                 if (!modoEdicao) {
-                    // Modo edição
+                    // Habilita edição dos campos
                     document.querySelectorAll('input').forEach(input => {
                         input.disabled = false;
                         input.classList.remove('cursor-not-allowed');
@@ -311,20 +317,21 @@ $conexao->close();
                     editarBtn.textContent = 'Salvar';
                     modoEdicao = true;
 
+                    // Aplica máscaras nos campos
                     $('#telefone-perfil').mask('(00) 00000-0000');
                     $('#cpf-perfil').mask('000.000.000-00', {
                         reverse: true
                     });
                 } else {
-                    // Submeter formulário para salvar
+                    // Envia o formulário
                     form.submit();
                 }
             });
 
+            // Manipula o botão de exclusão
             excluirBtn.addEventListener('click', function() {
                 const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
                 if (confirmar) {
-                    // Define o valor do input hidden e envia o form
                     document.getElementById('inputExcluirPerfil').value = '1';
                     form.submit();
                 }
@@ -332,12 +339,9 @@ $conexao->close();
         });
     </script>
 
-
-
-
+    <!-- Scripts externos -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
     <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
 </body>
-
 </html>

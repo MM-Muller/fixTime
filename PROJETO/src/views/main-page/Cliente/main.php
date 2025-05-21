@@ -1,65 +1,80 @@
 <?php
+// Inicia a sessão para gerenciar dados do usuário
 session_start();
+
+// Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
+// Verifica se o usuário está autenticado
+// Se não houver ID de usuário na sessão, redireciona para a página de login
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
     exit;
 }
 
+// Obtém o ID do usuário da sessão
 $id_usuario = $_SESSION['id_usuario'];
 $primeiroNome = '';
 
+// Prepara e executa a query para buscar o nome do usuário
 $stmt = $conexao->prepare("SELECT nome_usuario FROM cliente WHERE id_usuario = ?");
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Processa o resultado da query
 if ($row = $result->fetch_assoc()) {
+    // Obtém o nome completo e escapa caracteres especiais
     $nomeCompleto = htmlspecialchars($row['nome_usuario']);
+    // Extrai o primeiro nome
     $primeiroNome = explode(' ', $nomeCompleto)[0];
+    // Limita o tamanho do nome para exibição
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 }
 
+// Fecha o statement para liberar recursos
 $stmt->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
+    <!-- Meta tags para configuração do documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time</title>
 </head>
 
-
 <body class="">
-    
+    <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
     
+    <!-- Barra lateral (sidebar) -->
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
-
+            <!-- Cabeçalho da sidebar -->
             <div>
                 <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <!-- Botão para fechar o menu em dispositivos móveis -->
                     <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                         <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
                     </button>
+                    <!-- Logo da aplicação -->
                     <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
-
                 </a>
 
+                <!-- Menu de navegação -->
                 <ul class="space-y-2 font-medium">
-
+                    <!-- Link para Prestadores de Serviço -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -69,6 +84,7 @@ $stmt->close();
                         </a>
                     </li>
 
+                    <!-- Link para Meus Veículos -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -78,6 +94,7 @@ $stmt->close();
                         </a>
                     </li>
 
+                    <!-- Link para Perfil do Usuário -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -88,30 +105,31 @@ $stmt->close();
                             </span>
                         </a>
                     </li>
-
                 </ul>
             </div>
 
+            <!-- Link para Logout -->
             <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group">
-             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
-            </svg>
-
+                <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
+                </svg>
                 <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
             </a>
         </div>
-
     </aside>
 
+    <!-- Conteúdo principal da página -->
     <div class=" lg:ml-64 p-10 ">
-        
+        <!-- Placeholder de carregamento -->
         <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
+            <!-- Placeholder para imagem -->
             <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
                 <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                     <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
                 </svg>
             </div>
 
+            <!-- Placeholder para texto -->
             <div class="w-full">
                 <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
                 <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
@@ -122,7 +140,9 @@ $stmt->close();
             </div>
         </div>
 
+        <!-- Segundo placeholder de carregamento -->
         <div role="status" class="space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
+            <!-- Placeholder para texto -->
             <div class="w-full">
                 <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
                 <div class="h-2 bg-gray-200 rounded-full max-w-[480px] mb-2.5"></div>
@@ -131,14 +151,15 @@ $stmt->close();
                 <div class="h-2 bg-gray-200 rounded-full max-w-[460px] mb-2.5"></div>
                 <div class="h-2 bg-gray-200 rounded-full max-w-[360px]"></div>
             </div>
+            <!-- Placeholder para imagem -->
             <div class="flex items-center justify-center w-full h-48 bg-gray-300 rounded-sm sm:w-96 ">
                 <svg class="w-10 h-10 text-gray-200 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                     <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
                 </svg>
             </div>
         </div>
-  
 
+        <!-- Terceiro placeholder de carregamento -->
         <div role="status" class="mt-5 space-y-8 animate-pulse md:space-y-0 md:space-x-8 rtl:space-x-reverse md:flex md:items-center">
             <div class="w-full">
                 <div class="h-2.5 bg-gray-200 rounded-full w-48 mb-4"></div>
@@ -146,9 +167,9 @@ $stmt->close();
                 <div class="h-2 bg-gray-200 rounded-full mb-2.5"></div>
             </div>
         </div>
-        
     </div>
 
+    <!-- Script para controle do menu hamburguer -->
     <script>
         // Menu Hamburguer (Abre/Fecha)
         const hamburgerButton = document.getElementById('hamburgerButton');
@@ -164,7 +185,6 @@ $stmt->close();
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-
     </script>
 
 </body>

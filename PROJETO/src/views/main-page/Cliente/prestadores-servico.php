@@ -1,26 +1,33 @@
 <?php
+// Inicia a sessão para gerenciar dados do usuário
 session_start();
 
+// Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
+// Verifica se a conexão foi estabelecida corretamente
 if (!isset($conexao) || !$conexao) {
     die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
 }
 
+// Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
     exit;
 }
 
+// Obtém o ID do usuário da sessão
 $id_usuario = $_SESSION['id_usuario'];
 $primeiroNome = '';
 
+// Busca o nome do usuário no banco de dados
 $stmt = $conexao->prepare("SELECT nome_usuario FROM cliente WHERE id_usuario = ?");
 $stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $result = $stmt->get_result();
 
+// Processa o nome do usuário para exibição
 if ($row = $result->fetch_assoc()) {
     $nomeCompleto = htmlspecialchars($row['nome_usuario']);
     $primeiroNome = explode(' ', $nomeCompleto)[0];
@@ -30,43 +37,45 @@ if ($row = $result->fetch_assoc()) {
 $stmt->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 
 <head>
+    <!-- Meta tags para configuração do documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time</title>
 </head>
 
-
 <body class="">
-
+    <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
 
+    <!-- Barra lateral (sidebar) -->
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
-
+            <!-- Cabeçalho da sidebar -->
             <div>
                 <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
+                    <!-- Botão para fechar o menu em dispositivos móveis -->
                     <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                         <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                         </svg>
                     </button>
+                    <!-- Logo da aplicação -->
                     <img src="/fixTime/PROJETO/src/public/assets/images/fixtime-truck.png" class="lg:h-14 h-12 me-3 " />
-
                 </a>
 
+                <!-- Menu de navegação -->
                 <ul class="space-y-2 font-medium">
-
-
+                    <!-- Link para Prestadores de Serviço -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -76,6 +85,7 @@ $stmt->close();
                         </a>
                     </li>
 
+                    <!-- Link para Meus Veículos -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -85,6 +95,7 @@ $stmt->close();
                         </a>
                     </li>
 
+                    <!-- Link para Perfil do Usuário -->
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/perfil.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                             <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -95,36 +106,37 @@ $stmt->close();
                             </span>
                         </a>
                     </li>
-
                 </ul>
             </div>
 
+            <!-- Link para Logout -->
             <a href="/fixTime/PROJETO/src/views/Login/logout.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 group">
                 <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" data-slot="icon" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2" />
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
                 </svg>
-
                 <span class="flex-1 ms-3 whitespace-nowrap font-medium">Logout</span>
             </a>
         </div>
-
     </aside>
 
     <div class=" lg:ml-64 lg:px-10 lg:py-6 p-10">
         <div class="flex justify-center items-center">
-            <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
+            <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
         </div>
 
-        <hr class="h-px my-8 bg-gray-200 border-0">
+        <hr class=" h-px my-8 bg-gray-200 border-0">
 
         <?php
+        // Obtém o filtro de categoria da URL
         $filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
+        // Prepara a query base para buscar oficinas
         $query = "SELECT id_oficina, nome_oficina, email_oficina, telefone_oficina, bairro_oficina, endereco_oficina, categoria, numero_oficina, complemento, cidade_oficina FROM oficina";
         if (!empty($filter)) {
             $query .= " WHERE categoria = ?";
         }
 
+        // Executa a query com o filtro de categoria
         $stmt = $conexao->prepare($query);
         if (!empty($filter)) {
             $stmt->bind_param("s", $filter);
@@ -132,8 +144,11 @@ $stmt->close();
         $stmt->execute();
         $result = $stmt->get_result();
         ?>
+
+        <!-- Formulário de filtros -->
         <form method="GET" class="mb-4">
             <div class="flex flex-wrap gap-4">
+                <!-- Filtro por categoria -->
                 <div class="flex-1">
                     <label for="filter" class="block mb-2 text-sm font-medium text-gray-900 ">Filtrar por categoria:</label>
                     <select name="filter" id="filter" class="block w-full p-2.5 border-gray-300 rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 border-2 cursor-pointer">
@@ -144,23 +159,28 @@ $stmt->close();
                         <option value="Lava Car" <?php echo $filter === 'Lava Car' ? 'selected' : ''; ?>>Lava Car</option>
                     </select>
                 </div>
+                <!-- Filtro por bairro -->
                 <div class="flex-1">
                     <label for="bairro" class="block mb-2 text-sm font-medium text-gray-900">Filtrar por bairro:</label>
                     <input type="text" name="bairro" id="bairro" value="<?php echo isset($_GET['bairro']) ? htmlspecialchars($_GET['bairro']) : ''; ?>" class="block w-full p-2.5  border-gray-300 rounded-lg outline-none focus:ring-blue-500 focus:border-blue-500 border-2 " placeholder="Digite o bairro">
                 </div>
             </div>
+            <!-- Botão de filtrar -->
             <div class=" flex justify-center mt-4">
                 <button type="submit" class="cursor-pointer mt-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">Filtrar</button>
             </div>
         </form>
 
         <?php
+        // Obtém o filtro de bairro da URL
         $bairroFilter = isset($_GET['bairro']) ? trim($_GET['bairro']) : '';
 
+        // Adiciona o filtro de bairro à query
         if (!empty($bairroFilter)) {
             $query .= empty($filter) ? " WHERE bairro_oficina LIKE ?" : " AND bairro_oficina LIKE ?";
         }
 
+        // Executa a query com os filtros combinados
         $stmt = $conexao->prepare($query);
         if (!empty($filter) && !empty($bairroFilter)) {
             $bairroFilter = '%' . $bairroFilter . '%';
@@ -173,11 +193,11 @@ $stmt->close();
         }
         $stmt->execute();
         $result = $stmt->get_result();
-        ?>
-        <?php
+
+        // Exibe as oficinas encontradas
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                // Buscar serviços da oficina
+                // Busca os serviços oferecidos pela oficina
                 $oficina_id = $row['id_oficina'];
                 $sql_servicos = "SELECT sp.nome_servico 
                                 FROM oficina_servicos os 
@@ -188,9 +208,11 @@ $stmt->close();
                 $stmt_servicos->execute();
                 $result_servicos = $stmt_servicos->get_result();
                 
+                // Exibe o card da oficina
                 echo '<div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">';
                 echo '<div class="grid grid-cols-2 gap-4">';
-                echo '<div>'; // Coluna da esquerda com informações da oficina
+                // Coluna da esquerda com informações da oficina
+                echo '<div>';
                 echo '<h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">' . htmlspecialchars($row['nome_oficina']) . '</h1>';
                 echo '<p class="mb-1 text-gray-500">Categoria: ' . htmlspecialchars($row['categoria']) . '</p>';
                 echo '<p class="mb-1 text-gray-500">Email: ' . htmlspecialchars($row['email_oficina']) . '</p>';
@@ -202,7 +224,8 @@ $stmt->close();
                 echo '<p class="mb-1 text-gray-500">Bairro: ' . htmlspecialchars($row['bairro_oficina']) . '</p>';
                 echo '</div>';
                 
-                echo '<div>'; // Coluna da direita com serviços
+                // Coluna da direita com serviços oferecidos
+                echo '<div>';
                 echo '<h2 class="mb-3 text-lg font-semibold text-gray-900">Serviços Oferecidos:</h2>';
                 echo '<div class="space-y-2">';
                 if ($result_servicos->num_rows > 0) {
@@ -216,13 +239,14 @@ $stmt->close();
                 echo '</div>';
                 echo '</div>';
                 
+                // Botão de agendamento
                 echo '<button onclick="document.getElementById(\'agendarModal\').classList.remove(\'hidden\')" type="button" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-            </svg>
-            Agendar
-            </button>';
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Agendar
+                </button>';
                 echo '</div>';
             }
         } else {
@@ -232,28 +256,28 @@ $stmt->close();
 
     </div>
 
-    <!-- Modal -->
+    <!-- Modal de Agendamento -->
     <div id="agendarModal" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen flex items-center justify-center bg-gray-900/50">
         <div class="relative w-full max-w-sm mx-auto p-4">
-            <!-- Modal content -->
+            <!-- Conteúdo do Modal -->
             <div class="relative bg-white rounded-lg shadow mx-32 border border-gray-200">
-                <!-- Modal header -->
+                <!-- Cabeçalho do Modal -->
                 <div class="relative p-4 border-b border-gray-200 rounded-t">
                     <h3 class="text-lg font-semibold text-gray-900 text-center w-full">
                         Agendar Serviço
                     </h3>
                 </div>
 
-                <!-- Modal body -->
+                <!-- Corpo do Modal -->
                 <div class="p-4 space-y-4">
                     <form id="agendamentoForm" class="space-y-4">
-                        <!-- Data do Agendamento -->
+                        <!-- Campo de Data -->
                         <div>
                             <label for="data_agendamento" class=" block mb-2 text-sm font-medium text-gray-900 text-center">Data do Agendamento</label>
                             <input type="date" id="data_agendamento" name="data_agendamento" class="outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                         </div>
 
-                        <!-- Horário -->
+                        <!-- Campo de Horário -->
                         <div>
                             <label for="horario" class="block mb-2 text-sm font-medium text-gray-900 text-center">Horário</label>
                             <select id="horario" name="horario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
@@ -270,13 +294,13 @@ $stmt->close();
                             </select>
                         </div>
 
-                        <!-- Seleção do Veículo -->
+                        <!-- Campo de Seleção de Veículo -->
                         <div>
                             <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900 text-center">Selecione o Veículo</label>
                             <select id="veiculo" name="veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                                 <option value="">Selecione um veículo</option>
                                 <?php
-                                // Buscar veículos do cliente
+                                // Busca os veículos do cliente
                                 $sql_veiculos = "SELECT id, tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem 
                                                FROM veiculos 
                                                WHERE id_usuario = ?";
@@ -285,8 +309,9 @@ $stmt->close();
                                 $stmt_veiculos->execute();
                                 $result_veiculos = $stmt_veiculos->get_result();
 
+                                // Exibe os veículos no select
                                 while ($veiculo = $result_veiculos->fetch_assoc()) {
-                                    $tipo = ucfirst($veiculo['tipo_veiculo']); // Primeira letra maiúscula
+                                    $tipo = ucfirst($veiculo['tipo_veiculo']);
                                     echo '<option value="' . $veiculo['id'] . '">' . 
                                          htmlspecialchars("$tipo - {$veiculo['marca']} {$veiculo['modelo']} ({$veiculo['ano']}) - {$veiculo['cor']} - Placa: {$veiculo['placa']}") . 
                                          '</option>';
@@ -296,7 +321,7 @@ $stmt->close();
                             </select>
                         </div>
 
-                        <!-- Botões -->
+                        <!-- Botões de Ação -->
                         <div class="flex items-center justify-center gap-2 mt-4">
                             <button type="button" onclick="document.getElementById('agendarModal').classList.add('hidden'); document.getElementById('agendamentoForm').reset();" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-5 py-2.5">Cancelar</button>
                             <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-5 py-2.5">Confirmar</button>
@@ -307,8 +332,9 @@ $stmt->close();
         </div>
     </div>
 
+    <!-- Scripts JavaScript -->
     <script>
-        // Menu Hamburguer (Abre/Fecha)
+        // Controle do menu hamburguer
         const hamburgerButton = document.getElementById('hamburgerButton');
         const closeHamburgerButton = document.getElementById('closeHamburgerButton');
         const sidebar = document.getElementById('sidebar');
@@ -323,7 +349,7 @@ $stmt->close();
             sidebar.classList.add('-translate-x-full');
         });
 
-        // Modal click outside
+        // Fecha o modal ao clicar fora dele
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('agendarModal');
             if (event.target === modal) {

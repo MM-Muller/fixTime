@@ -1,37 +1,40 @@
 <?php
+// Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
-$conexao = connect_db(); // conecta com o bd
+$conexao = connect_db(); // Estabelece conexão com o banco de dados
 
+// Verifica se a conexão foi estabelecida com sucesso
 if (!isset($conexao) || !$conexao) {
     die("Erro ao conectar ao banco de dados. Verifique o arquivo connect_bd.php.");
-} // verifica se a conexão deu tudo certo
+}
 
-// inicia a sessão
+// Inicia a sessão PHP para manter o estado do usuário
 session_start();
 
-// obtem o ID da oficina
+// Obtém o ID da oficina da sessão
 $oficina_id = $_SESSION['id_oficina'] ?? null;
 
+// Verifica se o usuário está autenticado
 if (!$oficina_id) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
     exit();
 }
 
-// busca os dados atuais da oficina
+// Prepara e executa a query para buscar os dados da oficina
 $sql = "SELECT nome_oficina FROM oficina WHERE id_oficina = ?";
 $stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $oficina_id); // associa o id da oficina
+$stmt->bind_param("i", $oficina_id); // Associa o ID da oficina como parâmetro
 $stmt->execute();
 $result = $stmt->get_result();
 
-// verifica se encontrou a oficina
+// Verifica se encontrou a oficina e armazena os dados
 if ($result->num_rows > 0) {
-    $user_data = $result->fetch_assoc(); // salva os dados em um array associativo
+    $user_data = $result->fetch_assoc(); // Armazena os dados em um array associativo
 } else {
-    die("Oficina não encontrada."); // interrompe se a oficina não existir
+    die("Oficina não encontrada."); // Encerra a execução se a oficina não existir
 }
 
-// fecha o statement e a conexão
+// Fecha o statement e a conexão com o banco de dados
 $stmt->close();
 $conexao->close();
 ?>
@@ -40,8 +43,10 @@ $conexao->close();
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
+    <!-- Meta tags para configuração básica da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Inclui o arquivo CSS do Tailwind para estilização -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time</title>
 </head>
@@ -49,16 +54,19 @@ $conexao->close();
 
 <body class="">
     
+    <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
         </svg>
     </button>
     
+    <!-- Sidebar de navegação -->
     <aside id="sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0">
         <div class="h-full px-3 py-4 bg-gray-50 flex flex-col justify-between">
 
             <div>
+                <!-- Logo e botão de fechar menu -->
                 <a class="flex items-center lg:justify-center justify-between ps-3 mx-auto mb-2">
                     <button id="closeHamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                         <svg class="w-6 h-6 " fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">                    
@@ -88,11 +96,12 @@ $conexao->close();
                             </svg>
                             <span class="flex-1 ms-3 whitespace-nowrap">
                                 <?php
+                                    // Exibe apenas as duas primeiras palavras do nome da oficina
                                     $nomeCompleto = htmlspecialchars($user_data['nome_oficina']);
                                     $partes = explode(' ', $nomeCompleto);
                                     $duasPalavras = implode(' ', array_slice($partes, 0, 2));
                                     echo $duasPalavras;
-                                    ?>
+                                ?>
                             </span>
                         </a>
                     </li>
