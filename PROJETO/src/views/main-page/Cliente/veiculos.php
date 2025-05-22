@@ -340,7 +340,7 @@ if ($id_usuario) {
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <!-- Mensagem quando não há veículos cadastrados -->
+                <!-- Mensagem quando não há veículos cadastrados-->
                 <hr class="h-px my-8 bg-gray-300 border-0">
                 <div class="mt-10 p-4 rounded-lg bg-gray-100 border-2 border-gray-300 shadow-xl flex items-center justify-between ">
                     <div>
