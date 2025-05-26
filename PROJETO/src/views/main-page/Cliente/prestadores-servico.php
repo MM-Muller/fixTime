@@ -219,8 +219,7 @@ $stmt->close();
                             <p class="mb-1 text-gray-500">Categoria: <?= htmlspecialchars($row['categoria']) ?></p>
                             <p class="mb-1 text-gray-500">Email: <?= htmlspecialchars($row['email_oficina']) ?></p>
                             <p class="mb-1 text-gray-500">Telefone: <?= htmlspecialchars($row['telefone_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Endereço: <?= htmlspecialchars($row['endereco_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Número: <?= htmlspecialchars($row['numero_oficina']) ?></p>
+                            <p class="mb-1 text-gray-500">Endereço: <?= htmlspecialchars($row['endereco_oficina']) ?> - <?= htmlspecialchars($row['numero_oficina']) ?></p>
                             <p class="mb-1 text-gray-500">Complemento: <?= htmlspecialchars($row['complemento']) ?></p>
                             <p class="mb-1 text-gray-500">Cidade: <?= htmlspecialchars($row['cidade_oficina']) ?></p>
                             <p class="mb-1 text-gray-500">Bairro: <?= htmlspecialchars($row['bairro_oficina']) ?></p>
@@ -264,81 +263,6 @@ $stmt->close();
 
     </div>
 
-    <!-- Modal de Agendamento -->
-    <div id="agendarModal" class="hidden fixed top-0 left-0 right-0 z-50 w-full h-screen flex items-center justify-center bg-gray-900/50">
-        <div class="relative w-full max-w-sm mx-auto p-4">
-            <!-- Conteúdo do Modal -->
-            <div class="relative bg-white rounded-lg shadow mx-32 border border-gray-200">
-                <!-- Cabeçalho do Modal -->
-                <div class="relative p-4 border-b border-gray-200 rounded-t">
-                    <h3 class="text-lg font-semibold text-gray-900 text-center w-full">
-                        Agendar Serviço
-                    </h3>
-                </div>
-
-                <!-- Corpo do Modal -->
-                <div class="p-4 space-y-4">
-                    <form id="agendamentoForm" class="space-y-4">
-                        <!-- Campo de Data -->
-                        <div>
-                            <label for="data_agendamento" class=" block mb-2 text-sm font-medium text-gray-900 text-center">Data do Agendamento</label>
-                            <input type="date" id="data_agendamento" name="data_agendamento" class="outline-none bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                        </div>
-
-                        <!-- Campo de Horário -->
-                        <div>
-                            <label for="horario" class="block mb-2 text-sm font-medium text-gray-900 text-center">Horário</label>
-                            <select id="horario" name="horario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                                <option value="">Selecione um horário</option>
-                                <option value="08:00">08:00</option>
-                                <option value="09:00">09:00</option>
-                                <option value="10:00">10:00</option>
-                                <option value="11:00">11:00</option>
-                                <option value="13:00">13:00</option>
-                                <option value="14:00">14:00</option>
-                                <option value="15:00">15:00</option>
-                                <option value="16:00">16:00</option>
-                                <option value="17:00">17:00</option>
-                            </select>
-                        </div>
-
-                        <!-- Campo de Seleção de Veículo -->
-                        <div>
-                            <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900 text-center">Selecione o Veículo</label>
-                            <select id="veiculo" name="veiculo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
-                                <option value="">Selecione um veículo</option>
-                                <?php
-                                // Busca os veículos do cliente
-                                $sql_veiculos = "SELECT id, tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem 
-                                               FROM veiculos 
-                                               WHERE id_usuario = ?";
-                                $stmt_veiculos = $conexao->prepare($sql_veiculos);
-                                $stmt_veiculos->bind_param("i", $id_usuario);
-                                $stmt_veiculos->execute();
-                                $result_veiculos = $stmt_veiculos->get_result();
-
-                                // Exibe os veículos no select
-                                while ($veiculo = $result_veiculos->fetch_assoc()) {
-                                    $tipo = ucfirst($veiculo['tipo_veiculo']);
-                                    echo '<option value="' . $veiculo['id'] . '">' . 
-                                         htmlspecialchars("$tipo - {$veiculo['marca']} {$veiculo['modelo']} ({$veiculo['ano']}) - {$veiculo['cor']} - Placa: {$veiculo['placa']}") . 
-                                         '</option>';
-                                }
-                                $stmt_veiculos->close();
-                                ?>
-                            </select>
-                        </div>
-
-                        <!-- Botões de Ação -->
-                        <div class="flex items-center justify-center gap-2 mt-4">
-                            <button type="button" onclick="document.getElementById('agendarModal').classList.add('hidden'); document.getElementById('agendamentoForm').reset();" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-sm px-5 py-2.5">Cancelar</button>
-                            <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 rounded-lg text-sm px-5 py-2.5">Confirmar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Scripts JavaScript -->
     <script>
