@@ -163,7 +163,7 @@ SELECT * FROM usuarios WHERE idade > 18;
 -- Ordena os resultados
 SELECT * FROM produtos ORDER BY preco DESC;
 
-ALTER TABLE usuarios ADD telefone VARCHAR(20);
+ALTER TABLE nome_tabela ADD nome_coluna VARCHAR(20);
 
 ALTER TABLE usuarios CHANGE nome_antigo nome_completo VARCHAR(100);
 
@@ -173,4 +173,6 @@ WHERE nome = 'João';
 
 DELETE FROM usuarios
 WHERE idade < 18;
+
+ALTER TABLE nome_da_tabela DROP COLUMN nome_da_coluna;
 
