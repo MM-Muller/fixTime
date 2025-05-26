@@ -150,3 +150,27 @@ SELECT * FROM servicos_padrao;
 SELECT * FROM servico_funcionario;
 SELECT * FROM servico;
 SELECT * FROM oficina_servicos;
+
+-- Seleciona todas as colunas de uma tabela
+SELECT * FROM tabela;
+
+-- Seleciona colunas específicas
+SELECT nome, email FROM usuarios;
+
+-- Com condição
+SELECT * FROM usuarios WHERE idade > 18;
+
+-- Ordena os resultados
+SELECT * FROM produtos ORDER BY preco DESC;
+
+ALTER TABLE usuarios ADD telefone VARCHAR(20);
+
+ALTER TABLE usuarios CHANGE nome_antigo nome_completo VARCHAR(100);
+
+UPDATE usuarios
+SET idade = 31
+WHERE nome = 'João';
+
+DELETE FROM usuarios
+WHERE idade < 18;
+
