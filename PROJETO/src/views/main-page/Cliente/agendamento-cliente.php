@@ -37,9 +37,15 @@ $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, 
     <div class="flex lg:py-14">
         <div class="mx-auto">
             <div class="max-w-5xl w-full bg-white border border-gray-200 rounded-lg shadow-sm">
+
                 <div class="lg:py-10 lg:px-10">
-                    <p class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
-                    <p class="mb-6 text-gray-600">Preencha os dados abaixo para agendar seu serviço</p>
+
+                    <div>
+                        <p class="mb-2 text-5xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
+                        <p class=" mb-6 text-gray-600">Preencha os dados abaixo para agendar seu serviço</p>
+                    </div>
+
+                    
 
                     <!-- Formulário de Agendamento -->
                     <form method="POST" action="processa_agendamento.php" class="space-y-6">
@@ -72,14 +78,20 @@ $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, 
                                 <div class="grid grid-cols-2 gap-2">
                                     <?php
                                     $horarios = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
-                                    foreach ($horarios as $hora):
+                                    foreach ($horarios as $index => $hora):
+                                        $id = "hora-" . $index;
                                     ?>
-                                        <label for="hora-<?= $hora ?>" class="cursor-pointer block">
-                                            <input type="radio" name="horario" value="<?= $hora ?>" id="hora-<?= $hora ?>" class="peer hidden" required>
-                                            <div class=" text-center border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 outline-none hover:bg-gray-200 peer-checked:bg-gray-800 peer-checked:text-white">
+                                        <div>
+                                            <!-- O input precisa ser peer e vir ANTES do label -->
+                                            <input type="radio" name="horario" value="<?= $hora ?>" id="<?= $id ?>" class="peer hidden" required>
+                                            <label for="<?= $id ?>" class="block text-center border-2 border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg p-2.5 cursor-pointer transition 
+                                                hover:bg-gray-200 
+                                                peer-checked:bg-gray-800 
+                                                peer-checked:text-white 
+                                                peer-checked:border-gray-800">
                                                 <?= $hora ?>
-                                            </div>
-                                        </label>
+                                            </label>
+                                        </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
