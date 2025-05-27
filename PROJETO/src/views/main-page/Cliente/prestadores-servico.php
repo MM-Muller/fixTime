@@ -212,47 +212,71 @@ $stmt->close();
                 ?>
                 
                 <div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid  lg:grid-cols-6 gap-2">
                         <!-- Coluna da esquerda com informações da oficina -->
-                        <div>
+                        <div class="col-span-2">
                             <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl"><?= htmlspecialchars($row['nome_oficina']) ?></h1>
-                            <p class="mb-1 text-gray-500">Categoria: <?= htmlspecialchars($row['categoria']) ?></p>
-                            <p class="mb-1 text-gray-500">Email: <?= htmlspecialchars($row['email_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Telefone: <?= htmlspecialchars($row['telefone_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Endereço: <?= htmlspecialchars($row['endereco_oficina']) ?> - <?= htmlspecialchars($row['numero_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Complemento: <?= htmlspecialchars($row['complemento']) ?></p>
-                            <p class="mb-1 text-gray-500">Cidade: <?= htmlspecialchars($row['cidade_oficina']) ?></p>
-                            <p class="mb-1 text-gray-500">Bairro: <?= htmlspecialchars($row['bairro_oficina']) ?></p>
+                            
+                            <p class="mb-2 text-gray-500 flex items-center text-md">
+                                <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8.4 6.763c-.251.1-.383.196-.422.235L6.564 5.584l2.737-2.737c1.113-1.113 3.053-1.097 4.337.187l1.159 1.159a1 1 0 0 1 1.39.022l4.105 4.105a1 1 0 0 1 .023 1.39l1.345 1.346a1 1 0 0 1 0 1.415l-2.052 2.052a1 1 0 0 1-1.414 0l-1.346-1.346a1 1 0 0 1-1.323.039L11.29 8.983a1 1 0 0 1 .04-1.324l-.849-.848c-.18-.18-.606-.322-1.258-.25a3.271 3.271 0 0 0-.824.202Zm1.519 3.675L3.828 16.53a1 1 0 0 0 0 1.414l2.736 2.737a1 1 0 0 0 1.414 0l6.091-6.091-4.15-4.15Z"/>
+                                </svg>
+                                <?= htmlspecialchars($row['categoria']) ?>
+                            </p>
+
+                            <p class="mb-2 text-gray-500 flex items-center text-md">
+                                <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M2.038 5.61A2.01 2.01 0 0 0 2 6v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6c0-.12-.01-.238-.03-.352l-.866.65-7.89 6.032a2 2 0 0 1-2.429 0L2.884 6.288l-.846-.677Z"/>
+                                  <path d="M20.677 4.117A1.996 1.996 0 0 0 20 4H4c-.225 0-.44.037-.642.105l.758.607L12 10.742 19.9 4.7l.777-.583Z"/>
+                                </svg>  
+                                <?= htmlspecialchars($row['email_oficina']) ?>
+                            </p>
+
+                            <p class="mb-2 text-gray-500 flex items-center text-md">
+                                <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M7.978 4a2.553 2.553 0 0 0-1.926.877C4.233 6.7 3.699 8.751 4.153 10.814c.44 1.995 1.778 3.893 3.456 5.572 1.68 1.679 3.577 3.018 5.57 3.459 2.062.456 4.115-.073 5.94-1.885a2.556 2.556 0 0 0 .001-3.861l-1.21-1.21a2.689 2.689 0 0 0-3.802 0l-.617.618a.806.806 0 0 1-1.14 0l-1.854-1.855a.807.807 0 0 1 0-1.14l.618-.62a2.692 2.692 0 0 0 0-3.803l-1.21-1.211A2.555 2.555 0 0 0 7.978 4Z"/>
+                                </svg>
+                                <?= htmlspecialchars($row['telefone_oficina']) ?>
+                            </p>
+
+                            <p class="mb-2 text-gray-500 flex items-center text-md">
+                                <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                  <path fill-rule="evenodd" d="M5 9a7 7 0 1 1 8 6.93V21a1 1 0 1 1-2 0v-5.07A7.001 7.001 0 0 1 5 9Zm5.94-1.06A1.5 1.5 0 0 1 12 7.5a1 1 0 1 0 0-2A3.5 3.5 0 0 0 8.5 9a1 1 0 0 0 2 0c0-.398.158-.78.44-1.06Z" clip-rule="evenodd"/>
+                                </svg>       
+                                <?= htmlspecialchars($row['endereco_oficina']) ?>, <?= htmlspecialchars($row['numero_oficina']) ?> - <?= htmlspecialchars($row['complemento']) ?> - <?= htmlspecialchars($row['bairro_oficina']) ?> - <?= htmlspecialchars($row['cidade_oficina']) ?>
+                            </p>
+
                         </div>
                         
                         <!-- Coluna da direita com serviços oferecidos -->
-                        <div>
+                        <div class="col-span-4">
                             <h2 class="mb-3 text-lg font-semibold text-gray-900">Serviços Oferecidos:</h2>
-                            <div class="space-y-2">
-                                <?php if (!empty($servicos)): ?>
+                            <?php if (!empty($servicos)): ?>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                     <?php foreach ($servicos as $servico): ?>
-                                        <p class="text-gray-500">
-                                            <svg class="w-4 h-4 inline-block mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <div class="flex items-center text-gray-500">
+                                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                             </svg>
                                             <?= htmlspecialchars($servico['nome_servico']) ?>
-                                        </p>
+                                        </div>
                                     <?php endforeach; ?>
-                                <?php else: ?>
-                                    <p class="text-gray-500">Nenhum serviço cadastrado</p>
-                                <?php endif; ?>
-                            </div>
+                                </div>
+                            <?php else: ?>
+                                <p class="text-gray-500">Nenhum serviço cadastrado</p>
+                            <?php endif; ?>
+                            
                         </div>
                     </div>
                     
                     <!-- Botão de agendamento -->
-                    <button onclick="document.getElementById('agendarModal').classList.remove('hidden')" type="button" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                    <a href="/fixTime/PROJETO/src/views/main-page/Cliente/agendamento-cliente.php?id_oficina=<?= $row['id_oficina'] ?>" class="mt-2 text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
                         </svg>
                         Agendar
-                    </button>
+                    </a>
                 </div>
                 <?php
             }
@@ -280,15 +304,7 @@ $stmt->close();
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-
-        // Fecha o modal ao clicar fora dele
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('agendarModal');
-            if (event.target === modal) {
-                modal.classList.add('hidden');
-                document.getElementById('agendamentoForm').reset();
-            }
-        });
+    
     </script>
 
 </body>
