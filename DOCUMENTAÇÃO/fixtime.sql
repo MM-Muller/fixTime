@@ -75,20 +75,24 @@ CREATE TABLE IF NOT EXISTS funcionarios (
     FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
 );
 
-ALTER TABLE funcionarios
-ADD COLUMN cpf_funcionario VARCHAR(14) NOT NULL;
+
 
 CREATE TABLE IF NOT EXISTS servico (
     id_servico INT AUTO_INCREMENT PRIMARY KEY,
-    data_servico TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    data_entrega DATE NOT NULL,
+    data_agendada DATE NOT NULL,
+    horario TIME NOT NULL,
+    data_entrega DATE NULL,
     status ENUM('Pendente', 'Em Andamento', 'Concluído', 'Cancelado') DEFAULT 'Pendente',
     descricao_servico TEXT NOT NULL,
     id_veiculo INT NOT NULL,
     id_oficina INT NOT NULL,
     FOREIGN KEY (id_veiculo) REFERENCES veiculos(id),
-    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
+    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
+    UNIQUE (id_oficina, data_agendada, horario)
 );
+
+
+
 
 
 CREATE TABLE IF NOT EXISTS servico_funcionario (

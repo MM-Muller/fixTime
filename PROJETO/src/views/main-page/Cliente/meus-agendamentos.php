@@ -11,107 +11,45 @@ if (!isset($conexao) || !$conexao) {
 // Inicia a sessão para gerenciar dados do usuário
 session_start();
 
-// Obtém o ID do usuário da sessão
-$user_id = $_SESSION['id_usuario'];
-
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
     echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
     exit;
 }
 
-// Processa o formulário quando enviado via POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifica se o botão de excluir perfil foi pressionado
-    if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
-        // Verifica se existem veículos cadastrados para este cliente
-        $sqlCheckVeiculos = "SELECT COUNT(*) as total FROM veiculos WHERE id_usuario = ?";
-        $stmtCheck = $conexao->prepare($sqlCheckVeiculos);
-        $stmtCheck->bind_param("i", $user_id);
-        $stmtCheck->execute();
-        $resultCheck = $stmtCheck->get_result();
-        $row = $resultCheck->fetch_assoc();
-        $totalVeiculos = $row['total'];
-        $stmtCheck->close();
-        
-        // Se houver veículos cadastrados, impede a exclusão do perfil
-        if ($totalVeiculos > 0) {
-            echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
-            exit();
-        }
+$user_id = $_SESSION['id_usuario'];
 
-        // Prepara e executa a query para excluir o perfil
-        $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
-        $stmtDelete = $conexao->prepare($sqlDelete);
-        $stmtDelete->bind_param("i", $user_id);
-
-        // Executa a exclusão e verifica o resultado
-        if ($stmtDelete->execute()) {
-            session_destroy(); // Encerra a sessão do usuário
-            echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
-            exit();
-        } else {
-            echo "Erro ao excluir perfil: " . $conexao->error;
-        }
-
-        $stmtDelete->close();
-    }
-    // Processa a atualização do perfil
-    else if (isset($_POST['salvar_perfil'])) {
-        // Recupera e sanitiza os dados do formulário
-        $nome = trim($_POST['nome'] ?? '');
-        $cpf = trim($_POST['cpf'] ?? '');
-        $telefone = trim($_POST['telefone'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-
-        // Prepara a query de atualização
-        $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
-        $stmtUpdate = $conexao->prepare($sqlUpdate);
-        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id);
-
-        // Executa a atualização e verifica o resultado
-        if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
-            exit();
-        } else {
-            echo "Erro ao atualizar perfil: " . $conexao->error;
-        }
-
-        $stmtUpdate->close();
-    }
-}
-
-// Busca os dados atuais do usuário
-$sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
+// Busca os dados do usuário
+$sql = "SELECT nome_usuario FROM cliente WHERE id_usuario = ?";
 $stmt = $conexao->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
-// Verifica se encontrou o usuário
-if ($result->num_rows > 0) {
-    $user_data = $result->fetch_assoc();
-} else {
-    die("Usuário não encontrado.");
-}
-
-// Fecha as conexões com o banco de dados
+$user_data = $result->fetch_assoc();
 $stmt->close();
-$conexao->close();
+
+// Busca os agendamentos do usuário
+$sql_agendamentos = "SELECT s.*, o.nome_oficina, o.categoria, v.marca, v.modelo, v.placa 
+                    FROM servico s 
+                    JOIN oficina o ON s.id_oficina = o.id_oficina 
+                    JOIN veiculos v ON s.id_veiculo = v.id 
+                    WHERE v.id_usuario = ? 
+                    ORDER BY s.data_agendada DESC, s.horario DESC";
+$stmt_agendamentos = $conexao->prepare($sql_agendamentos);
+$stmt_agendamentos->bind_param("i", $user_id);
+$stmt_agendamentos->execute();
+$result_agendamentos = $stmt_agendamentos->get_result();
 ?>
 
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="pt-BR">
 <head>
-    <!-- Meta tags para configuração do documento -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Link para o arquivo CSS do Tailwind -->
+    <title>Meus Agendamentos - FixTime</title>
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
-    <title>Fix Time</title>
 </head>
-
-<body class="">
+<body class="bg-gray-50">
     <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -157,7 +95,6 @@ $conexao->close();
                         </a>
                     </li>
                     
-                    
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -197,62 +134,83 @@ $conexao->close();
     </aside>
 
     <!-- Conteúdo principal da página -->
-    <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
-        <!-- Formulário de perfil -->
+    <div class="lg:ml-64 lg:py-10 py-4 lg:px-32 px-8">
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <form id="formPerfil" method="POST" action="perfil.php">
-                <!-- Campos do formulário -->
-                <div class="space-y-7">
-                    <!-- Campo Nome -->
-                    <div class="">
-                        <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
-                        <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                    </div>
+            <h2 class="text-2xl font-bold mb-6">Meus Agendamentos</h2>
 
-                    <!-- Campo CPF -->
-                    <div class="">
-                        <label for="cpf-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
-                        <input type="text" id="cpf-perfil" name="cpf" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                    </div>
-
-                    <!-- Campo Telefone -->
-                    <div class="">
-                        <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                        <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                    </div>
-
-                    <!-- Campo Email -->
-                    <div class="">
-                        <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                        <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
-                    </div>
+            <?php if ($result_agendamentos->num_rows === 0): ?>
+                <div class="text-center py-8">
+                    <p class="text-gray-500">Nenhum agendamento encontrado.</p>
                 </div>
+            <?php else: ?>
+                <?php while ($agendamento = $result_agendamentos->fetch_assoc()): 
+                    // Formata a data e hora para exibição
+                    $data_hora = $agendamento['data_agendada'] . ' ' . $agendamento['horario'];
+                    $data_hora_formatada = date('d/m/Y H:i', strtotime($data_hora));
+                    
+                    // Formata a data de entrega
+                    $data_entrega_formatada = $agendamento['data_entrega'] ? date('d/m/Y', strtotime($agendamento['data_entrega'])) : 'Não definida';
 
-                <!-- Campo oculto para controle de salvamento -->
-                <input type="hidden" name="salvar_perfil" value="1">
+                    // Define a cor do status
+                    $status_class = '';
+                    switch ($agendamento['status']) {
+                        case 'Pendente':
+                            $status_class = 'text-yellow-600 bg-yellow-100';
+                            break;
+                        case 'Em Andamento':
+                            $status_class = 'text-blue-600 bg-blue-100';
+                            break;
+                        case 'Concluído':
+                            $status_class = 'text-green-600 bg-green-100';
+                            break;
+                        case 'Cancelado':
+                            $status_class = 'text-red-600 bg-red-100';
+                            break;
+                    }
+                ?>
+                    <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="space-y-4">
+                            <!-- Data e Hora -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Data e Hora do Agendamento</label>
+                                <input type="text" value="<?php echo $data_hora_formatada; ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
 
-                <!-- Botões de ação -->
-                <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
-                    <!-- Botão Editar -->
-                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        Editar
-                    </button>
+                            <!-- Data de Entrega -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Data de Entrega</label>
+                                <input type="text" value="<?php echo $data_entrega_formatada; ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
 
-                    <!-- Botão Excluir -->
-                    <button id="excluirPerfilBtn" type="button" name="excluir_perfil" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        Excluir
-                    </button>
-                </div>
-                <!-- Campo oculto para controle de exclusão -->
-                <input type="hidden" name="excluir_perfil" id="inputExcluirPerfil" value="">
-            </form>
+                            <!-- Oficina -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Oficina</label>
+                                <input type="text" value="<?php echo htmlspecialchars($agendamento['nome_oficina'] . ' - ' . $agendamento['categoria']); ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Veículo -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Veículo</label>
+                                <input type="text" value="<?php echo htmlspecialchars($agendamento['marca'] . ' ' . $agendamento['modelo'] . ' - ' . $agendamento['placa']); ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                <div class="px-3 py-2 rounded-lg <?php echo $status_class; ?> inline-block">
+                                    <?php echo htmlspecialchars($agendamento['status']); ?>
+                                </div>
+                            </div>
+
+                            <!-- Descrição -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Descrição do Serviço</label>
+                                <textarea class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" rows="3" disabled><?php echo htmlspecialchars($agendamento['descricao_servico']); ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -271,80 +229,6 @@ $conexao->close();
         // Fecha o menu
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
-        });
-    </script>
-
-    <script>
-        // Controle do formulário de perfil
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
-
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
-                    });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
-                }
-            });
-        });
-    </script>
-
-    <script>
-        // Controle dos botões de edição e exclusão
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const excluirBtn = document.getElementById('excluirPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
-
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
-                    });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
-                }
-            });
-
-            // Manipula o botão de exclusão
-            excluirBtn.addEventListener('click', function() {
-                const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
-                if (confirmar) {
-                    document.getElementById('inputExcluirPerfil').value = '1';
-                    form.submit();
-                }
-            });
         });
     </script>
 
