@@ -13,11 +13,37 @@ if (!isset($_SESSION['id_usuario'])) {
 }
 
 // Buscar veículos do cliente
-$stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, cor, placa, quilometragem 
-                        FROM veiculos WHERE id_usuario = ? ORDER BY id DESC");
-        $stmt->bind_param("i", $id_usuario);
-        $stmt->execute();
-        $result = $stmt->get_result();
+$stmtVeiculos = $conexao->prepare("
+    SELECT id, tipo_veiculo AS tipo, marca, modelo, ano, cor, placa, quilometragem 
+    FROM veiculos 
+    WHERE id_usuario = ? 
+    ORDER BY id DESC
+");
+$stmtVeiculos->bind_param("i", $id_usuario);
+$stmtVeiculos->execute();
+$resultVeiculos = $stmtVeiculos->get_result();
+
+
+// Buscar oficinas (com ou sem filtro por categoria)
+$query = "
+    SELECT id_oficina, nome_oficina, email_oficina, telefone_oficina, 
+           bairro_oficina, endereco_oficina, categoria, numero_oficina, 
+           complemento, cidade_oficina 
+    FROM oficina
+";
+
+if (!empty($filter)) {
+    $query .= " WHERE categoria = ?";
+    $stmtOficinas = $conexao->prepare($query);
+    $stmtOficinas->bind_param("s", $filter);
+} else {
+    $stmtOficinas = $conexao->prepare($query);
+}
+
+$stmtOficinas->execute();
+$resultOficinas = $stmtOficinas->get_result();
+
+
 ?>
 
 <!DOCTYPE html>
@@ -41,8 +67,8 @@ $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, 
                 <div class="lg:py-10 lg:px-10">
 
                     <div>
-                        <p class="mb-2 text-5xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
-                        <p class=" mb-6 text-gray-600">Preencha os dados abaixo para agendar seu serviço</p>
+                        <p class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
+                        <p class=" mb-6 text-gray-600">Preencha os dados abaixo para agendar seu serviço com <?= htmlspecialchars($row['nome_oficina']) ?></p>
                     </div>
 
                     
@@ -105,13 +131,7 @@ $stmt = $conexao->prepare("SELECT id, tipo_veiculo as tipo, marca, modelo, ano, 
                                 </button>
                             </div>
                         </div>
-
-                            
-                                    
-                                    
-                                    
-
-                                  
+    
                                 
                     </form>
                                 

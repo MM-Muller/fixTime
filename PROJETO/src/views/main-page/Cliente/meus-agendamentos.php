@@ -156,7 +156,8 @@ $conexao->close();
                             <span class="flex-1 ms-3 whitespace-nowrap">Meus veículos</span>
                         </a>
                     </li>
-
+                    
+                    
                     <li>
                         <a href="/fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php" class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100  group">
                         <svg class="shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -182,7 +183,6 @@ $conexao->close();
                             </span>
                         </a>
                     </li>
-                    
                 </ul>
             </div>
 
