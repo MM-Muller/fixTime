@@ -3,47 +3,47 @@ session_start();
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
-if (!isset($conexao) || !$conexao) {
-    die("Erro ao conectar ao banco de dados.");
-}
-
+// Verifica se o usuário está logado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
-    exit;
+    echo "<script>alert('Usuário não autenticado.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    exit();
 }
 
-// Buscar veículos do cliente
-$stmtVeiculos = $conexao->prepare("
-    SELECT id, tipo_veiculo AS tipo, marca, modelo, ano, cor, placa, quilometragem 
-    FROM veiculos 
-    WHERE id_usuario = ? 
-    ORDER BY id DESC
-");
+$id_usuario = $_SESSION['id_usuario'];
+
+// Verifica se o id da oficina foi passado na URL
+if (!isset($_GET['id_oficina'])) {
+    echo "<script>alert('Oficina não especificada.'); window.history.back();</script>";
+    exit();
+}
+
+$id_oficina = (int) $_GET['id_oficina'];
+
+// Busca os dados da oficina
+$oficina = null;
+$stmtOficina = $conexao->prepare("SELECT nome_oficina, categoria, endereco_oficina, numero_oficina, complemento, bairro_oficina, cidade_oficina, estado_oficina, telefone_oficina, email_oficina FROM oficina WHERE id_oficina = ?");
+$stmtOficina->bind_param("i", $id_oficina);
+$stmtOficina->execute();
+$resultOficina = $stmtOficina->get_result();
+if ($resultOficina->num_rows > 0) {
+    $oficina = $resultOficina->fetch_assoc();
+} else {
+    echo "<script>alert('Oficina não encontrada.'); window.history.back();</script>";
+    exit();
+}
+$stmtOficina->close();
+
+// Busca os veículos do cliente
+$veiculos = [];
+$stmtVeiculos = $conexao->prepare("SELECT id, tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem FROM veiculos WHERE id_usuario = ? ORDER BY id DESC");
 $stmtVeiculos->bind_param("i", $id_usuario);
 $stmtVeiculos->execute();
 $resultVeiculos = $stmtVeiculos->get_result();
-
-
-// Buscar oficinas (com ou sem filtro por categoria)
-$query = "
-    SELECT id_oficina, nome_oficina, email_oficina, telefone_oficina, 
-           bairro_oficina, endereco_oficina, categoria, numero_oficina, 
-           complemento, cidade_oficina 
-    FROM oficina
-";
-
-if (!empty($filter)) {
-    $query .= " WHERE categoria = ?";
-    $stmtOficinas = $conexao->prepare($query);
-    $stmtOficinas->bind_param("s", $filter);
-} else {
-    $stmtOficinas = $conexao->prepare($query);
+while ($row = $resultVeiculos->fetch_assoc()) {
+    $veiculos[] = $row;
 }
 
-$stmtOficinas->execute();
-$resultOficinas = $stmtOficinas->get_result();
-
-
+$stmtVeiculos->close();
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +54,7 @@ $resultOficinas = $stmtOficinas->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time - Agendamento</title>
+
 </head>
 
 <body class="bg-gray-50">
@@ -66,9 +67,14 @@ $resultOficinas = $stmtOficinas->get_result();
 
                 <div class="lg:py-10 lg:px-10">
 
-                    <div>
+                    <div class="mb-6">
                         <p class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
-                        <p class=" mb-6 text-gray-600">Preencha os dados abaixo para agendar seu serviço com <?= htmlspecialchars($row['nome_oficina']) ?></p>
+                        <p class=" text-gray-600">Preencha os dados abaixo para agendar seu serviço <br> com
+                            <span class="font-bold text-gray-700 font">
+                                <?= htmlspecialchars($oficina['nome_oficina']) ?>
+                            </span>
+                        </p>
+                                
                     </div>
 
                     
@@ -82,23 +88,28 @@ $resultOficinas = $stmtOficinas->get_result();
                             <div>
                                 <label for="veiculo" class="block mb-2 text-sm font-medium text-gray-900">Veículo</label>
                                 <select name="veiculo" id="veiculo" required
-                                        class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none">
+                                        class="focus:ring-blue-500 focus:border-blue-500 border bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none">
                                     <option value="">Selecione um veículo</option>
                                     <?php foreach ($veiculos as $veiculo): ?>
                                         <option value="<?= $veiculo['id_veiculo'] ?>">
-                                            <?= htmlspecialchars($veiculo['modelo']) ?> - Placa: <?= htmlspecialchars($veiculo['placa']) ?>
+                                            <?= htmlspecialchars($veiculo['modelo']) ?> - Placa: <?= htmlspecialchars($veiculo['placa']) ?> - Cor: <?= htmlspecialchars($veiculo['cor']) ?> - Ano: <?= htmlspecialchars($veiculo['ano']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <!-- Data -->
-                            <div class="space-y-2">
-                                <label for="data" class="block mb-2 text-sm font-medium text-gray-900">Data</label>
-                                <input type="date" name="data" id="data" required min="<?= date('Y-m-d') ?>"
-                                       class="focus:ring-blue-500 focus:border-blue-500 border-2 bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none">
-                            </div>
+                            <div class="relative w-full max-w-sm">
+
+                              <!-- Input de data -->
+                              <input
+                                type="date"
+                                name="data"
+                                class="outline-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                                min="<?= date('Y-m-d'); ?>"
+                                required>
+                                         
                             <!-- Horário -->
-                            <div class="space-y-2">
+                            <div class="space-y-2 mt-2">
                                 <label class="block mb-2 text-sm font-medium text-gray-900">Horário</label>
 
                                 <div class="grid grid-cols-2 gap-2">
@@ -107,22 +118,29 @@ $resultOficinas = $stmtOficinas->get_result();
                                     foreach ($horarios as $index => $hora):
                                         $id = "hora-" . $index;
                                     ?>
-                                        <div>
-                                            <!-- O input precisa ser peer e vir ANTES do label -->
-                                            <input type="radio" name="horario" value="<?= $hora ?>" id="<?= $id ?>" class="peer hidden" required>
-                                            <label for="<?= $id ?>" class="block text-center border-2 border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg p-2.5 cursor-pointer transition 
-                                                hover:bg-gray-200 
-                                                peer-checked:bg-gray-800 
-                                                peer-checked:text-white 
-                                                peer-checked:border-gray-800">
-                                                <?= $hora ?>
-                                            </label>
-                                        </div>
+                                    <ul class="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
+                                        <li class="border-0 hover:bg-gray-100 border-gray-200 ">
+                                            <div class="flex items-center ps-3">
+                                                <input 
+                                                    id="<?= $id ?>" 
+                                                    type="radio" 
+                                                    value="<?= $hora ?>" 
+                                                    name="horario" 
+                                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 hover:bg-gray-300">
+                                    
+                                                <label for="<?= $id ?>" class="w-full py-3 ms-2 text-mds font-medium text-gray-900 ">
+                                                    <?= $hora ?>
+                                                </label>
+                                            </div>
+                                        </li>
+                                    </ul>
                                     <?php endforeach; ?>
                                 </div>
-                            </div>
-                            
-                            <hr class="m-6">
+                            </div>  
+                        
+                        </div>
+
+
                             <!-- Botão -->
                             <div class="mt-10">
                                 <button type="submit"
@@ -139,5 +157,6 @@ $resultOficinas = $stmtOficinas->get_result();
             </div>
         </div>
     </div>
+
 </body>
 </html>

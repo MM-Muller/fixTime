@@ -128,7 +128,7 @@ $stmt->close();
         </div>
     </aside>
 
-    <div class=" lg:ml-64 lg:px-10 lg:py-6 p-10">
+    <div class=" lg:ml-64 lg:px-20 lg:py-6 p-10">
         <div class="flex justify-center items-center">
             <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">Oficinas Parceiras</h1>
         </div>
@@ -220,7 +220,7 @@ $stmt->close();
                 $servicos = $result_servicos->fetch_all(MYSQLI_ASSOC);
                 ?>
                 
-                <div class="mb-6 p-4 border border-gray-200 rounded-lg shadow-sm bg-white">
+                <div class="mb-8 py-6 px-8 border border-gray-200 rounded-lg shadow-sm bg-white hover:shadow-lg">
                     <div class="grid  lg:grid-cols-6 gap-2">
                         <!-- Coluna da esquerda com informações da oficina -->
                         <div class="col-span-2">

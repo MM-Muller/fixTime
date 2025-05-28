@@ -205,7 +205,7 @@ if ($id_usuario) {
         <!-- Formulário de cadastro de veículos -->
         <div>
             <form action="/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php" method="POST">
-                <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
+                <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6 ">
                     <!-- Campo Tipo de Veículo -->
                     <div class="lg:col-span-1 col-span-6">
                         <label for="tipo_veiculos" class="block mb-2 text-sm font-medium text-gray-900">Tipo de veículo</label>
@@ -268,10 +268,10 @@ if ($id_usuario) {
 
                 <?php foreach ($veiculos as $veiculo): ?>
                     <div class="mt-6" id="veiculo-<?= $veiculo['id'] ?>">
-                        <hr class="h-px my-8 bg-gray-200 border-0">
+                        <hr class="h-px my-8 bg-gray-100 border-0">
 
                         <!-- Card do Veículo -->
-                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+                        <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-md">
                             <form action="atualizar_veiculo.php" method="POST" class="form-veiculo">
                                 <input type="hidden" name="id" value="<?= $veiculo['id'] ?>">
 
