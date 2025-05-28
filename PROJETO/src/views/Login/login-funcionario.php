@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Campo de CPF -->
         <div class="" id="senha-container">
           <label for="cpf_funcionario" class="block mb-1 text-sm font-medium text-gray-900">CPF</label>
-          <input type="text" name="cpf_funcionario" id="cpf_funcionario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="123.456.789-10" required />
+          <input maxlength="14" type="text" name="cpf_funcionario" id="cpf_funcionario" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none focus:ring-2 block w-full p-2" placeholder="123.456.789-10" required />
         </div>
       </div>
 
@@ -105,6 +105,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       
     </form>
   </div>
+
+
+  
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
+  <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
+  <script>
+
+  $(document).ready(function() {
+            $('#cpf_funcionario').mask('000.000.000-00',)
+        });
+  </script>
+  <!-- Scripts externos -->
 </body>
 
 </html>
