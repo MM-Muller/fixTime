@@ -27,6 +27,18 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user_data = $result->fetch_assoc();
 $stmt->close();
+
+// Busca os agendamentos do usuário
+$sql_agendamentos = "SELECT s.*, o.nome_oficina, o.categoria, v.marca, v.modelo, v.placa 
+                    FROM servico s 
+                    JOIN oficina o ON s.id_oficina = o.id_oficina 
+                    JOIN veiculos v ON s.id_veiculo = v.id 
+                    WHERE v.id_usuario = ? 
+                    ORDER BY s.data_agendada DESC, s.horario DESC";
+$stmt_agendamentos = $conexao->prepare($sql_agendamentos);
+$stmt_agendamentos->bind_param("i", $user_id);
+$stmt_agendamentos->execute();
+$result_agendamentos = $stmt_agendamentos->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -126,78 +138,79 @@ $stmt->close();
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
             <h2 class="text-2xl font-bold mb-6">Meus Agendamentos</h2>
 
-            <!-- Lista de Agendamentos -->
-            <div class="mt-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3">Data e Hora</th>
-                                <th class="px-6 py-3">Data de Entrega</th>
-                                <th class="px-6 py-3">Oficina</th>
-                                <th class="px-6 py-3">Veículo</th>
-                                <th class="px-6 py-3">Status</th>
-                                <th class="px-6 py-3">Descrição</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            // Busca os agendamentos do usuário
-                            $sql_agendamentos = "SELECT s.*, o.nome_oficina, o.categoria, v.marca, v.modelo, v.placa 
-                                               FROM servico s 
-                                               JOIN oficina o ON s.id_oficina = o.id_oficina 
-                                               JOIN veiculos v ON s.id_veiculo = v.id 
-                                               WHERE v.id_usuario = ? 
-                                               ORDER BY s.data_agendada DESC, s.horario DESC";
-                            $stmt_agendamentos = $conexao->prepare($sql_agendamentos);
-                            $stmt_agendamentos->bind_param("i", $user_id);
-                            $stmt_agendamentos->execute();
-                            $result_agendamentos = $stmt_agendamentos->get_result();
-
-                            if ($result_agendamentos->num_rows === 0) {
-                                echo "<tr><td colspan='6' class='px-6 py-4 text-center'>Nenhum agendamento encontrado.</td></tr>";
-                            } else {
-                                while ($agendamento = $result_agendamentos->fetch_assoc()) {
-                                    // Formata a data e hora para exibição
-                                    $data_hora = $agendamento['data_agendada'] . ' ' . $agendamento['horario'];
-                                    $data_hora_formatada = date('d/m/Y H:i', strtotime($data_hora));
-                                    
-                                    // Formata a data de entrega
-                                    $data_entrega_formatada = $agendamento['data_entrega'] ? date('d/m/Y', strtotime($agendamento['data_entrega'])) : 'Não definida';
-
-                                    // Define a cor do status
-                                    $status_class = '';
-                                    switch ($agendamento['status']) {
-                                        case 'Pendente':
-                                            $status_class = 'text-yellow-600 bg-yellow-100';
-                                            break;
-                                        case 'Em Andamento':
-                                            $status_class = 'text-blue-600 bg-blue-100';
-                                            break;
-                                        case 'Concluído':
-                                            $status_class = 'text-green-600 bg-green-100';
-                                            break;
-                                        case 'Cancelado':
-                                            $status_class = 'text-red-600 bg-red-100';
-                                            break;
-                                    }
-
-                                    echo "<tr class='bg-white border-b hover:bg-gray-50'>";
-                                    echo "<td class='px-6 py-4'>" . $data_hora_formatada . "</td>";
-                                    echo "<td class='px-6 py-4'>" . $data_entrega_formatada . "</td>";
-                                    echo "<td class='px-6 py-4'>" . htmlspecialchars($agendamento['nome_oficina'] . " - " . $agendamento['categoria']) . "</td>";
-                                    echo "<td class='px-6 py-4'>" . htmlspecialchars($agendamento['marca'] . " " . $agendamento['modelo'] . " - " . $agendamento['placa']) . "</td>";
-                                    echo "<td class='px-6 py-4'><span class='px-2 py-1 rounded-full text-xs font-medium " . $status_class . "'>" . htmlspecialchars($agendamento['status']) . "</span></td>";
-                                    echo "<td class='px-6 py-4'>" . htmlspecialchars($agendamento['descricao_servico']) . "</td>";
-                                    echo "</tr>";
-                                }
-                            }
-                            $stmt_agendamentos->close();
-                            ?>
-                        </tbody>
-                    </table>
+            <?php if ($result_agendamentos->num_rows === 0): ?>
+                <div class="text-center py-8">
+                    <p class="text-gray-500">Nenhum agendamento encontrado.</p>
                 </div>
-            </div>
+            <?php else: ?>
+                <?php while ($agendamento = $result_agendamentos->fetch_assoc()): 
+                    // Formata a data e hora para exibição
+                    $data_hora = $agendamento['data_agendada'] . ' ' . $agendamento['horario'];
+                    $data_hora_formatada = date('d/m/Y H:i', strtotime($data_hora));
+                    
+                    // Formata a data de entrega
+                    $data_entrega_formatada = $agendamento['data_entrega'] ? date('d/m/Y', strtotime($agendamento['data_entrega'])) : 'Não definida';
+
+                    // Define a cor do status
+                    $status_class = '';
+                    switch ($agendamento['status']) {
+                        case 'Pendente':
+                            $status_class = 'text-yellow-600 bg-yellow-100';
+                            break;
+                        case 'Em Andamento':
+                            $status_class = 'text-blue-600 bg-blue-100';
+                            break;
+                        case 'Concluído':
+                            $status_class = 'text-green-600 bg-green-100';
+                            break;
+                        case 'Cancelado':
+                            $status_class = 'text-red-600 bg-red-100';
+                            break;
+                    }
+                ?>
+                    <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="space-y-4">
+                            <!-- Data e Hora -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Data e Hora do Agendamento</label>
+                                <input type="text" value="<?php echo $data_hora_formatada; ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Data de Entrega -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Data de Entrega</label>
+                                <input type="text" value="<?php echo $data_entrega_formatada; ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Oficina -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Oficina</label>
+                                <input type="text" value="<?php echo htmlspecialchars($agendamento['nome_oficina'] . ' - ' . $agendamento['categoria']); ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Veículo -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Veículo</label>
+                                <input type="text" value="<?php echo htmlspecialchars($agendamento['marca'] . ' ' . $agendamento['modelo'] . ' - ' . $agendamento['placa']); ?>" class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                <div class="px-3 py-2 rounded-lg <?php echo $status_class; ?> inline-block">
+                                    <?php echo htmlspecialchars($agendamento['status']); ?>
+                                </div>
+                            </div>
+
+                            <!-- Descrição -->
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-900">Descrição do Serviço</label>
+                                <textarea class="cursor-not-allowed bg-white border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" rows="3" disabled><?php echo htmlspecialchars($agendamento['descricao_servico']); ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            <?php endif; ?>
         </div>
     </div>
 
