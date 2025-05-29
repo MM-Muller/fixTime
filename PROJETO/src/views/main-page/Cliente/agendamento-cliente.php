@@ -80,7 +80,8 @@ $stmtVeiculos->close();
                     
 
                     <!-- Formulário de Agendamento -->
-                    <form method="POST" action="processa_agendamento.php" class="space-y-6">
+                    <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/processa_agendamento.php" class="space-y-6">
+                        <input type="hidden" name="id_oficina" value="<?= $id_oficina ?>">
 
                         <!-- Veículo -->
                         <div class="space-y-4">
@@ -91,7 +92,7 @@ $stmtVeiculos->close();
                                         class="focus:ring-blue-500 focus:border-blue-500 border bg-gray-50 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none">
                                     <option value="">Selecione um veículo</option>
                                     <?php foreach ($veiculos as $veiculo): ?>
-                                        <option value="<?= $veiculo['id_veiculo'] ?>">
+                                        <option value="<?= $veiculo['id'] ?>">
                                             <?= htmlspecialchars($veiculo['modelo']) ?> - Placa: <?= htmlspecialchars($veiculo['placa']) ?> - Cor: <?= htmlspecialchars($veiculo['cor']) ?> - Ano: <?= htmlspecialchars($veiculo['ano']) ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -99,17 +100,18 @@ $stmtVeiculos->close();
                             </div>
                             <!-- Data -->
                             <div class="relative w-full max-w-sm">
-
+                                <label for="data" class="block mb-2 text-sm font-medium text-gray-900">Data</label>
                               <!-- Input de data -->
                               <input
                                 type="date"
                                 name="data"
+                                id="data"
                                 class="outline-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                                 min="<?= date('Y-m-d'); ?>"
                                 required>
                                          
                             <!-- Horário -->
-                            <div class="space-y-2 mt-2">
+                            <div class="space-y-2 mt-6">
                                 <label class="block mb-2 text-sm font-medium text-gray-900">Horário</label>
 
                                 <div class="grid grid-cols-2 gap-2">
