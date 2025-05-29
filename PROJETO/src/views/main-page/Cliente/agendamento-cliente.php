@@ -99,8 +99,6 @@ $stmtVeiculos->close();
                             </div>
                             <!-- Data -->
                             <div class="">
-                                    
-                            <label class="block mb-2 text-sm font-medium text-gray-900" for="data">Data</label>
                             <div class="relative w-full max-w-sm">
                                 <label for="data" class="block mb-2 text-sm font-medium text-gray-900">Data</label>
                               <!-- Input de data -->
