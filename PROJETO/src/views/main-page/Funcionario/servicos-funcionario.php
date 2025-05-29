@@ -51,7 +51,34 @@ if ($result->num_rows > 0) {
     echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
     exit();
 }
+
+// Buscar serviços atribuídos ao funcionário
+$sql_servicos = "
+SELECT s.*, v.modelo, v.placa, v.ano, v.cor, 
+       c.nome_usuario, c.telefone_usuario, c.email_usuario, f.nome_funcionario
+FROM servico s
+JOIN veiculos v ON s.id_veiculo = v.id
+JOIN cliente c ON v.id_usuario = c.id_usuario
+LEFT JOIN funcionarios f ON s.id_funcionario_responsavel = f.id_funcionario
+WHERE s.id_funcionario_responsavel = ?
+ORDER BY s.data_agendada DESC";
+
+$stmt_servicos = $conexao->prepare($sql_servicos);
+
+if ($stmt_servicos === false) {
+    die("Erro ao preparar a consulta: " . $conexao->error);
+}
+
+$stmt_servicos->bind_param("i", $id_funcionario);
+$stmt_servicos->execute();
+$servicos_result = $stmt_servicos->get_result();
+
+$servicos = [];
+while ($row = $servicos_result->fetch_assoc()) {
+    $servicos[] = $row;
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -137,46 +164,65 @@ if ($result->num_rows > 0) {
         </div>
     </aside>
 
-    <div class="lg:ml-64 p-4 lg:p-14">
+    <div class="lg:ml-64 p-4 lg:px-20 lg:py-4">
         <div class="text-center">
-            <p class="text-2xl">Serviços</p>
-            <hr class="mt-6 mb-6">
+            <p class="text-2xl text-gray-900 font-medium">Serviços</p>
         </div>
-            <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div class="grid grid-cols-6 gap-6 ">
+        <?php if (!empty($servicos)): ?>
+            <?php foreach ($servicos as $servico): ?>
+                <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
+            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md ">
+                <div class="grid grid-cols-6 gap-4">
+
+                    <div class="col-span-1">
+                        <label for="id_servico" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
+                        <input type="number" id="id_servico" name="id_servico" value="<?= $servico['id_servico'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    </div>
+
+                    
                     <div class="col-span-2">
-                        <label for="nome-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
-                        <input type="text" id="nome-funcionario" name="nome-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Data recebimento</label>
+                        <input type="date" id="recebimento_servico" name="recebimento_servico" value="<?= $servico['data_agendada'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    </div>
+
+                    <div class="col-span-3">
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    </div>
+
+                    <div class="col-span-1">
+                        <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
+                        <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
 
                     <div class="col-span-2">
-                        <label for="cpf-funcionario" class="block mb-1 text-sm font-medium text-gray-900">Data de recebimento</label>
-                        <input type="text" id="cpf-funcionario" name="cpf-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                        <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
+                        <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
 
-                    <div class="col-span-2">
-                        <label for="telefone-funcionario" class="block mb-1 text-sm font-medium text-gray-900 ">Horário de recebimento</label>
-                        <input type="text" id="telefone-funcionario" name="telefone-funcionario" value="" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    <div class="col-span-3">
+                        <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
+                        <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
                 </div>
 
-                <div class="flex justify-center">
-                    <div class="w-48 h-px bg-gray-300 mt-10 rounded-sm mb-8"></div>
-                </div>
+                <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
                 <div class="">
-                    <form id="formPerfil" method="POST" action="" >
-                        <div class="grid grid-cols-6 gap-4">
-
+                    <form id="" method="POST" action="" >
+                        <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+    
+                    <div class="grid grid-cols-6 gap-4">
+                        
                             <div class="col-span-2 space-y-4">
                                 <div class="">
-                                    <label for="data-entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
-                                    <input type="date" id="data-entrega" name="data-entrega"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                                    <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
+                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed"  />
                                 </div>
-
+                                
                                 <div class="">
-                                    <label for="status" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
-                                    <select id="status" name="status" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled >
+                                    <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                    <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer"  >
                                         <option value="pendente">Pendente</option>
                                         <option value="em_andamento">Em andamento</option>
                                         <option value="finalizado">Finalizado</option>
@@ -184,26 +230,50 @@ if ($result->num_rows > 0) {
                                     </select>
                                 </div>
                             </div>
-                           
-
+                            
+                            
                             <div class="col-span-4">
-                                <label for="servicos-feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
-                                <textarea id="servicos-feitos" name="servicos-feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none" placeholder="Descreva os serviços realizados..." disabled ></textarea>
+                                <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
+                                <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none " placeholder="Descreva os serviços realizados..."  ><?= $servico['descricao_servico']?></textarea>
                             </div>
-
+                            
                         </div>
+                    </div>
+                    </form>
+                    
+                    <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
+
+                <div class="">
+                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
+                    <select id="funcionario_responsavel" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled required>
+                        <option value="">
+                            <?=$servico['nome_funcionario'] ?>
+                        </option>
+
+                    </select>
                 </div>
 
                 <div class="lg:gap-6 gap-4 items-center  mt-6">
-                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer w-full">
+                    <button id="" type="submit" name="" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer w-full">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
                         </svg>
-                        Editar
+                        Salvar
                     </button>
                 </div>
+                
             </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <!-- Mensagem quando não há veículos cadastrados-->
+                <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
+                <div class="mt-10 p-4 rounded-lg bg-gray-100 border-2 border-gray-300 shadow-xl flex items-center justify-between ">
+                    <div class="">
+                        <p class="font-medium">Você não possui nenhum serviço.</p>
+                    </div>
+                </div>
+        <?php endif; ?>
         </div>
     </div>
 
