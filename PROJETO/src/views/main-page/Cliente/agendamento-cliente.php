@@ -71,13 +71,12 @@ $stmtVeiculos->close();
                         <p class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Agendar Serviço</p>
                         <p class=" text-gray-600">Preencha os dados abaixo para agendar seu serviço <br> com
                             <span class="font-bold text-gray-700 font">
-                                <?= htmlspecialchars($oficina['nome_oficina']) ?>
+                                <?= htmlspecialchars($oficina['nome_oficina'])?>
+                                -
+                                <?= htmlspecialchars($oficina['categoria'])?>
                             </span>
-                        </p>
-                                
+                        </p>   
                     </div>
-
-                    
 
                     <!-- Formulário de Agendamento -->
                     <form method="POST" action="processa_agendamento.php" class="space-y-6">
@@ -98,18 +97,20 @@ $stmtVeiculos->close();
                                 </select>
                             </div>
                             <!-- Data -->
-                            <div class="relative w-full max-w-sm">
-
+                            <div class="">
+                                    
+                            <label class="block mb-2 text-sm font-medium text-gray-900" for="data">Data</label>
                               <!-- Input de data -->
                               <input
                                 type="date"
+                                id="data"
                                 name="data"
                                 class="outline-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                                 min="<?= date('Y-m-d'); ?>"
                                 required>
                                          
                             <!-- Horário -->
-                            <div class="space-y-2 mt-2">
+                            <div class="space-y-2 mt-3">
                                 <label class="block mb-2 text-sm font-medium text-gray-900">Horário</label>
 
                                 <div class="grid grid-cols-2 gap-2">
