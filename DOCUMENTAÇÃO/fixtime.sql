@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS cliente (
     data_cadastro_usuario TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE IF NOT EXISTS oficina (
     id_oficina INT AUTO_INCREMENT PRIMARY KEY,
     categoria ENUM('Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car') NOT NULL,
@@ -67,7 +68,7 @@ CREATE TABLE IF NOT EXISTS funcionarios (
     cargo_funcionario VARCHAR(50) NOT NULL,
     telefone_funcionario VARCHAR(15),
     email_funcionario VARCHAR(100) UNIQUE,
-	cpf_funcionario VARCHAR(14) NOT NULL,
+    cpf_funcionario VARCHAR(14) NOT NULL,
     data_admissao DATE NOT NULL,
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -82,17 +83,23 @@ CREATE TABLE IF NOT EXISTS servico (
     data_agendada DATE NOT NULL,
     horario TIME NOT NULL,
     data_entrega DATE NULL,
-    status ENUM('Pendente', 'Em Andamento', 'Concluído', 'Cancelado') DEFAULT 'Pendente',
-    descricao_servico TEXT NOT NULL,
+    status ENUM(
+        'Pendente', 
+        'Em Andamento', 
+        'Aguardando Peças', 
+        'Aguardando Retirada', 
+        'Concluído', 
+        'Cancelado'
+    ) DEFAULT 'Pendente',
+    descricao_servico VARCHAR(1000) NULL,
     id_veiculo INT NOT NULL,
     id_oficina INT NOT NULL,
+    id_funcionario_responsavel INT NULL, -- Nova coluna adicionada
     FOREIGN KEY (id_veiculo) REFERENCES veiculos(id),
     FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
+    FOREIGN KEY (id_funcionario_responsavel) REFERENCES funcionarios(id_funcionario), -- Chave estrangeira para id_funcionario_responsavel
     UNIQUE (id_oficina, data_agendada, horario)
 );
-
-
-
 
 
 CREATE TABLE IF NOT EXISTS servico_funcionario (
