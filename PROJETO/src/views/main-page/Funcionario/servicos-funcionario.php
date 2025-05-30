@@ -55,7 +55,7 @@ if ($result->num_rows > 0) {
 // Buscar serviços atribuídos ao funcionário
 $sql_servicos = "
 SELECT s.*, v.modelo, v.placa, v.ano, v.cor, 
-       c.nome_usuario, c.telefone_usuario, c.email_usuario, f.nome_funcionario
+       c.nome_usuario, c.telefone_usuario, c.email_usuario, f.nome_funcionario, s.status
 FROM servico s
 JOIN veiculos v ON s.id_veiculo = v.id
 JOIN cliente c ON v.id_usuario = c.id_usuario
@@ -77,6 +77,33 @@ $servicos = [];
 while ($row = $servicos_result->fetch_assoc()) {
     $servicos[] = $row;
 }
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'])) {
+    $id_servico = (int) $_POST['id_servico'];
+    $data_entrega = $_POST['data_entrega'] ?? null;
+    $status_servico = $_POST['status_servico'] ?? null;
+    $servicos_feitos = $_POST['servicos_feitos'] ?? null;
+
+    // Validação simples
+    if ($data_entrega && $status_servico && $servicos_feitos) {
+        $stmt = $conexao->prepare("UPDATE servico 
+            SET data_entrega = ?, status = ?, descricao_servico = ? 
+            WHERE id_servico = ? AND id_funcionario_responsavel = ?");
+        $stmt->bind_param("sssii", $data_entrega, $status_servico, $servicos_feitos, $id_servico, $id_funcionario);
+
+        if ($stmt->execute()) {
+            echo "<script>alert('Serviço atualizado com sucesso.'); window.location.href=window.location.href;</script>";
+            exit();
+        } else {
+            echo "<script>alert('Erro ao atualizar serviço.');</script>";
+        }
+    } else {
+        echo "<script>alert('Preencha todos os campos obrigatórios.');</script>";
+    }
+}
+
+
 ?>
 
 
@@ -217,16 +244,19 @@ while ($row = $servicos_result->fetch_assoc()) {
                             <div class="col-span-2 space-y-4">
                                 <div class="">
                                     <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
-                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed"  />
+                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none"  />
                                 </div>
                                 
                                 <div class="">
                                     <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
                                     <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer"  >
-                                        <option value="pendente">Pendente</option>
-                                        <option value="em_andamento">Em andamento</option>
-                                        <option value="finalizado">Finalizado</option>
-                                        <option value="cancelado">Cancelado</option>
+                                        <option value="status_atual"><?= $servico['status']?></option>
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Em andamento">Em andamento</option>
+                                        <option value="Aguardando Peças">Aguardando Peças</option>
+                                        <option value="Aguardando Retirada">Aguardando Retirada</option>
+                                        <option value="Concluído">Concluído</option>
+                                        <option value="Cancelado">Cancelado</option>
                                     </select>
                                 </div>
                             </div>
@@ -239,7 +269,7 @@ while ($row = $servicos_result->fetch_assoc()) {
                             
                         </div>
                     </div>
-                    </form>
+                    
                     
                     <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
@@ -262,7 +292,7 @@ while ($row = $servicos_result->fetch_assoc()) {
                         Salvar
                     </button>
                 </div>
-                
+                </form>
             </div>
             <?php endforeach; ?>
         <?php else: ?>
