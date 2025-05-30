@@ -20,66 +20,7 @@ if (!isset($_SESSION['id_usuario'])) {
     exit;
 }
 
-// Processa o formulário quando enviado via POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifica se o botão de excluir perfil foi pressionado
-    if (isset($_POST['excluir_perfil']) && $_POST['excluir_perfil'] === '1') {
-        // Verifica se existem veículos cadastrados para este cliente
-        $sqlCheckVeiculos = "SELECT COUNT(*) as total FROM veiculos WHERE id_usuario = ?";
-        $stmtCheck = $conexao->prepare($sqlCheckVeiculos);
-        $stmtCheck->bind_param("i", $user_id);
-        $stmtCheck->execute();
-        $resultCheck = $stmtCheck->get_result();
-        $row = $resultCheck->fetch_assoc();
-        $totalVeiculos = $row['total'];
-        $stmtCheck->close();
-        
-        // Se houver veículos cadastrados, impede a exclusão do perfil
-        if ($totalVeiculos > 0) {
-            echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
-            exit();
-        }
 
-        // Prepara e executa a query para excluir o perfil
-        $sqlDelete = "DELETE FROM cliente WHERE id_usuario = ?";
-        $stmtDelete = $conexao->prepare($sqlDelete);
-        $stmtDelete->bind_param("i", $user_id);
-
-        // Executa a exclusão e verifica o resultado
-        if ($stmtDelete->execute()) {
-            session_destroy(); // Encerra a sessão do usuário
-            echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
-            exit();
-        } else {
-            echo "Erro ao excluir perfil: " . $conexao->error;
-        }
-
-        $stmtDelete->close();
-    }
-    // Processa a atualização do perfil
-    else if (isset($_POST['salvar_perfil'])) {
-        // Recupera e sanitiza os dados do formulário
-        $nome = trim($_POST['nome'] ?? '');
-        $cpf = trim($_POST['cpf'] ?? '');
-        $telefone = trim($_POST['telefone'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-
-        // Prepara a query de atualização
-        $sqlUpdate = "UPDATE cliente SET nome_usuario = ?, cpf = ?, telefone_usuario = ?, email_usuario = ? WHERE id_usuario = ?";
-        $stmtUpdate = $conexao->prepare($sqlUpdate);
-        $stmtUpdate->bind_param("ssssi", $nome, $cpf, $telefone, $email, $user_id);
-
-        // Executa a atualização e verifica o resultado
-        if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
-            exit();
-        } else {
-            echo "Erro ao atualizar perfil: " . $conexao->error;
-        }
-
-        $stmtUpdate->close();
-    }
-}
 
 // Busca os dados atuais do usuário
 $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
@@ -197,62 +138,114 @@ $conexao->close();
     </aside>
 
     <!-- Conteúdo principal da página -->
-    <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
-        <!-- Formulário de perfil -->
-        <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <form id="formPerfil" method="POST" action="perfil.php">
-                <!-- Campos do formulário -->
-                <div class="space-y-7">
-                    <!-- Campo Nome -->
-                    <div class="">
-                        <label for="nome-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Nome</label>
-                        <input type="text" id="nome-perfil" name="nome" value="<?php echo htmlspecialchars($user_data['nome_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+    <div class="lg:ml-64 p-4 lg:px-20 lg:py-4">
+        <div class="text-center">
+            <p class="text-2xl text-gray-900 font-medium">Serviços</p>
+        </div>
+        <?//php if (!empty($servicos)): ?>
+            <?//php foreach ($servicos as $servico): ?>
+                <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
+            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md ">
+                <div class="grid grid-cols-6 gap-4">
+
+                    <div class="col-span-1">
+                        <label for="id_servico" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
+                        <input type="number" id="id_servico" name="id_servico" value="<?= $servico['id_servico'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
 
-                    <!-- Campo CPF -->
-                    <div class="">
-                        <label for="cpf-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">CPF</label>
-                        <input type="text" id="cpf-perfil" name="cpf" value="<?php echo htmlspecialchars($user_data['cpf']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    
+                    <div class="col-span-2">
+                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Data recebimento</label>
+                        <input type="date" id="recebimento_servico" name="recebimento_servico" value="<?= $servico['data_agendada'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
 
-                    <!-- Campo Telefone -->
-                    <div class="">
-                        <label for="telefone-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Número de telefone</label>
-                        <input type="text" id="telefone-perfil" name="telefone" value="<?php echo htmlspecialchars($user_data['telefone_usuario']); ?>" class="cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    <div class="col-span-3">
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
 
-                    <!-- Campo Email -->
-                    <div class="">
-                        <label for="email-perfil" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
-                        <input type="email" id="email-perfil" name="email" value="<?php echo htmlspecialchars($user_data['email_usuario']); ?>" class=" cursor-not-allowed bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
+                    <div class="col-span-1">
+                        <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
+                        <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    </div>
+
+                    <div class="col-span-2">
+                        <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
+                        <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    </div>
+
+                    <div class="col-span-3">
+                        <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
+                        <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                     </div>
                 </div>
 
-                <!-- Campo oculto para controle de salvamento -->
-                <input type="hidden" name="salvar_perfil" value="1">
+                <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
-                <!-- Botões de ação -->
-                <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
-                    <!-- Botão Editar -->
-                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        Editar
-                    </button>
+                <div class="">
+                    <form id="" method="POST" action="" >
+                        <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+    
+                    <div class="grid grid-cols-6 gap-4">
+                        
+                            <div class="col-span-2 space-y-4">
+                                <div class="">
+                                    <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
+                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none"  />
+                                </div>
+                                
+                                <div class="">
+                                    <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                    <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer"  >
+                                        <option value="status_atual"><?= $servico['status']?></option>
+                                        <option value="Pendente">Pendente</option>
+                                        <option value="Em andamento">Em andamento</option>
+                                        <option value="Aguardando Peças">Aguardando Peças</option>
+                                        <option value="Aguardando Retirada">Aguardando Retirada</option>
+                                        <option value="Concluído">Concluído</option>
+                                        <option value="Cancelado">Cancelado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="col-span-4">
+                                <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
+                                <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none " placeholder="Descreva os serviços realizados..."  ><?= $servico['descricao_servico']?></textarea>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                    
+                    <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
-                    <!-- Botão Excluir -->
-                    <button id="excluirPerfilBtn" type="button" name="excluir_perfil" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        Excluir
-                    </button>
+                <div class="">
+                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
+                    <select id="funcionario_responsavel" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled required>
+                        <option value="">
+                            <?=$servico['nome_funcionario'] ?>
+                        </option>
+
+                    </select>
                 </div>
-                <!-- Campo oculto para controle de exclusão -->
-                <input type="hidden" name="excluir_perfil" id="inputExcluirPerfil" value="">
-            </form>
+
+            </div>
+            <?//php endforeach; ?>
+        <?//php else: ?>
+            <!-- Mensagem quando não há veículos cadastrados-->
+                <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
+                <div class="mt-10 p-4 rounded-lg bg-gray-100 border-2 border-gray-300 shadow-xl flex items-center justify-between ">
+                    <div class="">
+                        <p class="font-medium">Você não possui nenhum serviço agendado.</p>
+                        <p class="font-medium">De uma olhada nos nossos parceiros cadastrados, 
+                            <a class="text-blue-600 font-semibold underline hover:text-blue-800 transition duration-200" href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php">
+                                    clique aqui.
+                            </a>
+                        </p>
+                    </div>
+                </div>
+        <?//php endif; ?>
         </div>
     </div>
 
@@ -274,79 +267,6 @@ $conexao->close();
         });
     </script>
 
-    <script>
-        // Controle do formulário de perfil
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
-
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
-                    });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
-                }
-            });
-        });
-    </script>
-
-    <script>
-        // Controle dos botões de edição e exclusão
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const excluirBtn = document.getElementById('excluirPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
-
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
-                    });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
-                }
-            });
-
-            // Manipula o botão de exclusão
-            excluirBtn.addEventListener('click', function() {
-                const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
-                if (confirmar) {
-                    document.getElementById('inputExcluirPerfil').value = '1';
-                    form.submit();
-                }
-            });
-        });
-    </script>
 
     <!-- Scripts externos -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
