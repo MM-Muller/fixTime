@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS cliente (
     data_cadastro_usuario TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE IF NOT EXISTS oficina (
     id_oficina INT AUTO_INCREMENT PRIMARY KEY,
     categoria ENUM('Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car') NOT NULL,
@@ -75,51 +76,65 @@ CREATE TABLE IF NOT EXISTS funcionarios (
     FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
 );
 
-ALTER TABLE funcionarios
-ADD COLUMN cpf_funcionario VARCHAR(14) NOT NULL;
+
 
 CREATE TABLE IF NOT EXISTS servico (
     id_servico INT AUTO_INCREMENT PRIMARY KEY,
-    data_servico TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    data_entrega DATE NOT NULL,
-    status ENUM('Pendente', 'Em Andamento', 'Concluído', 'Cancelado') DEFAULT 'Pendente',
-    descricao_servico TEXT NOT NULL,
+    data_agendada DATE NOT NULL,
+    horario TIME NOT NULL,
+    data_entrega DATE NULL,
+    status ENUM('Pendente', 'Em Andamento', 'Aguardando Peças', 'Aguardando Retirada', 'Concluído', 'Cancelado') DEFAULT 'Pendente',
+    descricao_servico VARCHAR(1000) NULL,
+    id_funcionario_responsavel INT NULL, 
     id_veiculo INT NOT NULL,
     id_oficina INT NOT NULL,
     FOREIGN KEY (id_veiculo) REFERENCES veiculos(id),
-    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
+    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
+    UNIQUE (id_oficina, data_agendada, horario)
 );
 
+ALTER TABLE servico
+ADD FOREIGN KEY (id_funcionario_responsavel) REFERENCES funcionarios(id_funcionario);
 
-CREATE TABLE IF NOT EXISTS servico_funcionario (
-    id_servico_funcionario INT AUTO_INCREMENT PRIMARY KEY,
-    id_servico INT NOT NULL,
-    id_funcionario INT NOT NULL,
-    FOREIGN KEY (id_servico) REFERENCES servico(id_servico),
-    FOREIGN KEY (id_funcionario) REFERENCES funcionarios(id_funcionario)
-);
+
+
 
 INSERT INTO servicos_padrao (nome_servico, categoria) VALUES
-('Conserto de pneu furado', 'Borracharia'),
+-- BORRACHARIA (15)
+('Pneu furado', 'Borracharia'),
 ('Troca de pneu', 'Borracharia'),
 ('Alinhamento', 'Borracharia'),
 ('Balanceamento', 'Borracharia'),
 ('Calibragem de pneus', 'Borracharia'),
-('Reparo em câmara de ar', 'Borracharia'),
+('Reparo na câmara de ar', 'Borracharia'),
 ('Vulcanização de pneus', 'Borracharia'),
 ('Rodízio de pneus', 'Borracharia'),
-('Avaliação de desgaste de pneus', 'Borracharia'),
-('Montagem e desmontagem de pneus', 'Borracharia'),
+('Desgaste de pneus', 'Borracharia'),
+('Montagem/desmontagem pneu', 'Borracharia'),
+('Inspeção de rodas', 'Borracharia'),
+('Conserto de roda', 'Borracharia'),
+('Ajuste de pressão', 'Borracharia'),
+('Remendo rápido', 'Borracharia'),
+('Serviço emergencial', 'Borracharia'),
+
+-- OFICINA MECÂNICA (15)
 ('Troca de óleo', 'Oficina Mecânica'),
 ('Troca de filtros', 'Oficina Mecânica'),
 ('Revisão preventiva', 'Oficina Mecânica'),
-('Troca de pastilhas de freio', 'Oficina Mecânica'),
-('Troca de amortecedores', 'Oficina Mecânica'),
-('Reparo em sistema de arrefecimento', 'Oficina Mecânica'),
-('Troca de correia dentada', 'Oficina Mecânica'),
-('Manutenção de motor', 'Oficina Mecânica'),
+('Troca de pastilhas', 'Oficina Mecânica'),
+('Troca de amortecedor', 'Oficina Mecânica'),
+('Reparo no arrefecimento', 'Oficina Mecânica'),
+('Troca da correia dentada', 'Oficina Mecânica'),
+('Manutenção do motor', 'Oficina Mecânica'),
 ('Troca de embreagem', 'Oficina Mecânica'),
-('Alinhamento e balanceamento', 'Oficina Mecânica'),
+('Alinhamento/balanceamento', 'Oficina Mecânica'),
+('Substituir velas', 'Oficina Mecânica'),
+('Reparo de suspensão', 'Oficina Mecânica'),
+('Regulagem de freio', 'Oficina Mecânica'),
+('Verificação geral', 'Oficina Mecânica'),
+('Troca de bicos', 'Oficina Mecânica'),
+
+-- LAVA CAR (15)
 ('Lavagem simples', 'Lava Car'),
 ('Lavagem completa', 'Lava Car'),
 ('Lavagem de motor', 'Lava Car'),
@@ -127,19 +142,32 @@ INSERT INTO servicos_padrao (nome_servico, categoria) VALUES
 ('Polimento de pintura', 'Lava Car'),
 ('Higienização interna', 'Lava Car'),
 ('Enceramento', 'Lava Car'),
-('Cristalização de pintura', 'Lava Car'),
-('Hidratação de bancos de couro', 'Lava Car'),
-('Descontaminação de pintura', 'Lava Car'),
+('Cristalização pintura', 'Lava Car'),
+('Hidratação bancos couro', 'Lava Car'),
+('Descontaminação pintura', 'Lava Car'),
+('Aromatização interna', 'Lava Car'),
+('Limpeza de carpete', 'Lava Car'),
+('Lavagem de rodas', 'Lava Car'),
+('Lavagem de teto', 'Lava Car'),
+('Lavagem ecológica', 'Lava Car'),
+
+-- AUTO ELÉTRICA (15)
 ('Diagnóstico elétrico', 'Auto Elétrica'),
 ('Troca de bateria', 'Auto Elétrica'),
-('Conserto de alternador', 'Auto Elétrica'),
-('Reparo de motor de partida', 'Auto Elétrica'),
-('Instalação de som automotivo', 'Auto Elétrica'),
+('Reparo do alternador', 'Auto Elétrica'),
+('Reparo motor de partida', 'Auto Elétrica'),
+('Instalação som automotivo', 'Auto Elétrica'),
 ('Instalação de alarme', 'Auto Elétrica'),
 ('Troca de lâmpadas', 'Auto Elétrica'),
-('Correção de curto-circuito', 'Auto Elétrica'),
+('Correção curto-circuito', 'Auto Elétrica'),
 ('Instalação de rastreador', 'Auto Elétrica'),
-('Reparo em sistema de injeção eletrônica', 'Auto Elétrica');
+('Reparo injeção eletrônica', 'Auto Elétrica'),
+('Instalação de farol', 'Auto Elétrica'),
+('Reparo painel digital', 'Auto Elétrica'),
+('Troca de fusíveis', 'Auto Elétrica'),
+('Verificação chicote', 'Auto Elétrica'),
+('Instalação de buzina', 'Auto Elétrica');
+
 
 
 SELECT * FROM cliente;
@@ -147,9 +175,9 @@ SELECT * FROM veiculos;
 SELECT * FROM oficina;
 SELECT * FROM funcionarios;
 SELECT * FROM servicos_padrao;
-SELECT * FROM servico_funcionario;
 SELECT * FROM servico;
 SELECT * FROM oficina_servicos;
+
 
 -- Seleciona todas as colunas de uma tabela
 SELECT * FROM tabela;
