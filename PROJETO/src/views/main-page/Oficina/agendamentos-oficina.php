@@ -95,6 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamentos - FixTime</title>
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Botão do menu hamburguer para dispositivos móveis -->
@@ -182,102 +184,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
         </div>
         <?php if (!empty($servicos)): ?>
             <?php foreach ($servicos as $servico): ?>
-                <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
-            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md ">
-                <div class="grid grid-cols-6 gap-4">
+                <div style="margin-top: 30px;">
+                    <hr class="h-1 w-48 mx-auto rounded-md bg-gray-300 border-0">
+                    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md mt-8">
+                        <div class="grid grid-cols-6 gap-4">
 
-                    <div class="col-span-1">
-                        <label for="id_servico" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
-                        <input type="number" id="id_servico" name="id_servico" value="<?= $servico['id_servico'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
+                            <div class="col-span-1">
+                                <label for="id_servico" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
+                                <input type="number" id="id_servico" name="id_servico" value="<?= $servico['id_servico'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
 
-                    
-                    <div class="col-span-2">
-                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Data recebimento</label>
-                        <input type="date" id="recebimento_servico" name="recebimento_servico" value="<?= $servico['data_agendada'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
+                            
+                            <div class="col-span-2">
+                                <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Data recebimento</label>
+                                <input type="date" id="recebimento_servico" name="recebimento_servico" value="<?= $servico['data_agendada'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
 
-                    <div class="col-span-3">
-                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
-                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
+                            <div class="col-span-3">
+                                <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
+                                <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
 
-                    <div class="col-span-1">
-                        <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
-                        <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
+                            <div class="col-span-1">
+                                <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
+                                <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
 
-                    <div class="col-span-2">
-                        <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
-                        <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
+                            <div class="col-span-2">
+                                <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
+                                <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
 
-                    <div class="col-span-3">
-                        <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
-                        <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
-                </div>
+                            <div class="col-span-3">
+                                <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
+                                <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                            </div>
+                        </div>
 
-                <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
+                        <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
-                <div class="">
-                    <div class="grid grid-cols-6 gap-4">
-                        
-                            <div class="col-span-2 space-y-4">
-                                <div class="">
-                                    <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
-                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                                </div>
+                        <div class="">
+                            <div class="grid grid-cols-6 gap-4">
                                 
-                                <div class="">
-                                    <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
-                                    <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled >
-                                        <option value="pendente">Pendente</option>
-                                        <option value="em_andamento">Em andamento</option>
-                                        <option value="finalizado">Finalizado</option>
-                                        <option value="cancelado">Cancelado</option>
+                                    <div class="col-span-2 space-y-4">
+                                        <div class="">
+                                            <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
+                                            <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                                        </div>
+                                        
+                                        <div class="">
+                                            <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
+                                            <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled >
+                                                <option value="pendente">Pendente</option>
+                                                <option value="em_andamento">Em andamento</option>
+                                                <option value="finalizado">Finalizado</option>
+                                                <option value="cancelado">Cancelado</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <div class="col-span-4">
+                                        <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
+                                        <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none cursor-not-allowed" placeholder="Descreva os serviços realizados..." disabled ><?= $servico['descricao_servico']?></textarea>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
+                            
+                    
+                        <form id="formFuncionario<?= $servico['id_servico'] ?>" method="POST" action="">
+                            <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+
+                            <div class="grid grid-cols-6 gap-4">
+                                <div class="col-span-2">
+                                    <div class="flex gap-2">
+                                        <button type="button" id="editarBtn<?= $servico['id_servico'] ?>" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center cursor-pointer w-full">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                                                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Editar
+                                        </button>
+                                        <button type="submit" id="salvarBtn<?= $servico['id_servico'] ?>" style="display: none;" class="text-white inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-4 text-center cursor-pointer w-full">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Salvar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-span-4">
+                                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
+                                    <select id="funcionario_responsavel<?= $servico['id_servico'] ?>" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled required>
+                                        <option value="">
+                                            <?= !empty($servico['nome_funcionario']) ? $servico['nome_funcionario'] : 'Nenhum funcionário atribuído' ?>
+                                        </option>
+                                        <?php foreach ($funcionarios as $func): ?>
+                                            <option class=" "value="<?= $func['id_funcionario'] ?>"><?= htmlspecialchars($func['id_funcionario']) ?> - <?= htmlspecialchars($func['nome_funcionario']) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
-                            
-                            
-                            <div class="col-span-4">
-                                <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
-                                <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none cursor-not-allowed" placeholder="Descreva os serviços realizados..." disabled ><?= $servico['descricao_servico']?></textarea>
-                            </div>
-                            
-                        </div>
+                        </form>
                     </div>
-                    
-                    <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
-                    
-            
-                <form id="" method="POST" action="" >
-                    <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
-
-                <div class="">
-                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
-                    <select id="funcionario_responsavel" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer"  required>
-                        <option value="">
-                            <?= !empty($servico['nome_funcionario']) ? $servico['nome_funcionario'] : 'Nenhum funcionário atribuído' ?>
-                        </option>
-                        <?php foreach ($funcionarios as $func): ?>
-                            <option class=" "value="<?= $func['id_funcionario'] ?>"><?= htmlspecialchars($func['id_funcionario']) ?> - <?= htmlspecialchars($func['nome_funcionario']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
                 </div>
-
-                <div class="lg:gap-6 gap-4 items-center  mt-6">
-                    <button id="" type="submit" name="" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer w-full">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        Editar
-                    </button>
-                </div>
-                </form>
-            </div>
             <?php endforeach; ?>
         <?php else: ?>
             <!-- Mensagem quando não há veículos cadastrados-->
@@ -306,6 +320,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
         // Fecha o menu
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
+        });
+
+        // Controle dos botões de edição e salvamento
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php foreach ($servicos as $servico): ?>
+            const editarBtn<?= $servico['id_servico'] ?> = document.getElementById('editarBtn<?= $servico['id_servico'] ?>');
+            const salvarBtn<?= $servico['id_servico'] ?> = document.getElementById('salvarBtn<?= $servico['id_servico'] ?>');
+            const select<?= $servico['id_servico'] ?> = document.getElementById('funcionario_responsavel<?= $servico['id_servico'] ?>');
+            const form<?= $servico['id_servico'] ?> = document.getElementById('formFuncionario<?= $servico['id_servico'] ?>');
+
+            editarBtn<?= $servico['id_servico'] ?>.addEventListener('click', function() {
+                select<?= $servico['id_servico'] ?>.disabled = false;
+                select<?= $servico['id_servico'] ?>.classList.remove('cursor-not-allowed');
+                editarBtn<?= $servico['id_servico'] ?>.style.display = 'none';
+                salvarBtn<?= $servico['id_servico'] ?>.style.display = 'flex';
+            });
+
+            form<?= $servico['id_servico'] ?>.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: 'Confirmar alteração',
+                    text: 'Deseja salvar as alterações do funcionário responsável?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sim, salvar!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: 'agendamentos-oficina.php',
+                            data: $(this).serialize(),
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso!',
+                                    text: 'Funcionário responsável atualizado com sucesso!',
+                                    confirmButtonColor: '#3085d6'
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            },
+                            error: function() {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro!',
+                                    text: 'Erro ao atualizar funcionário responsável.',
+                                    confirmButtonColor: '#3085d6'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+            <?php endforeach; ?>
         });
     </script>
     
