@@ -13,8 +13,15 @@ session_start();
 
 // Verifica se o usuário está autenticado como oficina
 if (!isset($_SESSION['id_oficina'])) {
-    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
-    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Usuário não autenticado. Faça login novamente.',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            window.location.href = '/fixTime/PROJETO/src/views/Login/login-user.php';
+        });</script>";
     exit;
 }
 
@@ -34,9 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Valida se todos os campos obrigatórios foram preenchidos
     if (empty($nome) || empty($cargo) || empty($telefone) || empty($email) || empty($cpf) || empty($data_admissao)) {
-        $_SESSION['error_message'] = 'Preencha todos os campos corretamente.';
-        header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php");
-        exit;
+        $_SESSION['alert'] = [
+            'type' => 'error',
+            'title' => 'Erro!',
+            'text' => 'Preencha todos os campos corretamente.'
+        ];
     } else {
         try {
             // Prepara a query SQL para inserir um novo funcionário
@@ -46,11 +55,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Executa a query e verifica o resultado
             if ($stmt->execute()) {
-                $mensagem = "<script>alert('Funcionário cadastrado com sucesso!');</script>";
-                echo "<script>window.location.href = window.location.href;</script>";
-                exit;
+                $_SESSION['alert'] = [
+                    'type' => 'success',
+                    'title' => 'Sucesso!',
+                    'text' => 'Funcionário cadastrado com sucesso!'
+                ];
             } else {
-                $mensagem = "<script>alert('Erro ao cadastrar funcionário: " . addslashes($stmt->error) . "');</script>";
+                $_SESSION['alert'] = [
+                    'type' => 'error',
+                    'title' => 'Erro!',
+                    'text' => 'Erro ao cadastrar funcionário: ' . addslashes($stmt->error)
+                ];
             }
 
             $stmt->close();
@@ -59,12 +74,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Tratamento específico para erro de email duplicado
             if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'email_funcionario')) {
-                $mensagem = "<script>alert('Este email já está cadastrado no sistema. Por favor, verifique os dados.');</script>";
+                $_SESSION['alert'] = [
+                    'type' => 'error',
+                    'title' => 'Erro!',
+                    'text' => 'Este email já está cadastrado no sistema. Por favor, verifique os dados.'
+                ];
             } else {
-                $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
+                $_SESSION['alert'] = [
+                    'type' => 'error',
+                    'title' => 'Erro!',
+                    'text' => 'Erro no banco de dados: ' . addslashes($erro)
+                ];
             }
         }
     }
+    
+    // Redireciona para evitar reenvio do formulário
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
 }
 
 // Busca os funcionários cadastrados para a oficina atual
@@ -94,7 +121,15 @@ $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 // Verifica novamente se o usuário está autenticado
 if (!$oficina_id) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Usuário não autenticado. Faça login novamente.',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            window.location.href = '/fixTime/PROJETO/src/views/Login/login-company.php';
+        });</script>";
     exit();
 }
 
@@ -123,11 +158,24 @@ if ($result->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Inclui o arquivo CSS do Tailwind para estilização -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
 <!-- Exibe mensagens de feedback do sistema -->
-<?php if (!empty($mensagem)) echo $mensagem; ?>
+<?php 
+if (isset($_SESSION['alert'])) {
+    echo "<script>
+        Swal.fire({
+            icon: '" . $_SESSION['alert']['type'] . "',
+            title: '" . $_SESSION['alert']['title'] . "',
+            text: '" . $_SESSION['alert']['text'] . "',
+            confirmButtonColor: '#3085d6'
+        });</script>";
+    unset($_SESSION['alert']);
+}
+?>
 
 <body class="">
 
@@ -217,7 +265,7 @@ if ($result->num_rows > 0) {
     <!-- Conteúdo principal da página -->
     <div class="lg:ml-64 p-4 lg:p-14">
         <!-- Formulário de cadastro de funcionário -->
-        <form action="/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php" method="POST">
+        <form id="formFuncionario" action="/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php" method="POST">
             <div class="grid lg:gap-6 gap-4 mb-6 md:grid-cols-6">
                 <!-- Campo Nome Completo -->
                 <div class="lg:col-span-2 col-span-6">
@@ -361,6 +409,55 @@ if ($result->num_rows > 0) {
                 $('input[id^="telefone-"]').each(function() {
                     $(this).mask('(00) 00000-0000');
                 });
+
+                // Intercepta o envio do formulário
+                $('#formFuncionario').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Valida os campos
+                    if ($('#nome_funcionario').val().trim() === '' ||
+                        $('#cargo_funcionario').val().trim() === '' ||
+                        $('#telefone_funcionario').val().trim() === '' ||
+                        $('#email_funcionario').val().trim() === '' ||
+                        $('#cpf_funcionario').val().trim() === '' ||
+                        $('#data_admissao').val().trim() === '') {
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro!',
+                            text: 'Preencha todos os campos corretamente.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                        return;
+                    }
+
+                    // Envia o formulário via AJAX
+                    $.ajax({
+                        type: 'POST',
+                        url: $(this).attr('action'),
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Sucesso!',
+                                text: 'Funcionário cadastrado com sucesso!',
+                                confirmButtonColor: '#3085d6'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Erro ao cadastrar funcionário. Por favor, tente novamente.',
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    });
+                });
             });
         </script>
 
@@ -417,8 +514,50 @@ if ($result->num_rows > 0) {
                         excluirBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                         excluirBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                     } else {
-                        // Envia o formulário para salvar as alterações
-                        form.submit();
+                        // Valida os campos antes de enviar
+                        let isValid = true;
+                        inputs.forEach(input => {
+                            if (input.value.trim() === '') {
+                                isValid = false;
+                            }
+                        });
+
+                        if (!isValid) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Preencha todos os campos corretamente.',
+                                confirmButtonColor: '#3085d6'
+                            });
+                            return;
+                        }
+
+                        // Envia o formulário via AJAX
+                        $.ajax({
+                            type: 'POST',
+                            url: form.action,
+                            data: $(form).serialize(),
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso!',
+                                    text: 'Funcionário atualizado com sucesso!',
+                                    confirmButtonColor: '#3085d6'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    }
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro!',
+                                    text: 'Erro ao atualizar funcionário. Por favor, tente novamente.',
+                                    confirmButtonColor: '#3085d6'
+                                });
+                            }
+                        });
                     }
                 });
             });
@@ -431,21 +570,32 @@ if ($result->num_rows > 0) {
 
                     if (this.textContent.trim() === 'Excluir') {
                         // Confirma a exclusão do funcionário
-                        if (confirm('Tem certeza que deseja excluir este funcionário?')) {
-                            // Cria um formulário temporário para exclusão
-                            const deleteForm = document.createElement('form');
-                            deleteForm.action = 'excluir_funcionario.php';
-                            deleteForm.method = 'POST';
+                        Swal.fire({
+                            title: 'Tem certeza?',
+                            text: "Você não poderá reverter esta ação!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Sim, excluir!',
+                            cancelButtonText: 'Cancelar'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Cria um formulário temporário para exclusão
+                                const deleteForm = document.createElement('form');
+                                deleteForm.action = 'excluir_funcionario.php';
+                                deleteForm.method = 'POST';
 
-                            const inputId = document.createElement('input');
-                            inputId.type = 'hidden';
-                            inputId.name = 'id';
-                            inputId.value = id;
+                                const inputId = document.createElement('input');
+                                inputId.type = 'hidden';
+                                inputId.name = 'id';
+                                inputId.value = id;
 
-                            deleteForm.appendChild(inputId);
-                            document.body.appendChild(deleteForm);
-                            deleteForm.submit();
-                        }
+                                deleteForm.appendChild(inputId);
+                                document.body.appendChild(deleteForm);
+                                deleteForm.submit();
+                            }
+                        });
                     } else {
                         // Cancela a edição e restaura o estado original
                         const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
