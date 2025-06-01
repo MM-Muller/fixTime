@@ -71,6 +71,7 @@ $conexao->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
     <title>Fix Time</title>
 </head>
 
@@ -239,7 +240,7 @@ $conexao->close();
                                 <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
                                 <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none " placeholder="Descreva os serviços realizados..." disabled ><?= $servico['descricao_servico'] ?></textarea>
                             </div>
-                            
+
                         </div>
                     </div>
                     <!-- Botões de ação -->
@@ -251,6 +252,75 @@ $conexao->close();
                         <button type="button" class="cursor-pointer excluir-btn col-span-3 text-white bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-lg">Excluir</button>
                         </form>
                     </div>
+
+
+
+                    <div>
+                        <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/salvar_avaliacao.php" class="avaliacao-oficina">
+                            <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+                            <input type="hidden" name="id_oficina" value="<?= $servico['id_oficina'] ?>">
+                            <input type="hidden" name="estrelas" id="estrelasInput" value="0">
+
+                    </div>
+                            <div class="grid min-h-[140px] w-full place-items-center overflow-x-scroll rounded-lg p-6 lg:overflow-visible">
+                              <div class="inline-flex items-center"><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                    fill="currentColor" class="w-6 h-6 text-yellow-600 cursor-pointer">
+                                    <path fill-rule="evenodd"
+                                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                      clip-rule="evenodd"></path>
+                                  </svg></span><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-6 h-6 text-yellow-600 cursor-pointer">
+                                    <path fill-rule="evenodd"
+                                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                      clip-rule="evenodd"></path>
+                                  </svg></span><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-6 h-6 text-yellow-600 cursor-pointer">
+                                    <path fill-rule="evenodd"
+                                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                      clip-rule="evenodd"></path>
+                                  </svg></span><span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-6 h-6 text-yellow-600 cursor-pointer">
+                                    <path fill-rule="evenodd"
+                                      d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                                      clip-rule="evenodd"></path>
+                                  </svg></span><span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="w-6 h-6 cursor-pointer text-gray-500">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
+                                    </path>
+                                  </svg></span></div>
+                            </div>
+                                
+                            <button type="submit" class="cursor-pointer col-span-1 text-white bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg">
+                                Salvar Avaliação
+                            </button>
+                        </form>
+                    </div>
+                                
+                    <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const estrelaBotoes = document.querySelectorAll('.estrela-btn');
+                        const estrelasInput = document.getElementById('estrelasInput');
+                    
+                        estrelaBotoes.forEach((btn) => {
+                            btn.addEventListener('click', () => {
+                                const valorSelecionado = parseInt(btn.getAttribute('data-estrela'));
+                                estrelasInput.value = valorSelecionado;
+                            
+                                estrelaBotoes.forEach((b, i) => {
+                                    if (i < valorSelecionado) {
+                                        b.classList.add('text-yellow-600');
+                                        b.classList.remove('text-gray-600');
+                                    } else {
+                                        b.classList.add('text-gray-600');
+                                        b.classList.remove('text-yellow-600');
+                                    }
+                                });
+                            });
+                        });
+                    });
+                    </script>
+
 
             </div>
             <?php endforeach; ?>
@@ -265,6 +335,7 @@ $conexao->close();
                     </div>
                 </div>
             <?php endif; ?>
+            
         </div>
     </div>
 
@@ -285,61 +356,63 @@ $conexao->close();
             sidebar.classList.add('-translate-x-full');
         });
     </script>
-<script>
-    // Seleciona todos os botões de reagendamento
-    document.querySelectorAll('.editar-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const form = this.closest('form');
-            const dataInput = form.querySelector('input[type="date"]');
-            const horaSelect = form.querySelector('select');
-            const isEditing = this.textContent.trim() === 'Reagendar';
 
-            const excluirBtn = form.querySelector('.excluir-btn');
 
-            if (isEditing) {
-                // Habilita campos de edição
-                dataInput.disabled = false;
-                horaSelect.disabled = false;
-                dataInput.classList.remove('cursor-not-allowed');
-                horaSelect.classList.remove('cursor-not-allowed');
+    <script>
+        // Seleciona todos os botões de reagendamento
+        document.querySelectorAll('.editar-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const form = this.closest('form');
+                const dataInput = form.querySelector('input[type="date"]');
+                const horaSelect = form.querySelector('select');
+                const isEditing = this.textContent.trim() === 'Reagendar';
 
-                // Troca o texto do botão para 'Salvar'
-                this.innerHTML = `
-                    Salvar
-                `;
+                const excluirBtn = form.querySelector('.excluir-btn');
 
-                // Altera botão de exclusão para cancelar
-                excluirBtn.innerHTML = `
-                    Cancelar
-                `;
-                
+                if (isEditing) {
+                    // Habilita campos de edição
+                    dataInput.disabled = false;
+                    horaSelect.disabled = false;
+                    dataInput.classList.remove('cursor-not-allowed');
+                    horaSelect.classList.remove('cursor-not-allowed');
 
-                // Altera comportamento do botão para cancelar edição
-                excluirBtn.onclick = () => {
-                    dataInput.disabled = true;
-                    horaSelect.disabled = true;
-                    dataInput.classList.add('cursor-not-allowed');
-                    horaSelect.classList.add('cursor-not-allowed');
-
+                    // Troca o texto do botão para 'Salvar'
                     this.innerHTML = `
-                        Reagendar
+                        Salvar
                     `;
 
+                    // Altera botão de exclusão para cancelar
                     excluirBtn.innerHTML = `
-                        Excluir
+                        Cancelar
                     `;
-                    excluirBtn.classList.remove('bg-gray-600');
-                    excluirBtn.classList.add('bg-red-600');
-                    excluirBtn.onclick = null;
-                };
+                    
 
-            } else {
-                // Submete o formulário para salvar
-                form.submit();
-            }
+                    // Altera comportamento do botão para cancelar edição
+                    excluirBtn.onclick = () => {
+                        dataInput.disabled = true;
+                        horaSelect.disabled = true;
+                        dataInput.classList.add('cursor-not-allowed');
+                        horaSelect.classList.add('cursor-not-allowed');
+
+                        this.innerHTML = `
+                            Reagendar
+                        `;
+
+                        excluirBtn.innerHTML = `
+                            Excluir
+                        `;
+                        excluirBtn.classList.remove('bg-gray-600');
+                        excluirBtn.classList.add('bg-red-600');
+                        excluirBtn.onclick = null;
+                    };
+
+                } else {
+                    // Submete o formulário para salvar
+                    form.submit();
+                }
+            });
         });
-    });
-</script>
+    </script>
 
     <!-- Scripts externos -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
