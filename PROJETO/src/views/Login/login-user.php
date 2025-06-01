@@ -33,16 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // Armazena o ID do usuário na sessão
       $_SESSION['id_usuario'] = $id_usuario;
 
-      // Redireciona para a página principal do cliente usando JavaScript
-      echo "<script>window.location.href = '/fixTime/PROJETO/src/views/main-page/Cliente/main.php';</script>";
-      exit();
+      // Redireciona para a página principal do cliente
+      $_SESSION['success_message'] = 'Login realizado com sucesso!';
+      header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/main.php");
+      return;
     } else {
       // Mensagem de erro genérica por segurança
-      $erro = "Email ou senha inválidos.";
+      $_SESSION['error_message'] = "Email ou senha inválidos.";
+      header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
+      return;
     }
   } else {
     // Mensagem de erro genérica por segurança
-    $erro = "Email ou senha inválidos.";
+    $_SESSION['error_message'] = "Email ou senha inválidos.";
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
+    return;
   }
 
   // Fecha o statement
@@ -60,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Fix-Time</title>
   <!-- Link para o arquivo CSS compilado do Tailwind -->
   <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50 flex items-center justify-center min-h-screen lg:p-0 p-3">
@@ -95,8 +101,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button id="loginButton" type="submit" class="mt-4 cursor-pointer w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Acessar</button>
 
       <!-- Exibição de mensagens de erro -->
-      <?php if (isset($erro)) : ?>
-        <p class='text-red-500 text-sm mt-2'><?= $erro ?></p>
+      <?php if (isset($_SESSION['error_message'])): ?>
+      <script>
+          Swal.fire({
+              icon: 'error',
+              title: 'Erro',
+              text: '<?php echo $_SESSION['error_message']; ?>',
+              confirmButtonText: 'OK'
+          });
+          <?php unset($_SESSION['error_message']); ?>
+      </script>
+      <?php endif; ?>
+
+      <?php if (isset($_SESSION['success_message'])): ?>
+      <script>
+          Swal.fire({
+              icon: 'success',
+              title: 'Sucesso',
+              text: '<?php echo $_SESSION['success_message']; ?>',
+              confirmButtonText: 'OK'
+          });
+          <?php unset($_SESSION['success_message']); ?>
+      </script>
       <?php endif; ?>
 
       <!-- Link para cadastro -->

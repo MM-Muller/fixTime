@@ -33,16 +33,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $resultadoCnpj = $conexao->query($verificaCnpj);
 
   if ($resultadoCnpj->num_rows > 0) {
-    echo "<script>alert('CNPJ já cadastrado. Faça login ou use outro CNPJ.'); window.location.href='/fixTime/PROJETO/src/views/Login/cadastro-company.php';</script>";
-    exit();
+    $_SESSION['error_message'] = 'CNPJ já cadastrado. Faça login ou use outro CNPJ.';
+    header("Location: /fixTime/PROJETO/src/views/Login/cadastro-company.php");
+    return;
   }
 
   // Verifica se o email já está cadastrado no sistema
   $verificaEmail = "SELECT email_oficina FROM oficina WHERE email_oficina = '$email_oficina'";
   $resultadoEmail = $conexao->query($verificaEmail);
   if ($resultadoEmail->num_rows > 0) {
-    echo "<script>alert('E-mail já cadastrado. Faça login ou use outro e-mail.'); window.location.href='/fixTime/PROJETO/src/views/Login/cadastro-company.php';</script>";
-    exit();
+    $_SESSION['error_message'] = 'E-mail já cadastrado. Faça login ou use outro e-mail.';
+    header("Location: /fixTime/PROJETO/src/views/Login/cadastro-company.php");
+    return;
   }
 
   // Cria um hash seguro da senha usando o algoritmo padrão do PHP
@@ -81,11 +83,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Executa a query e redireciona em caso de sucesso
   if ($conexao->query($sql) === TRUE) {
+    $_SESSION['success_message'] = 'Usuário cadastrado com sucesso!';
     header("Location: /fixTime/PROJETO/src/views/Login/login-company.php");
-    echo "<script>alert('Usuário cadastrado com sucesso!');</script>";
-    exit();
+    return;
   } else {
-    echo "Erro: " . $sql . "<br>" . $conexao->error;
+    $_SESSION['error_message'] = "Erro: " . $sql . "<br>" . $conexao->error;
+    header("Location: /fixTime/PROJETO/src/views/Login/cadastro-company.php");
+    return;
   }
 }
 ?>
@@ -100,6 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>Fix-Time</title>
   <!-- Link para o arquivo CSS compilado do Tailwind -->
   <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50 flex items-center justify-center min-h-screen lg:p-0 p-3">
@@ -219,6 +224,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
   <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
+
+  <?php if (isset($_SESSION['error_message'])): ?>
+  <script>
+    Swal.fire({
+      icon: 'error',
+      title: 'Erro',
+      text: '<?php echo $_SESSION['error_message']; ?>',
+      confirmButtonText: 'OK'
+    });
+    <?php unset($_SESSION['error_message']); ?>
+  </script>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['success_message'])): ?>
+  <script>
+    Swal.fire({
+      icon: 'success',
+      title: 'Sucesso',
+      text: '<?php echo $_SESSION['success_message']; ?>',
+      confirmButtonText: 'OK'
+    });
+    <?php unset($_SESSION['success_message']); ?>
+  </script>
+  <?php endif; ?>
 
   <script>
     // Configuração das máscaras de input e validação de senha
