@@ -17,7 +17,15 @@ $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 // Verifica se o usuário está autenticado
 if (!$oficina_id) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Usuário não autenticado. Faça login novamente.',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            window.location.href = '/fixTime/PROJETO/src/views/Login/login-company.php';
+        });</script>";
     exit();
 }
 
@@ -75,11 +83,24 @@ while ($row = $resultSelecionados->fetch_assoc()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Inclui o arquivo CSS do Tailwind para estilização -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
-<!-- Exibe mensagens de erro ou sucesso, se houver -->
-<?php if (!empty($mensagem)) echo $mensagem; ?>
+<!-- Exibe mensagens de feedback do sistema -->
+<?php 
+if (isset($_SESSION['alert'])) {
+    echo "<script>
+        Swal.fire({
+            icon: '" . $_SESSION['alert']['type'] . "',
+            title: '" . $_SESSION['alert']['title'] . "',
+            text: '" . $_SESSION['alert']['text'] . "',
+            confirmButtonColor: '#3085d6'
+        });</script>";
+    unset($_SESSION['alert']);
+}
+?>
 
 <body>
     <!-- Botão do menu hamburguer para dispositivos móveis -->
@@ -174,7 +195,7 @@ while ($row = $resultSelecionados->fetch_assoc()) {
                 <h2 class="text-2xl font-bold mb-6">Categoria: <?php echo htmlspecialchars($categoria_oficina); ?></h2>
 
                 <!-- Formulário para seleção de serviços -->
-                <form method="POST" action="salvar_servicos.php">
+                <form id="formServicos" method="POST" action="salvar_servicos.php">
                     <h2>Selecione os serviços que sua oficina oferece:</h2>
                 
                     <!-- Lista de checkboxes para cada serviço disponível -->
@@ -199,6 +220,7 @@ while ($row = $resultSelecionados->fetch_assoc()) {
     </div>
 
     <!-- Scripts JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         // Controle do menu hamburguer
         const hamburgerButton = document.getElementById('hamburgerButton');
@@ -213,6 +235,34 @@ while ($row = $resultSelecionados->fetch_assoc()) {
         // Evento para fechar o menu
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
+        });
+
+        // Manipula o envio do formulário de serviços
+        $('#formServicos').on('submit', function(e) {
+            e.preventDefault();
+            
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    Swal.fire({
+                        icon: response.type,
+                        title: response.title,
+                        text: response.text,
+                        confirmButtonColor: '#3085d6'
+                    });
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: 'Erro ao salvar serviços. Por favor, tente novamente.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            });
         });
     </script>
 </body>

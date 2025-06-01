@@ -6,43 +6,80 @@ session_start();
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
 $conexao = connect_db();
 
+// Verifica se a conexão com o banco de dados foi estabelecida com sucesso
+if (!isset($conexao) || !$conexao) {
+    echo json_encode([
+        'type' => 'error',
+        'title' => 'Erro!',
+        'text' => 'Erro ao conectar ao banco de dados.'
+    ]);
+    exit;
+}
+
 // Obtém o ID da oficina da sessão
 $oficina_id = $_SESSION['id_oficina'] ?? null;
 
 // Verifica se o usuário está autenticado
 if (!$oficina_id) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
-    exit();
+    echo json_encode([
+        'type' => 'error',
+        'title' => 'Erro!',
+        'text' => 'Usuário não autenticado. Faça login novamente.'
+    ]);
+    exit;
 }
 
-// Verifica se a requisição é POST e se existem serviços selecionados
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['servicos'])) {
-    // Armazena os serviços selecionados do formulário
-    $servicos_selecionados = $_POST['servicos'];
+// Verifica se foram enviados serviços
+if (!isset($_POST['servicos'])) {
+    echo json_encode([
+        'type' => 'error',
+        'title' => 'Erro!',
+        'text' => 'Nenhum serviço selecionado.'
+    ]);
+    exit;
+}
 
-    // Remove todos os serviços antigos da oficina
+try {
+    // Inicia uma transação
+    $conexao->begin_transaction();
+
+    // Remove todos os serviços anteriores da oficina
     $sqlDelete = "DELETE FROM oficina_servicos WHERE id_oficina = ?";
     $stmtDelete = $conexao->prepare($sqlDelete);
     $stmtDelete->bind_param("i", $oficina_id);
     $stmtDelete->execute();
 
-    // Prepara a query para inserir os novos serviços
+    // Insere os novos serviços selecionados
     $sqlInsert = "INSERT INTO oficina_servicos (id_oficina, id_servico_padrao) VALUES (?, ?)";
     $stmtInsert = $conexao->prepare($sqlInsert);
 
-    // Insere cada serviço selecionado no banco de dados
-    foreach ($servicos_selecionados as $servico_id) {
+    foreach ($_POST['servicos'] as $servico_id) {
         $stmtInsert->bind_param("ii", $oficina_id, $servico_id);
         $stmtInsert->execute();
     }
 
-    // Exibe mensagem de sucesso e redireciona para a página de registro de serviços
-    echo "<script>alert('Serviços registrados com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/registrar-servicos.php';</script>";
-    exit();
-} else {
-    // Exibe mensagem de erro se nenhum serviço foi selecionado
-    $_SESSION['error_message'] = 'Por favor, selecione pelo menos um serviço.';
-    header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/registrar-servicos.php");
-    exit();
+    // Confirma a transação
+    $conexao->commit();
+
+    echo json_encode([
+        'type' => 'success',
+        'title' => 'Sucesso!',
+        'text' => 'Serviços atualizados com sucesso!'
+    ]);
+
+} catch (Exception $e) {
+    // Em caso de erro, desfaz a transação
+    $conexao->rollback();
+    
+    echo json_encode([
+        'type' => 'error',
+        'title' => 'Erro!',
+        'text' => 'Erro ao salvar serviços: ' . $e->getMessage()
+    ]);
 }
+
+// Fecha as conexões
+$stmtDelete->close();
+$stmtInsert->close();
+$conexao->close();
 ?>
