@@ -48,49 +48,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     } else {
         try {
-            // Prepara a query SQL para inserir um novo funcionário
-            $stmt = $conexao->prepare("INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, telefone_funcionario, email_funcionario, cpf_funcionario,  data_admissao, id_oficina) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssi", $nome, $cargo, $telefone, $email, $cpf, $data_admissao, $id_usuario);
-
-            // Executa a query e verifica o resultado
-            if ($stmt->execute()) {
-                $_SESSION['alert'] = [
-                    'type' => 'success',
-                    'title' => 'Sucesso!',
-                    'text' => 'Funcionário cadastrado com sucesso!'
-                ];
-            } else {
-                $_SESSION['alert'] = [
+            // Verifica se o CPF já está cadastrado
+            $checkCpf = $conexao->prepare("SELECT COUNT(*) as total FROM funcionarios WHERE cpf_funcionario = ?");
+            $checkCpf->bind_param("s", $cpf);
+            $checkCpf->execute();
+            $resultCpf = $checkCpf->get_result();
+            $rowCpf = $resultCpf->fetch_assoc();
+            
+            if ($rowCpf['total'] > 0) {
+                echo json_encode([
                     'type' => 'error',
                     'title' => 'Erro!',
-                    'text' => 'Erro ao cadastrar funcionário: ' . addslashes($stmt->error)
-                ];
-            }
+                    'text' => 'Este CPF já está cadastrado no sistema.'
+                ]);
+                exit;
+            } else {
+                // Prepara a query SQL para inserir um novo funcionário
+                $stmt = $conexao->prepare("INSERT INTO funcionarios (nome_funcionario, cargo_funcionario, telefone_funcionario, email_funcionario, cpf_funcionario, data_admissao, id_oficina) 
+                             VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssi", $nome, $cargo, $telefone, $email, $cpf, $data_admissao, $id_usuario);
 
-            $stmt->close();
+                // Executa a query e verifica o resultado
+                if ($stmt->execute()) {
+                    echo json_encode([
+                        'type' => 'success',
+                        'title' => 'Sucesso!',
+                        'text' => 'Funcionário cadastrado com sucesso!'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'type' => 'error',
+                        'title' => 'Erro!',
+                        'text' => 'Erro ao cadastrar funcionário: ' . addslashes($stmt->error)
+                    ]);
+                }
+                $stmt->close();
+            }
+            $checkCpf->close();
         } catch (Exception $e) {
             $erro = $e->getMessage();
 
             // Tratamento específico para erro de email duplicado
             if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'email_funcionario')) {
-                $_SESSION['alert'] = [
+                echo json_encode([
                     'type' => 'error',
                     'title' => 'Erro!',
                     'text' => 'Este email já está cadastrado no sistema. Por favor, verifique os dados.'
-                ];
+                ]);
             } else {
-                $_SESSION['alert'] = [
+                echo json_encode([
                     'type' => 'error',
                     'title' => 'Erro!',
                     'text' => 'Erro no banco de dados: ' . addslashes($erro)
-                ];
+                ]);
             }
         }
     }
     
     // Redireciona para evitar reenvio do formulário
-    header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
 
@@ -436,14 +451,15 @@ if (isset($_SESSION['alert'])) {
                         type: 'POST',
                         url: $(this).attr('action'),
                         data: $(this).serialize(),
+                        dataType: 'json',
                         success: function(response) {
                             Swal.fire({
-                                icon: 'success',
-                                title: 'Sucesso!',
-                                text: 'Funcionário cadastrado com sucesso!',
+                                icon: response.type,
+                                title: response.title,
+                                text: response.text,
                                 confirmButtonColor: '#3085d6'
                             }).then((result) => {
-                                if (result.isConfirmed) {
+                                if (result.isConfirmed && response.type === 'success') {
                                     window.location.reload();
                                 }
                             });
