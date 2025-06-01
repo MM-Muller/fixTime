@@ -41,7 +41,8 @@ if ($result->num_rows > 0) {
 // Busca agendamentos do cliente
 $sql_servicos = "
 SELECT s.*, v.modelo, v.placa, v.ano, v.cor,
-       o.nome_oficina, o.endereco_oficina, o.numero_oficina, o.bairro_oficina, o.telefone_oficina, o.email_oficina, o.complemento
+       o.nome_oficina, o.endereco_oficina, o.numero_oficina, o.bairro_oficina, o.telefone_oficina, o.email_oficina, o.complemento,
+       (SELECT estrelas FROM avaliacao WHERE id_oficina = o.id_oficina AND id_usuario = ? LIMIT 1) as avaliacao_estrelas
 FROM servico s
 JOIN veiculos v ON s.id_veiculo = v.id
 JOIN oficina o ON s.id_oficina = o.id_oficina
@@ -49,7 +50,7 @@ WHERE v.id_usuario = ?
 ORDER BY s.data_agendada DESC";
 
 $stmt = $conexao->prepare($sql_servicos);
-$stmt->bind_param("i", $id_usuario);
+$stmt->bind_param("ii", $id_usuario, $id_usuario);
 $stmt->execute();
 $servicos_result = $stmt->get_result();
 
@@ -80,28 +81,28 @@ $conexao->close();
 <body class="">
     <?php
     // Exibe mensagens de sessão
-    if (isset($_SESSION['success_message'])) {
+    if (isset($_SESSION['success'])) {
         echo "<script>
             Swal.fire({
                 icon: 'success',
                 title: 'Sucesso!',
-                text: '" . $_SESSION['success_message'] . "',
+                text: '" . $_SESSION['success'] . "',
                 confirmButtonColor: '#3085d6'
             });
         </script>";
-        unset($_SESSION['success_message']);
+        unset($_SESSION['success']);
     }
 
-    if (isset($_SESSION['error_message'])) {
+    if (isset($_SESSION['error'])) {
         echo "<script>
             Swal.fire({
                 icon: 'error',
                 title: 'Erro!',
-                text: '" . $_SESSION['error_message'] . "',
+                text: '" . $_SESSION['error'] . "',
                 confirmButtonColor: '#3085d6'
             });
         </script>";
-        unset($_SESSION['error_message']);
+        unset($_SESSION['error']);
     }
     ?>
     <!-- Botão do menu hamburguer para dispositivos móveis -->
@@ -290,69 +291,76 @@ $conexao->close();
                         <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/salvar_avaliacao.php" class="avaliacao-oficina">
                             <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
                             <input type="hidden" name="id_oficina" value="<?= $servico['id_oficina'] ?>">
-                            <input type="hidden" name="estrelas" id="estrelasInput" value="0">
+                            <input type="hidden" name="estrelas" id="estrelasInput-<?= $servico['id_servico'] ?>" value="<?= $servico['avaliacao_estrelas'] ?? '' ?>">
 
                             <div class="grid min-h-[140px] w-full place-items-center overflow-x-scroll rounded-lg p-6 lg:overflow-visible">
-                                <div class="inline-flex items-center gap-2" id="estrelasContainer">
+                                <div class="inline-flex items-center gap-2" id="estrelasContainer-<?= $servico['id_servico'] ?>">
                                     <!-- Estrela 1 -->
-                                    <svg data-estrela="1" class="estrela-btn w-8 h-8 cursor-pointer text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
-                                                        </path>
+                                    <svg data-estrela="1" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 1 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 2 -->
-                                    <svg data-estrela="2" class="estrela-btn w-8 h-8 cursor-pointer text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
-                                                        </path>
+                                    <svg data-estrela="2" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 2 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 3 -->
-                                    <svg data-estrela="3" class="estrela-btn w-8 h-8 cursor-pointer text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
-                                                        </path>
+                                    <svg data-estrela="3" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 3 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 4 -->
-                                    <svg data-estrela="4" class="estrela-btn w-8 h-8 cursor-pointer text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
-                                                        </path>
+                                    <svg data-estrela="4" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 4 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 5 -->
-                                    <svg data-estrela="4" class="estrela-btn w-8 h-8 cursor-pointer text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z">
-                                                        </path>
+                                    <svg data-estrela="5" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 5 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                 </div>
                             </div>
 
                             <button type="submit" class="mt-4 cursor-pointer col-span-1 text-white bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg">
-                                Salvar Avaliação
+                                <?= $servico['avaliacao_estrelas'] ? 'Atualizar Avaliação' : 'Salvar Avaliação' ?>
                             </button>
                         </form>
                     </div>
 
                     <script>
                     document.addEventListener("DOMContentLoaded", function () {
-                        const estrelaBotoes = document.querySelectorAll('.estrela-btn');
-                        const estrelasInput = document.getElementById('estrelasInput');
-                    
-                        estrelaBotoes.forEach((btn) => {
-                            btn.addEventListener('click', () => {
-                                const valorSelecionado = parseInt(btn.getAttribute('data-estrela'));
-                                estrelasInput.value = valorSelecionado;
-                            
-                                estrelaBotoes.forEach((b, i) => {
-                                    const bValor = parseInt(b.getAttribute('data-estrela'));
-                                    if (bValor <= valorSelecionado) {
-                                        b.classList.add('text-yellow-600');
-                                        b.classList.remove('text-gray-500');
-                                    } else {
-                                        b.classList.add('text-gray-500');
-                                        b.classList.remove('text-yellow-600');
-                                    }
+                        const servicos = <?= json_encode($servicos) ?>;
+                        
+                        servicos.forEach(servico => {
+                            const estrelaBotoes = document.querySelectorAll(`#estrelasContainer-${servico.id_servico} .estrela-btn`);
+                            const estrelasInput = document.getElementById(`estrelasInput-${servico.id_servico}`);
+                            const form = document.querySelector(`#estrelasContainer-${servico.id_servico}`).closest('form');
+                        
+                            estrelaBotoes.forEach((btn) => {
+                                btn.addEventListener('click', () => {
+                                    const valorSelecionado = parseInt(btn.getAttribute('data-estrela'));
+                                    estrelasInput.value = valorSelecionado;
+                                
+                                    estrelaBotoes.forEach((b, i) => {
+                                        const bValor = parseInt(b.getAttribute('data-estrela'));
+                                        if (bValor <= valorSelecionado) {
+                                            b.classList.add('text-yellow-600');
+                                            b.classList.remove('text-gray-500');
+                                        } else {
+                                            b.classList.add('text-gray-500');
+                                            b.classList.remove('text-yellow-600');
+                                        }
+                                    });
                                 });
+                            });
+
+                            form.addEventListener('submit', function(e) {
+                                if (!estrelasInput.value) {
+                                    e.preventDefault();
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro',
+                                        text: 'Por favor, selecione uma avaliação com estrelas antes de enviar.',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
                             });
                         });
                     });
