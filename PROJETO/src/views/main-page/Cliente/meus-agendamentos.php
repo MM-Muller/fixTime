@@ -12,7 +12,7 @@ if (!isset($conexao) || !$conexao) {
 session_start();
 
 // Obtém o ID do usuário da sessão
-$user_id = $_SESSION['id_usuario'];
+$id_usuario = $_SESSION['id_usuario'];
 
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
@@ -25,7 +25,7 @@ if (!isset($_SESSION['id_usuario'])) {
 // Busca os dados atuais do usuário
 $sql = "SELECT nome_usuario, cpf, telefone_usuario, email_usuario FROM cliente WHERE id_usuario = ?";
 $stmt = $conexao->prepare($sql);
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -34,6 +34,27 @@ if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc();
 } else {
     die("Usuário não encontrado.");
+}
+
+
+// Busca agendamentos do cliente
+$sql_servicos = "
+SELECT s.*, v.modelo, v.placa, v.ano, v.cor,
+       o.nome_oficina, o.endereco_oficina, o.numero_oficina, o.bairro_oficina, o.telefone_oficina, o.email_oficina, o.complemento
+FROM servico s
+JOIN veiculos v ON s.id_veiculo = v.id
+JOIN oficina o ON s.id_oficina = o.id_oficina
+WHERE v.id_usuario = ?
+ORDER BY s.data_agendada DESC";
+
+$stmt = $conexao->prepare($sql_servicos);
+$stmt->bind_param("i", $id_usuario);
+$stmt->execute();
+$servicos_result = $stmt->get_result();
+
+$servicos = [];
+while ($row = $servicos_result->fetch_assoc()) {
+    $servicos[] = $row;
 }
 
 // Fecha as conexões com o banco de dados
@@ -142,110 +163,104 @@ $conexao->close();
         <div class="text-center">
             <p class="text-2xl text-gray-900 font-medium">Serviços</p>
         </div>
-        <?//php if (!empty($servicos)): ?>
-            <?//php foreach ($servicos as $servico): ?>
+        <?php if (!empty($servicos)): ?>
+            <?php foreach ($servicos as $servico): ?>
                 <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
             <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md ">
                 <div class="grid grid-cols-6 gap-4">
-
-                    <div class="col-span-1">
-                        <label for="id_servico" class="block mb-1 text-sm font-medium text-gray-900 ">ID do Serviço</label>
-                        <input type="number" id="id_servico" name="id_servico" value="<?= $servico['id_servico'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
-
                     
-                    <div class="col-span-2">
-                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Data recebimento</label>
-                        <input type="date" id="recebimento_servico" name="recebimento_servico" value="<?= $servico['data_agendada'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
-                    </div>
-
-                    <div class="col-span-3">
-                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
-                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    <div class="col-span-1">
+                        <label class="block mb-1 text-sm font-medium text-gray-900">Data agendada</label>
+                        <input type="date" value="<?= $servico['data_agendada'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled />
                     </div>
 
                     <div class="col-span-1">
-                        <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
-                        <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Horário agendado</label>
+                        <input type="time" value="<?= $servico['horario'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled />
+                    </div>
+
+                    <div class="col-span-4">
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
                     </div>
 
                     <div class="col-span-2">
-                        <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
-                        <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Prestador de serviço</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['nome_oficina'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
+                    </div>
+                    <div class="col-span-2">
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Telefone</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['telefone_oficina'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
+                    </div>
+                    <div class="col-span-2">
+                        <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Email</label>
+                        <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['email_oficina'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
                     </div>
 
-                    <div class="col-span-3">
-                        <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
-                        <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                    <div class="col-span-6">
+                        <label class="block mb-1 text-sm font-medium text-gray-900">Endereço</label>
+                        <input type="text" value="<?= $servico['endereco_oficina'] ?>, <?= $servico['numero_oficina'] ?> - <?= $servico['complemento'] ?> - <?= $servico['bairro_oficina']?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled />
                     </div>
+
                 </div>
 
                 <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
 
                 <div class="">
-                    <form id="" method="POST" action="" >
-                        <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
-    
                     <div class="grid grid-cols-6 gap-4">
                         
                             <div class="col-span-2 space-y-4">
                                 <div class="">
                                     <label for="data_entrega" class="block mb-1 text-sm font-medium text-gray-900">Data de entrega do veículo</label>
-                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega']?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none"  />
+                                    <input type="date" id="data_entrega" name="data_entrega"  value="<?= $servico['data_entrega'] ?? '' ?>"  min="<?php echo date('Y-m-d'); ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none" disabled />
                                 </div>
                                 
                                 <div class="">
                                     <label for="status_servico" class="block mb-1 text-sm font-medium text-gray-900">Status</label>
-                                    <select id="status_servico" name="status_servico" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-pointer"  >
-                                        <option value="status_atual"><?= $servico['status']?></option>
-                                        <option value="Pendente">Pendente</option>
-                                        <option value="Em andamento">Em andamento</option>
-                                        <option value="Aguardando Peças">Aguardando Peças</option>
-                                        <option value="Aguardando Retirada">Aguardando Retirada</option>
-                                        <option value="Concluído">Concluído</option>
-                                        <option value="Cancelado">Cancelado</option>
-                                    </select>
+                                    <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['status'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
                                 </div>
                             </div>
                             
                             
                             <div class="col-span-4">
                                 <label for="servicos_feitos" class="block mb-1 text-sm font-medium text-gray-900">Serviços feitos</label>
-                                <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none " placeholder="Descreva os serviços realizados..."  ><?= $servico['descricao_servico']?></textarea>
+                                <textarea id="servicos_feitos" name="servicos_feitos" rows="5" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none resize-none " placeholder="Descreva os serviços realizados..." disabled ><?= $servico['descricao_servico'] ?></textarea>
                             </div>
                             
                         </div>
                     </div>
-                    
-                    
-                    <hr class="h-1 w-48 mx-auto rounded-md my-8 bg-gray-300 border-0">
-
-                <div class="">
-                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
-                    <select id="funcionario_responsavel" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled required>
-                        <option value="">
-                            <?=$servico['nome_funcionario'] ?>
-                        </option>
-
-                    </select>
-                </div>
+                    <!-- Botões de ação -->
+                    <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
+                        <!-- Botão Editar/Salvar -->
+                        <button type="button" class="editar-btn text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $funcionario['id_funcionario'] ?>">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                            </svg>
+                            Reagendar
+                        </button>
+                        <!-- Botão Excluir/Cancelar -->
+                        <button type="button" class="excluir-btn inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $funcionario['id_funcionario'] ?>">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            Cancelar
+                        </button>
+                    </div>
 
             </div>
-            <?//php endforeach; ?>
-        <?//php else: ?>
-            <!-- Mensagem quando não há veículos cadastrados-->
+            <?php endforeach; ?>
+            <?php else:?>
                 <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
-                <div class="mt-10 p-4 rounded-lg bg-gray-100 border-2 border-gray-300 shadow-xl flex items-center justify-between ">
-                    <div class="">
+                <div class="mt-10 p-4 rounded-lg bg-gray-100 border-2 border-gray-300 shadow-xl flex items-center justify-between">
+                    <div>
                         <p class="font-medium">Você não possui nenhum serviço agendado.</p>
-                        <p class="font-medium">De uma olhada nos nossos parceiros cadastrados, 
-                            <a class="text-blue-600 font-semibold underline hover:text-blue-800 transition duration-200" href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php">
-                                    clique aqui.
-                            </a>
+                        <p class="font-medium">Dê uma olhada nos nossos parceiros cadastrados,
+                            <a class="text-blue-600 font-semibold underline hover:text-blue-800" href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php">clique aqui.</a>
                         </p>
                     </div>
                 </div>
-        <?//php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 
