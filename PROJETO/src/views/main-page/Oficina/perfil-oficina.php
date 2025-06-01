@@ -86,23 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validação dos campos obrigatórios e categoria
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro!',
-                    text: 'Nome, CNPJ e Email são campos obrigatórios.',
-                    confirmButtonColor: '#3085d6'
-                });</script>";
+            echo json_encode([
+                'type' => 'error',
+                'title' => 'Erro!',
+                'text' => 'Nome, CNPJ e Email são campos obrigatórios.'
+            ]);
             exit();
         }
         if (!in_array($categoria, $validCategorias)) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro!',
-                    text: 'Categoria inválida.',
-                    confirmButtonColor: '#3085d6'
-                });</script>";
+            echo json_encode([
+                'type' => 'error',
+                'title' => 'Erro!',
+                'text' => 'Categoria inválida.'
+            ]);
             exit();
         }
 
@@ -111,30 +107,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmtUpdate = $conexao->prepare($sqlUpdate);
         $stmtUpdate->bind_param("ssssssssssssi", $nome, $categoria, $cep, $cnpj, $endereco, $numero, $complemento, $bairro, $cidade, $estado, $telefone, $email, $oficina_id);
 
-        // Executa a atualização e redireciona se bem-sucedido
+        // Executa a atualização e retorna o resultado
         if ($stmtUpdate->execute()) {
-            echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: 'Suas alterações foram salvas com sucesso!',
-                    confirmButtonColor: '#3085d6'
-                }).then((result) => {
-                    window.location.href = '/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';
-                });</script>";
-            exit();
+            echo json_encode([
+                'type' => 'success',
+                'title' => 'Sucesso!',
+                'text' => 'Suas alterações foram salvas com sucesso!'
+            ]);
         } else {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro!',
-                    text: 'Erro ao atualizar perfil: " . addslashes($conexao->error) . "',
-                    confirmButtonColor: '#3085d6'
-                });</script>";
-            exit();
+            echo json_encode([
+                'type' => 'error',
+                'title' => 'Erro!',
+                'text' => 'Erro ao atualizar perfil: ' . addslashes($conexao->error)
+            ]);
         }
-
-        $stmtUpdate->close();
+        exit();
     }
 }
 
@@ -365,13 +352,10 @@ $conexao->close();
                     </div>
                 </div>
 
-                <!-- Campo oculto para salvar perfil -->
-                <input type="hidden" name="salvar_perfil" value="1">
-
                 <!-- Botões de ação -->
                 <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
                     <!-- Botão Editar/Salvar -->
-                    <button id="editarPerfilBtn" type="button" name="salvar_perfil" value="1" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                    <button id="editarPerfilBtn" type="button" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
                             <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
@@ -380,13 +364,16 @@ $conexao->close();
                     </button>
 
                     <!-- Botão Excluir -->
-                    <button id="excluirPerfilBtn" type="button" name="excluir_perfil" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
+                    <button id="excluirPerfilBtn" type="button" class="inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                         </svg>
                         Excluir
                     </button>
                 </div>
+
+                <!-- Campo oculto para salvar perfil -->
+                <input type="hidden" name="salvar_perfil" value="1">
 
                 <!-- Campo oculto para exclusão -->
                 <input type="hidden" name="excluir_perfil" id="inputExcluirPerfil" value="">
@@ -395,6 +382,8 @@ $conexao->close();
     </div>
 
     <!-- Scripts JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
     <script>
         // Controle do menu hamburguer
         const hamburgerButton = document.getElementById('hamburgerButton');
@@ -410,9 +399,7 @@ $conexao->close();
         closeHamburgerButton.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
         });
-    </script>
 
-    <script>
         // Controle dos botões de edição e exclusão
         document.addEventListener('DOMContentLoaded', function() {
             const editarBtn = document.getElementById('editarPerfilBtn');
@@ -424,7 +411,7 @@ $conexao->close();
             editarBtn.addEventListener('click', function() {
                 if (!modoEdicao) {
                     // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
+                    document.querySelectorAll('input, select').forEach(input => {
                         input.disabled = false;
                         input.classList.remove('cursor-not-allowed');
                     });
@@ -438,8 +425,33 @@ $conexao->close();
                         reverse: true
                     });
                 } else {
-                    // Envia o formulário
-                    form.submit();
+                    // Envia o formulário via AJAX
+                    $.ajax({
+                        type: 'POST',
+                        url: form.action,
+                        data: $(form).serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            Swal.fire({
+                                icon: response.type,
+                                title: response.title,
+                                text: response.text,
+                                confirmButtonColor: '#3085d6'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Erro ao atualizar perfil. Por favor, tente novamente.',
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    });
                 }
             });
 
