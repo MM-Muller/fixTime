@@ -81,10 +81,13 @@ CREATE TABLE avaliacao (
     id_avaliacao INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
     id_oficina INT NOT NULL,
+    id_servico INT NOT NULL,
     estrelas INT CHECK(estrelas BETWEEN 1 AND 5),
     data_avaliacao DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario) REFERENCES cliente(id_usuario),
-    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina)
+    FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
+    FOREIGN KEY (id_servico) REFERENCES servico(id_servico),
+    UNIQUE KEY unique_avaliacao_servico (id_servico)
 );
 
 

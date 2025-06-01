@@ -33,16 +33,17 @@ if ($result->num_rows > 0) {
 } else {
     die("Oficina não encontrada."); // Encerra a execução se a oficina não existir
 }
-$sql_servicos = "
-SELECT s.*, v.modelo, v.placa, v.ano, v.cor, c.nome_usuario, c.telefone_usuario, c.email_usuario, f.nome_funcionario
-FROM servico s
-JOIN veiculos v ON s.id_veiculo = v.id
-JOIN cliente c ON v.id_usuario = c.id_usuario
-LEFT JOIN funcionarios f ON s.id_funcionario_responsavel = f.id_funcionario
-WHERE s.id_oficina = ?
-ORDER BY s.data_agendada DESC";
 
-$stmt_servicos = $conexao->prepare($sql_servicos);
+// Busca os dados dos serviços associados à oficina
+$sql = "SELECT s.*, v.modelo, v.placa, v.ano, v.cor, c.nome_usuario, c.telefone_usuario, c.email_usuario, a.estrelas, a.data_avaliacao
+        FROM servico s
+        JOIN veiculos v ON s.id_veiculo = v.id
+        JOIN cliente c ON v.id_usuario = c.id_usuario
+        LEFT JOIN avaliacao a ON s.id_servico = a.id_servico
+        WHERE s.id_oficina = ?
+        ORDER BY s.data_agendada DESC, s.horario ASC";
+
+$stmt_servicos = $conexao->prepare($sql);
 
 if ($stmt_servicos === false) {
     die("Erro ao preparar a consulta: " . $conexao->error);
@@ -207,17 +208,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
 
                             <div class="col-span-1">
                                 <label for="telefone_cliente" class="block mb-1 text-sm font-medium text-gray-900">Telefone Cliente</label>
-                                <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                                <input type="text" id="telefone_cliente" name="telefone_cliente" value="<?= $servico['telefone_usuario'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                             </div>
 
                             <div class="col-span-2">
-                                <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Nome cliente</label>
-                                <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                                <label for="nome_cliente" class="block mb-1 text-sm font-medium text-gray-900">Nome cliente</label>
+                                <input type="text" id="nome_cliente" name="nome_cliente" value="<?= $servico['nome_usuario'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                             </div>
 
                             <div class="col-span-3">
-                                <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900 ">Email Cliente</label>
-                                <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
+                                <label for="email-cliente" class="block mb-1 text-sm font-medium text-gray-900">Email Cliente</label>
+                                <input type="email" id="email-cliente" name="email-cliente" value="<?= $servico['email_usuario'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled />
                             </div>
                         </div>
 
@@ -290,6 +291,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
                                 </div>
                             </div>
                         </form>
+
+                        <!-- Área de Avaliação -->
+                        <div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">Avaliação do Cliente</h3>
+                                    <?php if ($servico['estrelas']): ?>
+                                        <div class="flex items-center gap-1 mt-2">
+                                            <?php 
+                                            $estrelas = (int)$servico['estrelas'];
+                                            for ($i = 1; $i <= $estrelas; $i++): 
+                                            ?>
+                                                <svg class="w-5 h-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
+                                                </svg>
+                                            <?php endfor; ?>
+                                            <span class="ml-2 text-sm text-gray-600">(<?= $estrelas ?> estrelas)</span>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="text-gray-500 mt-2">Ainda não avaliado</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php endforeach; ?>

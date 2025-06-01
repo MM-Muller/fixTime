@@ -11,32 +11,33 @@ if (!isset($_SESSION['id_usuario'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_oficina = $_POST['id_oficina'] ?? null;
+    $id_servico = $_POST['id_servico'] ?? null;
     $estrelas = $_POST['estrelas'] ?? null;
 
-    if (!$id_oficina || !$estrelas) {
+    if (!$id_oficina || !$estrelas || !$id_servico) {
         $_SESSION['error'] = "Por favor, selecione uma avaliação com estrelas.";
         header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
         exit;
     }
 
     try {
-        // Verifica se já existe uma avaliação para esta oficina e usuário
-        $check_sql = "SELECT id_avaliacao FROM avaliacao WHERE id_oficina = ? AND id_usuario = ?";
+        // Verifica se já existe uma avaliação para este serviço
+        $check_sql = "SELECT id_avaliacao FROM avaliacao WHERE id_servico = ?";
         $check_stmt = $conexao->prepare($check_sql);
-        $check_stmt->bind_param("ii", $id_oficina, $_SESSION['id_usuario']);
+        $check_stmt->bind_param("i", $id_servico);
         $check_stmt->execute();
         $result = $check_stmt->get_result();
 
         if ($result->num_rows > 0) {
             // Se existe, atualiza a avaliação existente
-            $sql = "UPDATE avaliacao SET estrelas = ? WHERE id_oficina = ? AND id_usuario = ?";
+            $sql = "UPDATE avaliacao SET estrelas = ? WHERE id_servico = ?";
             $stmt = $conexao->prepare($sql);
-            $stmt->bind_param("iii", $estrelas, $id_oficina, $_SESSION['id_usuario']);
+            $stmt->bind_param("ii", $estrelas, $id_servico);
         } else {
             // Se não existe, insere uma nova avaliação
-            $sql = "INSERT INTO avaliacao (id_usuario, id_oficina, estrelas) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO avaliacao (id_usuario, id_oficina, id_servico, estrelas) VALUES (?, ?, ?, ?)";
             $stmt = $conexao->prepare($sql);
-            $stmt->bind_param("iii", $_SESSION['id_usuario'], $id_oficina, $estrelas);
+            $stmt->bind_param("iiii", $_SESSION['id_usuario'], $id_oficina, $id_servico, $estrelas);
         }
         
         if (!$stmt) {

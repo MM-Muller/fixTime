@@ -42,7 +42,7 @@ if ($result->num_rows > 0) {
 $sql_servicos = "
 SELECT s.*, v.modelo, v.placa, v.ano, v.cor,
        o.nome_oficina, o.endereco_oficina, o.numero_oficina, o.bairro_oficina, o.telefone_oficina, o.email_oficina, o.complemento,
-       (SELECT estrelas FROM avaliacao WHERE id_oficina = o.id_oficina AND id_usuario = ? LIMIT 1) as avaliacao_estrelas
+       (SELECT estrelas FROM avaliacao WHERE id_servico = s.id_servico LIMIT 1) as avaliacao_estrelas
 FROM servico s
 JOIN veiculos v ON s.id_veiculo = v.id
 JOIN oficina o ON s.id_oficina = o.id_oficina
@@ -50,7 +50,7 @@ WHERE v.id_usuario = ?
 ORDER BY s.data_agendada DESC";
 
 $stmt = $conexao->prepare($sql_servicos);
-$stmt->bind_param("ii", $id_usuario, $id_usuario);
+$stmt->bind_param("i", $id_usuario);
 $stmt->execute();
 $servicos_result = $stmt->get_result();
 
