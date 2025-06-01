@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['servicos'])) {
     exit();
 } else {
     // Exibe mensagem de erro se nenhum serviço foi selecionado
-    echo "<script>alert('Por favor, selecione pelo menos um serviço.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/registrar-servicos.php';</script>";
+    $_SESSION['error_message'] = 'Por favor, selecione pelo menos um serviço.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/registrar-servicos.php");
     exit();
 }
 ?>

@@ -4,7 +4,8 @@ $conexao = connect_db();
 session_start();
 
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Você precisa estar logado para avaliar.'); history.back();</script>";
+    $_SESSION['error_message'] = 'Você precisa estar logado para avaliar.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
     exit;
 }
 
@@ -14,7 +15,8 @@ $estrelas = $_POST['estrelas'] ?? null;
 $comentario = trim($_POST['comentario'] ?? '');
 
 if (!$id_oficina || !$id_servico || !$estrelas) {
-    echo "<script>alert('Dados incompletos para avaliação.'); history.back();</script>";
+    $_SESSION['error_message'] = 'Dados incompletos para avaliação.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
     exit;
 }
 
@@ -23,8 +25,10 @@ $stmt = $conexao->prepare($sql);
 $stmt->bind_param("iii", $id_cliente, $id_oficina, $estrelas);
 
 if ($stmt->execute()) {
-    echo "<script>alert('Avaliação enviada com sucesso!'); location.href='meus-agendamentos.php';</script>";
+    $_SESSION['success_message'] = 'Avaliação enviada com sucesso!';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
 } else {
-    echo "<script>alert('Erro ao salvar avaliação.'); history.back();</script>";
+    $_SESSION['error_message'] = 'Erro ao salvar avaliação.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
 }
 ?>

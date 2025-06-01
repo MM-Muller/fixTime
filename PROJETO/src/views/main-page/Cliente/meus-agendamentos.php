@@ -1,4 +1,3 @@
-Você disse:
 <?php
 // Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
@@ -17,7 +16,8 @@ $id_usuario = $_SESSION['id_usuario'];
 
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
     exit;
 }
 
@@ -73,9 +73,37 @@ $conexao->close();
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
     <title>Fix Time</title>
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="">
+    <?php
+    // Exibe mensagens de sessão
+    if (isset($_SESSION['success_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: '" . $_SESSION['success_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['success_message']);
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: '" . $_SESSION['error_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['error_message']);
+    }
+    ?>
     <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -253,7 +281,10 @@ $conexao->close();
                         </form>
                     </div>
 
-
+                    <!-- Formulário de exclusão -->
+                    <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/excluir_agendamento.php" class="excluir-form" style="display: none;">
+                        <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+                    </form>
 
                     <div>
                         <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/salvar_avaliacao.php" class="avaliacao-oficina">
@@ -416,6 +447,31 @@ $conexao->close();
                 } else {
                     // Submete o formulário para salvar
                     form.submit();
+                }
+            });
+        });
+
+        // Adiciona funcionalidade de exclusão
+        document.querySelectorAll('.excluir-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const form = this.closest('form');
+                const excluirForm = form.parentElement.querySelector('.excluir-form');
+                
+                if (this.textContent.trim() === 'Excluir') {
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: "Esta ação não poderá ser revertida!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sim, excluir!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            excluirForm.submit();
+                        }
+                    });
                 }
             });
         });

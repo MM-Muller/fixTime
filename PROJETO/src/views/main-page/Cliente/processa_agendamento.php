@@ -5,7 +5,8 @@ $conexao = connect_db();
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
     exit();
 }
 
@@ -18,7 +19,8 @@ $horario = $_POST['horario'] ?? null;
 
 // Verificação básica
 if (!$id_oficina || !$id_veiculo || !$data_agendada || !$horario) {
-    echo "<script>alert('Preencha todos os campos obrigatórios.'); window.history.back();</script>";
+    $_SESSION['error_message'] = 'Preencha todos os campos obrigatórios.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/agendamento-cliente.php?id_oficina=" . $id_oficina);
     exit();
 }
 
@@ -27,9 +29,11 @@ $stmt = $conexao->prepare("INSERT INTO servico (data_agendada, horario, id_veicu
 $stmt->bind_param("ssii", $data_agendada, $horario, $id_veiculo, $id_oficina);
 
 if ($stmt->execute()) {
-    echo "<script>alert('Agendamento realizado com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php';</script>";
+    $_SESSION['success_message'] = 'Agendamento realizado com sucesso!';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php");
 } else {
-    echo "<script>alert('Erro ao agendar. Tente novamente.'); window.history.back();</script>";
+    $_SESSION['error_message'] = 'Erro ao agendar. Tente novamente.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/agendamento-cliente.php?id_oficina=" . $id_oficina);
 }
 
 $stmt->close();

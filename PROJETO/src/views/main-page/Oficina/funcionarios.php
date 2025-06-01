@@ -13,7 +13,8 @@ session_start();
 
 // Verifica se o usuário está autenticado como oficina
 if (!isset($_SESSION['id_oficina'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
     exit;
 }
 
@@ -33,7 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Valida se todos os campos obrigatórios foram preenchidos
     if (empty($nome) || empty($cargo) || empty($telefone) || empty($email) || empty($cpf) || empty($data_admissao)) {
-        $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
+        $_SESSION['error_message'] = 'Preencha todos os campos corretamente.';
+        header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php");
+        exit;
     } else {
         try {
             // Prepara a query SQL para inserir um novo funcionário

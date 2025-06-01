@@ -48,7 +48,8 @@ if ($result->num_rows > 0) {
     $nomeOficina = htmlspecialchars($user_data['nome_oficina']);
 } else {
     // Redireciona para a página de login se não encontrar dados
-    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    $_SESSION['error_message'] = 'Oficina não encontrada. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-company.php");
     exit();
 }
 ?>

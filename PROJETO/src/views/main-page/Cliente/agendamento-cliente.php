@@ -5,7 +5,8 @@ $conexao = connect_db();
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
     exit();
 }
 
@@ -13,7 +14,8 @@ $id_usuario = $_SESSION['id_usuario'];
 
 // Verifica se o id da oficina foi passado na URL
 if (!isset($_GET['id_oficina'])) {
-    echo "<script>alert('Oficina não especificada.'); window.history.back();</script>";
+    $_SESSION['error_message'] = 'Oficina não especificada.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php");
     exit();
 }
 
@@ -28,7 +30,8 @@ $resultOficina = $stmtOficina->get_result();
 if ($resultOficina->num_rows > 0) {
     $oficina = $resultOficina->fetch_assoc();
 } else {
-    echo "<script>alert('Oficina não encontrada.'); window.history.back();</script>";
+    $_SESSION['error_message'] = 'Oficina não encontrada.';
+    header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php");
     exit();
 }
 $stmtOficina->close();
@@ -54,10 +57,37 @@ $stmtVeiculos->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time - Agendamento</title>
-
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50">
+    <?php
+    // Exibe mensagens de sessão
+    if (isset($_SESSION['success_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: '" . $_SESSION['success_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['success_message']);
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: '" . $_SESSION['error_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['error_message']);
+    }
+    ?>
     <div class="absolute top-0 left-0 p-4">
     <a href="/fixTime/PROJETO/src/views/main-page/Cliente/prestadores-servico.php" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">Voltar</a>
   </div>

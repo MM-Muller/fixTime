@@ -58,33 +58,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
         empty($cor) || empty($placa) || $quilometragem < 0
     ) {
-        $mensagem = "<script>alert('Preencha todos os campos corretamente.');</script>";
-    } else {
-        try {
-            // Prepara e executa a query de inserção
-            $stmt = $conexao->prepare("INSERT INTO veiculos (tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
+        $_SESSION['error_message'] = 'Preencha todos os campos corretamente.';
+        header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+        exit;
+    }
 
-            if ($stmt->execute()) {
-                $mensagem = "<script>alert('Veículo cadastrado com sucesso!');</script>";
-                echo "<script>window.location.href = window.location.href;</script>";
-                exit;
-            } else {
-                $mensagem = "<script>alert('Erro ao cadastrar veículo: " . addslashes($stmt->error) . "');</script>";
-            }
+    try {
+        // Prepara e executa a query de inserção
+        $stmt = $conexao->prepare("INSERT INTO veiculos (tipo_veiculo, marca, modelo, ano, cor, placa, quilometragem, id_usuario) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
 
-            $stmt->close();
-        } catch (Exception $e) {
-            $erro = $e->getMessage();
-
-            // Tratamento específico para erro de placa duplicada
-            if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
-                $mensagem = "<script>alert('Essa placa já está cadastrada no sistema. Por favor, verifique os dados.');</script>";
-            } else {
-                $mensagem = "<script>alert('Erro no banco de dados: " . addslashes($erro) . "');</script>";
-            }
+        if ($stmt->execute()) {
+            $_SESSION['success_message'] = 'Veículo cadastrado com sucesso!';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+            exit;
+        } else {
+            $_SESSION['error_message'] = 'Erro ao cadastrar veículo: ' . $stmt->error;
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+            exit;
         }
+
+        $stmt->close();
+    } catch (Exception $e) {
+        $erro = $e->getMessage();
+
+        // Tratamento específico para erro de placa duplicada
+        if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
+            $_SESSION['error_message'] = 'Essa placa já está cadastrada no sistema. Por favor, verifique os dados.';
+        } else {
+            $_SESSION['error_message'] = 'Erro no banco de dados: ' . $erro;
+        }
+        header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+        exit;
     }
 }
 
@@ -103,7 +109,9 @@ if ($id_usuario) {
 
         $stmt->close();
     } catch (Exception $e) {
-        $mensagem = "<script>alert('Erro ao buscar veículos: " . addslashes($e->getMessage()) . "');</script>";
+        $_SESSION['error_message'] = 'Erro ao buscar veículos: ' . $e->getMessage();
+        header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+        exit;
     }
 }
 ?>

@@ -13,7 +13,8 @@ if (!isset($conexao) || !$conexao) {
 
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
     exit;
 }
 
@@ -47,9 +48,37 @@ $stmt->close();
     <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
     <title>Fix Time</title>
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="">
+    <?php
+    // Exibe mensagens de sessão
+    if (isset($_SESSION['success_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: '" . $_SESSION['success_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['success_message']);
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: '" . $_SESSION['error_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['error_message']);
+    }
+    ?>
     <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">

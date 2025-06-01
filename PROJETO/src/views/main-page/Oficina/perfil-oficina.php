@@ -42,10 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Executa a exclusão e redireciona se bem-sucedido
         if ($stmtDelete->execute()) {
             session_destroy(); // Encerra a sessão
-            echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
+            $_SESSION['success_message'] = 'Perfil excluído com sucesso.';
+            header("Location: /fixTime/PROJETO/index.html");
             exit();
         } else {
-            echo "Erro ao excluir perfil: " . $conexao->error;
+            $_SESSION['error_message'] = 'Erro ao excluir perfil: ' . $conexao->error;
+            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
+            exit();
         }
 
         $stmtDelete->close();
@@ -69,11 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validação dos campos obrigatórios e categoria
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
-            echo "<script>alert('Nome, CNPJ e Email são campos obrigatórios.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
+            $_SESSION['error_message'] = 'Nome, CNPJ e Email são campos obrigatórios.';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
             exit();
         }
         if (!in_array($categoria, $validCategorias)) {
-            echo "<script>alert('Categoria inválida.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
+            $_SESSION['error_message'] = 'Categoria inválida.';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
             exit();
         }
 

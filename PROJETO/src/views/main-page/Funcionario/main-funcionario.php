@@ -9,7 +9,8 @@ $conexao = connect_db();
 // Verifica se o usuário está autenticado
 // Se não estiver, redireciona para a página de login
 if (!isset($_SESSION['id_funcionario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-funcionario.php';</script>";
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-funcionario.php");
     exit;
 }
 

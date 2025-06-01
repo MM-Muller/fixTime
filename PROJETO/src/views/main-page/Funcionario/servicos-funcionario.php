@@ -48,7 +48,8 @@ if ($result->num_rows > 0) {
     $nomeOficina = htmlspecialchars($user_data['nome_oficina']);
 } else {
     // Redireciona para a página de login se não encontrar dados
-    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    $_SESSION['error_message'] = 'Oficina não encontrada. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-company.php");
     exit();
 }
 
@@ -93,13 +94,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'])) {
         $stmt->bind_param("sssii", $data_entrega, $status_servico, $servicos_feitos, $id_servico, $id_funcionario);
 
         if ($stmt->execute()) {
-            echo "<script>alert('Serviço atualizado com sucesso.'); window.location.href=window.location.href;</script>";
+            $_SESSION['success_message'] = 'Serviço atualizado com sucesso.';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Funcionario/servicos-funcionario.php");
             exit();
         } else {
-            echo "<script>alert('Erro ao atualizar serviço.');</script>";
+            $_SESSION['error_message'] = 'Erro ao atualizar serviço.';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Funcionario/servicos-funcionario.php");
+            exit();
         }
     } else {
-        echo "<script>alert('Preencha todos os campos obrigatórios.');</script>";
+        $_SESSION['error_message'] = 'Preencha todos os campos obrigatórios.';
+        header("Location: /fixTime/PROJETO/src/views/main-page/Funcionario/servicos-funcionario.php");
+        exit();
     }
 }
 
@@ -115,10 +121,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Inclui o arquivo CSS compilado do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
 <body class="">
+    <?php
+    // Exibe mensagens de sessão
+    if (isset($_SESSION['success_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: '" . $_SESSION['success_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['success_message']);
+    }
+
+    if (isset($_SESSION['error_message'])) {
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: '" . $_SESSION['error_message'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        </script>";
+        unset($_SESSION['error_message']);
+    }
+    ?>
     <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
