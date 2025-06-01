@@ -16,8 +16,9 @@ $user_id = $_SESSION['id_usuario'];
 
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
-    exit;
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
+    return;
 }
 
 // Processa o formulário quando enviado via POST
@@ -34,9 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalVeiculos = $row['total'];
         $stmtCheck->close();
         
-        // Se houver veículos cadastrados, impede a exclusão do perfil
+        // Se houver veículos cadastrados, redireciona para a página de veículos
         if ($totalVeiculos > 0) {
-            echo "<script>alert('Você não pode excluir seu perfil enquanto houver veículos cadastrados. Por favor, remova todos os veículos primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php';</script>";
+            $_SESSION['error_message'] = 'Você precisa excluir todos os seus veículos antes de excluir o perfil.';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
             exit();
         }
 
@@ -48,10 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Executa a exclusão e verifica o resultado
         if ($stmtDelete->execute()) {
             session_destroy(); // Encerra a sessão do usuário
-            echo "<script>alert('Perfil excluído com sucesso.'); window.location.href='/fixTime/PROJETO/index.html';</script>";
+            $_SESSION['success_message'] = 'Perfil excluído com sucesso.';
+            header("Location: /fixTime/PROJETO/index.html");
             exit();
         } else {
-            echo "Erro ao excluir perfil: " . $conexao->error;
+            $_SESSION['error_message'] = "Erro ao excluir perfil: " . $conexao->error;
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/perfil.php");
+            exit();
         }
 
         $stmtDelete->close();
@@ -71,10 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Executa a atualização e verifica o resultado
         if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='perfil.php';</script>";
-            exit();
+            $_SESSION['success_message'] = 'Suas alterações foram salvas com sucesso!';
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/perfil.php");
+            return;
         } else {
-            echo "Erro ao atualizar perfil: " . $conexao->error;
+            $_SESSION['error_message'] = "Erro ao atualizar perfil: " . $conexao->error;
+            header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/perfil.php");
+            return;
         }
 
         $stmtUpdate->close();
@@ -108,6 +116,7 @@ $conexao->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
@@ -198,6 +207,31 @@ $conexao->close();
 
     <!-- Conteúdo principal da página -->
     <div class=" lg:ml-64 lg:py-10 py-4 lg:px-32 px-8 ">
+        <!-- Exibição de mensagens de erro e sucesso -->
+        <?php if (isset($_SESSION['error_message'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: '<?php echo $_SESSION['error_message']; ?>',
+                confirmButtonText: 'OK'
+            });
+            <?php unset($_SESSION['error_message']); ?>
+        </script>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['success_message'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso',
+                text: '<?php echo $_SESSION['success_message']; ?>',
+                confirmButtonText: 'OK'
+            });
+            <?php unset($_SESSION['success_message']); ?>
+        </script>
+        <?php endif; ?>
+
         <!-- Formulário de perfil -->
         <div class="p-8 bg-white border border-gray-200 rounded-lg shadow-sm">
             <form id="formPerfil" method="POST" action="perfil.php">
@@ -339,11 +373,25 @@ $conexao->close();
 
             // Manipula o botão de exclusão
             excluirBtn.addEventListener('click', function() {
-                const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
-                if (confirmar) {
-                    document.getElementById('inputExcluirPerfil').value = '1';
-                    form.submit();
-                }
+                Swal.fire({
+                    title: 'Excluir Perfil',
+                    html: `
+                        <p>Tem certeza que deseja excluir seu perfil?</p>
+                        <p class="text-sm text-gray-500 mt-2">Esta ação não pode ser desfeita.</p>
+                        <p class="text-sm text-red-500 mt-2">Observação: Você precisará excluir todos os seus veículos cadastrados antes de excluir o perfil.</p>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sim, excluir!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('inputExcluirPerfil').value = '1';
+                        form.submit();
+                    }
+                });
             });
         });
     </script>

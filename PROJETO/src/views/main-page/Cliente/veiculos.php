@@ -13,8 +13,9 @@ session_start();
 
 // Verifica se o usuário está autenticado
 if (!isset($_SESSION['id_usuario'])) {
-    echo "<script>alert('Usuário não autenticado. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-user.php';</script>";
-    exit;
+    $_SESSION['error_message'] = 'Usuário não autenticado. Faça login novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/login-user.php");
+    exit();
 }
 
 // Obtém o ID do usuário da sessão
@@ -115,10 +116,35 @@ if ($id_usuario) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Link para o arquivo CSS do Tailwind -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
-<?php echo $mensagem; ?>
+<?php if (isset($_SESSION['error_message'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Atenção',
+            text: '<?php echo $_SESSION['error_message']; ?>',
+            confirmButtonText: 'OK'
+        });
+        <?php unset($_SESSION['error_message']); ?>
+    });
+</script>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Sucesso',
+        text: '<?php echo $_SESSION['success_message']; ?>',
+        confirmButtonText: 'OK'
+    });
+    <?php unset($_SESSION['success_message']); ?>
+</script>
+<?php endif; ?>
 
 <body class="">
     <!-- Botão do menu hamburguer para dispositivos móveis -->
