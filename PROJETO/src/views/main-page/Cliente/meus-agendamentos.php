@@ -1,3 +1,4 @@
+Você disse:
 <?php
 // Inclui o arquivo de conexão com o banco de dados
 include $_SERVER['DOCUMENT_ROOT'] . '/fixTime/PROJETO/src/views/connect_bd.php';
@@ -166,19 +167,31 @@ $conexao->close();
         <?php if (!empty($servicos)): ?>
             <?php foreach ($servicos as $servico): ?>
                 <hr class="h-1 w-48 mx-auto rounded-md my-10 bg-gray-300 border-0">
+            <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/salvar_reagendamento.php" class="form-agendamento">
+            <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
+
             <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md ">
                 <div class="grid grid-cols-6 gap-4">
                     
                     <div class="col-span-1">
                         <label class="block mb-1 text-sm font-medium text-gray-900">Data agendada</label>
-                        <input type="date" value="<?= $servico['data_agendada'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled />
+                        <input type="date" name="data_agendada" value="<?= $servico['data_agendada'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" min="<?= date('Y-m-d'); ?>" disabled />
                     </div>
 
                     <div class="col-span-1">
-                        <label for="recebimento_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Horário agendado</label>
-                        <input type="time" value="<?= $servico['horario'] ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled />
+                        <label class="block mb-1 text-sm font-medium text-gray-900">Horário agendado</label>
+                        <select name="horario" id="horario-agendado-<?= $index ?>" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2" disabled>
+                            <option  value="">
+                                <?= $servico['horario'] ?>
+                            </option>
+                            <?php
+                            $horarios = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+                            foreach ($horarios as $hora): ?>
+                                <option value="<?= $hora ?>" <?= $servico['horario'] == $hora ? 'selected' : '' ?>><?= $hora ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-
+                    
                     <div class="col-span-4">
                         <label for="veiculo_servico" class="block mb-1 text-sm font-medium text-gray-900 ">Veículo</label>
                         <input type="text" id="veiculo_servico" name="veiculo_servico" value="<?= $servico['modelo'] ?> - <?= $servico['placa'] ?> ( Ano: <?= $servico['ano'] ?> - Cor: <?= $servico['cor'] ?>)" class=" bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none " disabled />
@@ -232,20 +245,11 @@ $conexao->close();
                     <!-- Botões de ação -->
                     <div class="lg:gap-6 gap-4 items-center grid grid-cols-6 mt-6">
                         <!-- Botão Editar/Salvar -->
-                        <button type="button" class="editar-btn text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $funcionario['id_funcionario'] ?>">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                            </svg>
-                            Reagendar
-                        </button>
+                        <button type="button" class="cursor-pointer editar-btn col-span-3 text-white bg-blue-700 hover:bg-blue-800 px-5 py-2.5 rounded-lg">Reagendar</button>
+
                         <!-- Botão Excluir/Cancelar -->
-                        <button type="button" class="excluir-btn inline-flex items-center justify-center gap-2 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center cursor-pointer col-span-3" data-id="<?= $funcionario['id_funcionario'] ?>">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                            </svg>
-                            Cancelar
-                        </button>
+                        <button type="button" class="cursor-pointer excluir-btn col-span-3 text-white bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-lg">Excluir</button>
+                        </form>
                     </div>
 
             </div>
@@ -281,11 +285,65 @@ $conexao->close();
             sidebar.classList.add('-translate-x-full');
         });
     </script>
+<script>
+    // Seleciona todos os botões de reagendamento
+    document.querySelectorAll('.editar-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const form = this.closest('form');
+            const dataInput = form.querySelector('input[type="date"]');
+            const horaSelect = form.querySelector('select');
+            const isEditing = this.textContent.trim() === 'Reagendar';
 
+            const excluirBtn = form.querySelector('.excluir-btn');
+
+            if (isEditing) {
+                // Habilita campos de edição
+                dataInput.disabled = false;
+                horaSelect.disabled = false;
+                dataInput.classList.remove('cursor-not-allowed');
+                horaSelect.classList.remove('cursor-not-allowed');
+
+                // Troca o texto do botão para 'Salvar'
+                this.innerHTML = `
+                    Salvar
+                `;
+
+                // Altera botão de exclusão para cancelar
+                excluirBtn.innerHTML = `
+                    Cancelar
+                `;
+                
+
+                // Altera comportamento do botão para cancelar edição
+                excluirBtn.onclick = () => {
+                    dataInput.disabled = true;
+                    horaSelect.disabled = true;
+                    dataInput.classList.add('cursor-not-allowed');
+                    horaSelect.classList.add('cursor-not-allowed');
+
+                    this.innerHTML = `
+                        Reagendar
+                    `;
+
+                    excluirBtn.innerHTML = `
+                        Excluir
+                    `;
+                    excluirBtn.classList.remove('bg-gray-600');
+                    excluirBtn.classList.add('bg-red-600');
+                    excluirBtn.onclick = null;
+                };
+
+            } else {
+                // Submete o formulário para salvar
+                form.submit();
+            }
+        });
+    });
+</script>
 
     <!-- Scripts externos -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
     <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
 </body>
-</html>
+</html> 
