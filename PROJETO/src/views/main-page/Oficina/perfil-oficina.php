@@ -28,25 +28,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $totalFuncionarios = $row['total'];
         $stmtCheck->close();
         
-        // Impede a exclusão se houver funcionários cadastrados
+        // Se houver funcionários cadastrados, redireciona para a página de funcionários
         if ($totalFuncionarios > 0) {
-            echo "<script>alert('Você não pode excluir a oficina enquanto houver funcionários cadastrados. Por favor, remova todos os funcionários primeiro.'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php';</script>";
+            session_start();
+            $_SESSION['alert'] = [
+                'type' => 'warning',
+                'title' => 'Atenção!',
+                'text' => 'Você precisa excluir todos os funcionários antes de excluir o perfil da oficina.'
+            ];
+            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/funcionarios.php");
             exit();
         }
 
-        // Prepara e executa a query de exclusão da oficina
+        // Prepara e executa a query para excluir o perfil
         $sqlDelete = "DELETE FROM oficina WHERE id_oficina = ?";
         $stmtDelete = $conexao->prepare($sqlDelete);
         $stmtDelete->bind_param("i", $oficina_id);
 
-        // Executa a exclusão e redireciona se bem-sucedido
+        // Executa a exclusão e verifica o resultado
         if ($stmtDelete->execute()) {
-            session_destroy(); // Encerra a sessão
-            $_SESSION['success_message'] = 'Perfil excluído com sucesso.';
+            session_destroy(); // Encerra a sessão do usuário
+            $_SESSION['alert'] = [
+                'type' => 'success',
+                'title' => 'Sucesso!',
+                'text' => 'Perfil excluído com sucesso.'
+            ];
             header("Location: /fixTime/PROJETO/index.html");
             exit();
         } else {
-            $_SESSION['error_message'] = 'Erro ao excluir perfil: ' . $conexao->error;
+            $_SESSION['alert'] = [
+                'type' => 'error',
+                'title' => 'Erro!',
+                'text' => 'Erro ao excluir perfil: ' . $conexao->error
+            ];
             header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
             exit();
         }
@@ -72,13 +86,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Validação dos campos obrigatórios e categoria
         $validCategorias = ['Borracharia', 'Auto Elétrica', 'Oficina Mecânica', 'Lava Car'];
         if (empty($nome) || empty($cnpj) || empty($email)) {
-            $_SESSION['error_message'] = 'Nome, CNPJ e Email são campos obrigatórios.';
-            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Nome, CNPJ e Email são campos obrigatórios.',
+                    confirmButtonColor: '#3085d6'
+                });</script>";
             exit();
         }
         if (!in_array($categoria, $validCategorias)) {
-            $_SESSION['error_message'] = 'Categoria inválida.';
-            header("Location: /fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php");
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Categoria inválida.',
+                    confirmButtonColor: '#3085d6'
+                });</script>";
             exit();
         }
 
@@ -89,15 +113,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Executa a atualização e redireciona se bem-sucedido
         if ($stmtUpdate->execute()) {
-            echo "<script>alert('Suas alterações foram salvas com sucesso!'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sucesso!',
+                    text: 'Suas alterações foram salvas com sucesso!',
+                    confirmButtonColor: '#3085d6'
+                }).then((result) => {
+                    window.location.href = '/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';
+                });</script>";
             exit();
         } else {
-            echo "<script>alert('Erro ao atualizar perfil: " . addslashes($conexao->error) . "'); window.location.href='/fixTime/PROJETO/src/views/main-page/Oficina/perfil-oficina.php';</script>";
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Erro ao atualizar perfil: " . addslashes($conexao->error) . "',
+                    confirmButtonColor: '#3085d6'
+                });</script>";
             exit();
         }
 
         $stmtUpdate->close();
     }
+}
+
+// Verifica se o usuário está autenticado
+if (!$oficina_id) {
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Usuário não autenticado. Faça login novamente.',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            window.location.href = '/fixTime/PROJETO/src/views/Login/login-company.php';
+        });</script>";
+    exit();
 }
 
 // Busca os dados atuais da oficina
@@ -111,7 +163,15 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $user_data = $result->fetch_assoc();
 } else {
-    echo "<script>alert('Oficina não encontrada. Faça login novamente.'); window.location.href='/fixTime/PROJETO/src/views/Login/login-company.php';</script>";
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Oficina não encontrada. Faça login novamente.',
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            window.location.href = '/fixTime/PROJETO/src/views/Login/login-company.php';
+        });</script>";
     exit();
 }
 
@@ -128,6 +188,8 @@ $conexao->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Inclui o arquivo CSS do Tailwind para estilização -->
     <link rel="stylesheet" href="/fixTime/PROJETO/src/public/assets/css/output.css">
+    <!-- Adiciona SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
 
@@ -351,52 +413,57 @@ $conexao->close();
     </script>
 
     <script>
-        // Controle do formulário de perfil
+        // Controle dos botões de edição e exclusão
         document.addEventListener('DOMContentLoaded', function() {
             const editarBtn = document.getElementById('editarPerfilBtn');
             const excluirBtn = document.getElementById('excluirPerfilBtn');
             const form = document.getElementById('formPerfil');
             let modoEdicao = false;
 
-            // Evento para editar/salvar perfil
+            // Manipula o botão de edição
             editarBtn.addEventListener('click', function() {
                 if (!modoEdicao) {
                     // Habilita edição dos campos
-                    document.querySelectorAll('input, select').forEach(element => {
-                        element.disabled = false;
-                        element.classList.remove('cursor-not-allowed', 'bg-gray-50');
-                        element.classList.add('bg-white');
+                    document.querySelectorAll('input').forEach(input => {
+                        input.disabled = false;
+                        input.classList.remove('cursor-not-allowed');
                     });
 
-                    // Atualiza o botão para modo de salvar
-                    editarBtn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Salvar';
+                    editarBtn.textContent = 'Salvar';
                     modoEdicao = true;
 
                     // Aplica máscaras nos campos
                     $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cnpj-perfil').mask('00.000.000/0000-00', {reverse: true});
-                    $('#cep-perfil').mask('00000-000');
+                    $('#cnpj-perfil').mask('00.000.000/0000-00', {
+                        reverse: true
+                    });
                 } else {
-                    // Validação dos campos obrigatórios
-                    if ($('#nome-perfil').val().trim() === '' ||
-                        $('#cnpj-perfil').val().trim() === '' ||
-                        $('#email-perfil').val().trim() === '') {
-                        alert('Nome, CNPJ e Email são campos obrigatórios.');
-                        return;
-                    }
-
                     // Envia o formulário
                     form.submit();
                 }
             });
 
-            // Evento para excluir perfil
+            // Manipula o botão de exclusão
             excluirBtn.addEventListener('click', function() {
-                const confirmar = confirm('Tem certeza que deseja excluir seu perfil? Essa ação não pode ser desfeita.');
-                if (confirmar) {
-                    document.getElementById('inputExcluirPerfil').value = '1';
-                    form.submit();
-                }
+                Swal.fire({
+                    title: 'Excluir Perfil',
+                    html: `
+                        <p>Tem certeza que deseja excluir o perfil da oficina?</p>
+                        <p class="text-sm text-gray-500 mt-2">Esta ação não pode ser desfeita.</p>
+                        <p class="text-sm text-red-500 mt-2">Observação: Você precisará excluir todos os funcionários cadastrados antes de excluir o perfil.</p>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sim, excluir!',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('inputExcluirPerfil').value = '1';
+                        form.submit();
+                    }
+                });
             });
         });
     </script>

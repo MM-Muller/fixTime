@@ -162,6 +162,21 @@ if ($result->num_rows > 0) {
     die("Oficina não encontrada.");
 }
 
+// Exibe mensagens de feedback do sistema
+if (isset($_SESSION['alert'])) {
+    $alert = $_SESSION['alert'];
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: '" . $alert['type'] . "',
+                title: '" . $alert['title'] . "',
+                text: '" . $alert['text'] . "',
+                confirmButtonColor: '#3085d6'
+            });
+        });</script>";
+    unset($_SESSION['alert']);
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -177,20 +192,6 @@ if ($result->num_rows > 0) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Fix Time</title>
 </head>
-
-<!-- Exibe mensagens de feedback do sistema -->
-<?php 
-if (isset($_SESSION['alert'])) {
-    echo "<script>
-        Swal.fire({
-            icon: '" . $_SESSION['alert']['type'] . "',
-            title: '" . $_SESSION['alert']['title'] . "',
-            text: '" . $_SESSION['alert']['text'] . "',
-            confirmButtonColor: '#3085d6'
-        });</script>";
-    unset($_SESSION['alert']);
-}
-?>
 
 <body class="">
 
