@@ -449,7 +449,7 @@ if ($id_usuario) {
                         Salvar
                     `;
                     this.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
-                    this.classList.add('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-300');
+                    this.classList.add('bg-blue-600', 'hover:bg-blue-700', 'focus:ring-blue-300');
 
                     // Atualiza o botão de exclusão para cancelamento
                     const excluirBtn = form.querySelector('.excluir-btn');
@@ -460,7 +460,7 @@ if ($id_usuario) {
                         Cancelar
                     `;
                     excluirBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-300');
-                    excluirBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600', 'focus:ring-yellow-300');
+                    excluirBtn.classList.add('bg-red-500', 'hover:bg-red-600', 'focus:ring-red-300');
                 } else {
                     // Confirma a atualização com SweetAlert
                     Swal.fire({
@@ -508,7 +508,7 @@ if ($id_usuario) {
                         
                             const inputId = document.createElement('input');
                             inputId.type = 'hidden';
-                            inputId.name = 'id';
+                            inputId.name = 'id_veiculo';
                             inputId.value = id;
                         
                             deleteForm.appendChild(inputId);
@@ -533,7 +533,7 @@ if ($id_usuario) {
                         </svg>
                         Editar
                     `;
-                    editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-300');
+                    editarBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'focus:ring-blue-300');
                     editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
                 
                     // Reseta o botão de cancelamento para exclusão
@@ -543,7 +543,7 @@ if ($id_usuario) {
                         </svg>
                         Excluir
                     `;
-                    this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'focus:ring-yellow-300');
+                    this.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'focus:ring-blue-300');
                     this.classList.add('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-300');
                 
                     // Recarrega o formulário para descartar alterações

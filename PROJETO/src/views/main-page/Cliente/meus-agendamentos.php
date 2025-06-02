@@ -104,7 +104,30 @@ $conexao->close();
         </script>";
         unset($_SESSION['error']);
     }
+
+    
     ?>
+    <?php if (isset($_SESSION['alert_agendamento_veiculo'])): ?>
+    <script>
+        Swal.fire({
+            title: 'Atenção!',
+            text: 'Você tem agendamentos ligados a este veículo. Deseja ir para a página de agendamentos?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php";
+            }
+            // Se não confirmar, nada acontece
+        });
+    </script>
+    <?php unset($_SESSION['alert_agendamento_veiculo']); ?>
+    <?php endif; ?>
+
     <!-- Botão do menu hamburguer para dispositivos móveis -->
     <button id="hamburgerButton" type="button" class="cursor-pointer inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
