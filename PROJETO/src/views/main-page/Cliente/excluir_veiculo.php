@@ -62,6 +62,7 @@ if ($stmt_delete->execute()) {
     $_SESSION['error_message'] = 'Erro ao excluir veículo.';
 }
 
-header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
+header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php"); // <- Redireciona corretamente para a tela de veículos
 exit;
+
 ?>
