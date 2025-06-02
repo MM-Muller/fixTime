@@ -324,7 +324,7 @@ $conexao->close();
                             <div>
                                 
                                 <button type="submit" class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg ">
-                                    <?= $servico['avaliacao_estrelas'] ? 'Atualizar Avaliação' : 'Salvar Avaliação' ?>
+                                    <?= $servico['avaliacao_estrelas'] ? 'Atualizar ' : 'Salvar ' ?>
                                 </button>
                             </div>
                         </div>

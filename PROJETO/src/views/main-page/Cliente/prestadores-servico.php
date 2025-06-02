@@ -35,19 +35,18 @@ if ($row = $result->fetch_assoc()) {
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 }
 
-// Buscar total de estrelas e quantidade de avaliações
-$sql_media_avaliacao = "SELECT SUM(estrelas) AS total_estrelas, COUNT(*) AS total_avaliacoes FROM avaliacao WHERE id_oficina = ?";
-$stmt_media = $conexao->prepare($sql_media_avaliacao);
-$stmt_media->bind_param("i", $oficina_id); // Certifique-se de que $oficina_id está correto
-$stmt_media->execute();
-$result_media = $stmt_media->get_result();
-$media_row = $result_media->fetch_assoc();
+$sql_media_avaliacao = "SELECT id_oficina, SUM(estrelas) AS total_estrelas, COUNT(*) AS total_avaliacoes FROM avaliacao GROUP BY id_oficina";
+$result_media_all = $conexao->query($sql_media_avaliacao);
 
-if ($media_row['total_avaliacoes'] > 0) {
-    $media_avaliacao = number_format($media_row['total_estrelas'] / $media_row['total_avaliacoes'], 1);
-} else {
-    $media_avaliacao = "Sem avaliações";
+$medias_avaliacao = [];
+while ($row = $result_media_all->fetch_assoc()) {
+    if ($row['total_avaliacoes'] > 0) {
+        $medias_avaliacao[$row['id_oficina']] = number_format($row['total_estrelas'] / $row['total_avaliacoes'], 1);
+    } else {
+        $medias_avaliacao[$row['id_oficina']] = "Sem avaliações";
+    }
 }
+
 
 $stmt->close();
 ?>
@@ -261,6 +260,8 @@ $stmt->close();
                 $stmt_servicos->execute();
                 $result_servicos = $stmt_servicos->get_result();
                 $servicos = $result_servicos->fetch_all(MYSQLI_ASSOC);
+                $media_avaliacao = $medias_avaliacao[$oficina_id] ?? "Sem avaliações";
+
                 ?>
                 
                 <div class="mb-8 py-6 px-8 border border-gray-200 rounded-lg shadow-sm bg-white hover:shadow-lg">
