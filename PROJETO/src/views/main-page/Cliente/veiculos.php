@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         empty($tipo) || empty($marca) || empty($modelo) || $ano < 1900 ||
         empty($cor) || empty($placa) || $quilometragem < 0
     ) {
-        $_SESSION['error_message'] = 'Preencha todos os campos corretamente.';
+        $_SESSION['error'] = 'Preencha todos os campos corretamente.';
         header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
         exit;
     }
@@ -70,11 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sssssssi", $tipo, $marca, $modelo, $ano, $cor, $placa, $quilometragem, $id_usuario);
 
         if ($stmt->execute()) {
-            $_SESSION['success_message'] = 'Veículo cadastrado com sucesso!';
+            $_SESSION['success'] = 'Veículo cadastrado com sucesso!';
             header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
             exit;
         } else {
-            $_SESSION['error_message'] = 'Erro ao cadastrar veículo: ' . $stmt->error;
+            $_SESSION['error'] = 'Erro ao cadastrar veículo: ' . $stmt->error;
             header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
             exit;
         }
@@ -85,9 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Tratamento específico para erro de placa duplicada
         if (str_contains($erro, 'Duplicate entry') && str_contains($erro, 'placa')) {
-            $_SESSION['error_message'] = 'Essa placa já está cadastrada no sistema. Por favor, verifique os dados.';
+            $_SESSION['error'] = 'Essa placa já está cadastrada no sistema. Por favor, verifique os dados.';
         } else {
-            $_SESSION['error_message'] = 'Erro no banco de dados: ' . $erro;
+            $_SESSION['error'] = 'Erro no banco de dados: ' . $erro;
         }
         header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/veiculos.php");
         exit;
@@ -128,29 +128,31 @@ if ($id_usuario) {
     <title>Fix Time</title>
 </head>
 
-<?php if (isset($_SESSION['error_message'])): ?>
+<?php if (isset($_SESSION['error'])): ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
             icon: 'error',
             title: 'Atenção',
-            text: '<?php echo $_SESSION['error_message']; ?>',
+            text: '<?php echo $_SESSION['error']; ?>',
             confirmButtonText: 'OK'
         });
-        <?php unset($_SESSION['error_message']); ?>
+        <?php unset($_SESSION['error']); ?>
     });
 </script>
 <?php endif; ?>
 
-<?php if (isset($_SESSION['success_message'])): ?>
+<?php if (isset($_SESSION['success'])): ?>
 <script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Sucesso',
-        text: '<?php echo $_SESSION['success_message']; ?>',
-        confirmButtonText: 'OK'
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Sucesso',
+            text: '<?php echo $_SESSION['success']; ?>',
+            confirmButtonText: 'OK'
+        });
+        <?php unset($_SESSION['success']); ?>
     });
-    <?php unset($_SESSION['success_message']); ?>
 </script>
 <?php endif; ?>
 
@@ -447,7 +449,7 @@ if ($id_usuario) {
                         Salvar
                     `;
                     this.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
-                    this.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
+                    this.classList.add('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-300');
 
                     // Atualiza o botão de exclusão para cancelamento
                     const excluirBtn = form.querySelector('.excluir-btn');
@@ -457,81 +459,98 @@ if ($id_usuario) {
                         </svg>
                         Cancelar
                     `;
-                    excluirBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
-                    excluirBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
+                    excluirBtn.classList.remove('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-300');
+                    excluirBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600', 'focus:ring-yellow-300');
                 } else {
-                    // Envia o formulário para atualização
-                    form.submit();
+                    // Confirma a atualização com SweetAlert
+                    Swal.fire({
+                        title: 'Confirmar alterações',
+                        text: 'Deseja salvar as alterações deste veículo?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Sim, salvar!',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Envia o formulário para atualização
+                            form.submit();
+                        }
+                    });
                 }
             });
         });
 
         document.querySelectorAll('.excluir-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const form = this.closest('.form-veiculo');
-        
-            if (this.textContent.trim() === 'Excluir') {
-                // Confirma a exclusão do veículo com SweetAlert
-                Swal.fire({
-                    title: 'Tem certeza?',
-                    text: 'Deseja realmente excluir este veículo? Esta ação não pode ser desfeita!',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Sim, excluir!',
-                    cancelButtonText: 'Cancelar',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Cria um formulário para exclusão
-                        const deleteForm = document.createElement('form');
-                        deleteForm.action = 'excluir_veiculo.php';
-                        deleteForm.method = 'POST';
-                    
-                        const inputId = document.createElement('input');
-                        inputId.type = 'hidden';
-                        inputId.name = 'id';
-                        inputId.value = id;
-                    
-                        deleteForm.appendChild(inputId);
-                        document.body.appendChild(deleteForm);
-                        deleteForm.submit();
-                    }
-                });
-            } else {
-                // Cancela a edição
-                const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
-                inputs.forEach(input => input.disabled = true);
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const form = this.closest('.form-veiculo');
             
-                // Reseta o botão de edição
-                const editarBtn = form.querySelector('.editar-btn');
-                editarBtn.innerHTML = `
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Editar
-                `;
-                editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
-            
-                // Reseta o botão de cancelamento para exclusão
-                this.innerHTML = `
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                    Excluir
-                `;
-                this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                this.classList.add('bg-red-600', 'hover:bg-red-700');
-            
-                // Recarrega o formulário para descartar alterações
-                form.reset();
-            }
+                if (this.textContent.trim() === 'Excluir') {
+                    // Confirma a exclusão do veículo com SweetAlert
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: 'Deseja realmente excluir este veículo? Esta ação não pode ser desfeita!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sim, excluir!',
+                        cancelButtonText: 'Cancelar',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Cria um formulário para exclusão
+                            const deleteForm = document.createElement('form');
+                            deleteForm.action = 'excluir_veiculo.php';
+                            deleteForm.method = 'POST';
+                        
+                            const inputId = document.createElement('input');
+                            inputId.type = 'hidden';
+                            inputId.name = 'id';
+                            inputId.value = id;
+                        
+                            deleteForm.appendChild(inputId);
+                            document.body.appendChild(deleteForm);
+                            deleteForm.submit();
+                        }
+                    });
+                } else {
+                    // Cancela a edição
+                    const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+                    inputs.forEach(input => {
+                        input.disabled = true;
+                        input.classList.add('cursor-not-allowed');
+                    });
+                
+                    // Reseta o botão de edição
+                    const editarBtn = form.querySelector('.editar-btn');
+                    editarBtn.innerHTML = `
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                        </svg>
+                        Editar
+                    `;
+                    editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'focus:ring-green-300');
+                    editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800', 'focus:ring-blue-300');
+                
+                    // Reseta o botão de cancelamento para exclusão
+                    this.innerHTML = `
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Excluir
+                    `;
+                    this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600', 'focus:ring-yellow-300');
+                    this.classList.add('bg-red-600', 'hover:bg-red-700', 'focus:ring-red-300');
+                
+                    // Recarrega o formulário para descartar alterações
+                    form.reset();
+                }
+            });
         });
-    });
     </script>
 
 </body>
