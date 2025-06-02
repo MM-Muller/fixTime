@@ -35,6 +35,20 @@ if ($row = $result->fetch_assoc()) {
     $primeiroNome = strlen($primeiroNome) > 16 ? substr($primeiroNome, 0, 16) . "..." : $primeiroNome;
 }
 
+// Buscar total de estrelas e quantidade de avaliações
+$sql_media_avaliacao = "SELECT SUM(estrelas) AS total_estrelas, COUNT(*) AS total_avaliacoes FROM avaliacao WHERE id_oficina = ?";
+$stmt_media = $conexao->prepare($sql_media_avaliacao);
+$stmt_media->bind_param("i", $oficina_id); // Certifique-se de que $oficina_id está correto
+$stmt_media->execute();
+$result_media = $stmt_media->get_result();
+$media_row = $result_media->fetch_assoc();
+
+if ($media_row['total_avaliacoes'] > 0) {
+    $media_avaliacao = number_format($media_row['total_estrelas'] / $media_row['total_avaliacoes'], 1);
+} else {
+    $media_avaliacao = "Sem avaliações";
+}
+
 $stmt->close();
 ?>
 
@@ -255,6 +269,12 @@ $stmt->close();
                         <div class="col-span-2">
                             <h1 class="mb-3 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl"><?= htmlspecialchars($row['nome_oficina']) ?></h1>
                             
+                            <p class="mb-2 text-gray-500 flex items-center text-md">
+                                 <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387l-4.552.361c-1.775.14-2.495 2.331-1.142 3.477l3.468 2.937-1.06 4.392c-.413 1.713 1.472 3.067 2.992 2.149L12 19.35l3.897 2.354c1.52.918 3.405-.436 2.992-2.15l-1.06-4.39 3.468-2.938c1.353-1.146.633-3.336-1.142-3.477l-4.552-.36-1.754-4.17Z"/>
+                                </svg>
+                                <?= $media_avaliacao ?>
+                            </p>
                             <p class="mb-2 text-gray-500 flex items-center text-md">
                                 <svg class="w-6 h-6 mr-2 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M8.4 6.763c-.251.1-.383.196-.422.235L6.564 5.584l2.737-2.737c1.113-1.113 3.053-1.097 4.337.187l1.159 1.159a1 1 0 0 1 1.39.022l4.105 4.105a1 1 0 0 1 .023 1.39l1.345 1.346a1 1 0 0 1 0 1.415l-2.052 2.052a1 1 0 0 1-1.414 0l-1.346-1.346a1 1 0 0 1-1.323.039L11.29 8.983a1 1 0 0 1 .04-1.324l-.849-.848c-.18-.18-.606-.322-1.258-.25a3.271 3.271 0 0 0-.824.202Zm1.519 3.675L3.828 16.53a1 1 0 0 0 0 1.414l2.736 2.737a1 1 0 0 0 1.414 0l6.091-6.091-4.15-4.15Z"/>

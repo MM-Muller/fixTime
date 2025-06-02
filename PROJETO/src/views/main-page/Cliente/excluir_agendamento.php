@@ -30,6 +30,12 @@ $stmt_verifica->bind_param("ii", $id_servico, $id_usuario);
 $stmt_verifica->execute();
 $result = $stmt_verifica->get_result();
 
+$sql_apaga_avaliacoes = "DELETE FROM avaliacao WHERE id_servico = ?";
+$stmt_apaga = $conexao->prepare($sql_apaga_avaliacoes);
+$stmt_apaga->bind_param("i", $id_servico);
+$stmt_apaga->execute();
+
+
 if ($result->num_rows === 0) {
     $_SESSION['error_message'] = 'Você não tem permissão para excluir este agendamento.';
     header("Location: /fixTime/PROJETO/src/views/main-page/Cliente/meus-agendamentos.php");
