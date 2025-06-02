@@ -278,7 +278,7 @@ $conexao->close();
                         <button type="button" class="cursor-pointer editar-btn col-span-3 text-white bg-blue-700 hover:bg-blue-800 px-5 py-2.5 rounded-lg">Reagendar</button>
 
                         <!-- Botão Excluir/Cancelar -->
-                        <button type="button" class="cursor-pointer excluir-btn col-span-3 text-white bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-lg">Excluir</button>
+                        <button type="button" class="cursor-pointer excluir-btn col-span-3 text-white bg-red-600 hover:bg-red-700 px-5 py-2.5 rounded-lg">Cancelar</button>
                         </form>
                     </div>
 
@@ -287,40 +287,47 @@ $conexao->close();
                         <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
                     </form>
 
-                    <div>
+
+                    <div class="">
                         <form method="POST" action="/fixTime/PROJETO/src/views/main-page/Cliente/salvar_avaliacao.php" class="avaliacao-oficina">
                             <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
                             <input type="hidden" name="id_oficina" value="<?= $servico['id_oficina'] ?>">
                             <input type="hidden" name="estrelas" id="estrelasInput-<?= $servico['id_servico'] ?>" value="<?= $servico['avaliacao_estrelas'] ?? '' ?>">
 
-                            <div class="grid min-h-[140px] w-full place-items-center overflow-x-scroll rounded-lg p-6 lg:overflow-visible">
-                                <div class="inline-flex items-center gap-2" id="estrelasContainer-<?= $servico['id_servico'] ?>">
+                            <div class=" flex mt-4">
+
+                                <div class=" grid  w-full place-items-center overflow-x-scroll rounded-lg p-2 lg:overflow-visible">
+                                    <div class="inline-flex items-center gap-" id="estrelasContainer-<?= $servico['id_servico'] ?>">
                                     <!-- Estrela 1 -->
-                                    <svg data-estrela="1" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 1 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg data-estrela="1" class="estrela-btn w-8 h-8 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 1 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 2 -->
-                                    <svg data-estrela="2" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 2 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg data-estrela="2" class="estrela-btn w-8 h-8 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 2 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 3 -->
-                                    <svg data-estrela="3" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 3 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg data-estrela="3" class="estrela-btn w-8 h-8 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 3 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 4 -->
-                                    <svg data-estrela="4" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 4 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg data-estrela="4" class="estrela-btn w-8 h-8 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 4 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                     <!-- Estrela 5 -->
-                                    <svg data-estrela="5" class="estrela-btn w-5 h-5 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 5 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg data-estrela="5" class="estrela-btn w-8 h-8 cursor-pointer <?= ($servico['avaliacao_estrelas'] ?? 0) >= 5 ? 'text-yellow-600' : 'text-gray-500' ?>" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"></path>
                                     </svg>
                                 </div>
                             </div>
-
-                            <button type="submit" class="mt-4 cursor-pointer col-span-1 text-white bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg">
-                                <?= $servico['avaliacao_estrelas'] ? 'Atualizar Avaliação' : 'Salvar Avaliação' ?>
-                            </button>
+                            
+                            <div>
+                                
+                                <button type="submit" class="cursor-pointer text-white bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg ">
+                                    <?= $servico['avaliacao_estrelas'] ? 'Atualizar Avaliação' : 'Salvar Avaliação' ?>
+                                </button>
+                            </div>
+                        </div>
                         </form>
                     </div>
 
@@ -465,7 +472,7 @@ $conexao->close();
                 const form = this.closest('form');
                 const excluirForm = form.parentElement.querySelector('.excluir-form');
                 
-                if (this.textContent.trim() === 'Excluir') {
+                if (this.textContent.trim() === 'Cancelar') {
                     Swal.fire({
                         title: 'Tem certeza?',
                         text: "Esta ação não poderá ser revertida!",

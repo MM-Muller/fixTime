@@ -466,61 +466,72 @@ if ($id_usuario) {
             });
         });
 
-        // Controle de exclusão e cancelamento
         document.querySelectorAll('.excluir-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                const form = this.closest('.form-veiculo');
-
-                if (this.textContent.trim() === 'Excluir') {
-                    // Confirma a exclusão do veículo
-                    if (confirm('Tem certeza que deseja excluir este veículo?')) {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const form = this.closest('.form-veiculo');
+        
+            if (this.textContent.trim() === 'Excluir') {
+                // Confirma a exclusão do veículo com SweetAlert
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: 'Deseja realmente excluir este veículo? Esta ação não pode ser desfeita!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sim, excluir!',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
                         // Cria um formulário para exclusão
                         const deleteForm = document.createElement('form');
                         deleteForm.action = 'excluir_veiculo.php';
                         deleteForm.method = 'POST';
-
+                    
                         const inputId = document.createElement('input');
                         inputId.type = 'hidden';
                         inputId.name = 'id';
                         inputId.value = id;
-
+                    
                         deleteForm.appendChild(inputId);
                         document.body.appendChild(deleteForm);
                         deleteForm.submit();
                     }
-                } else {
-                    // Cancela a edição
-                    const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
-                    inputs.forEach(input => input.disabled = true);
-
-                    // Reseta o botão de edição
-                    const editarBtn = form.querySelector('.editar-btn');
-                    editarBtn.innerHTML = `
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
-                            <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
-                        </svg>
-                        Editar
-                    `;
-                    editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                    editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
-
-                    // Reseta o botão de cancelamento para exclusão
-                    this.innerHTML = `
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        Excluir
-                    `;
-                    this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                    this.classList.add('bg-red-600', 'hover:bg-red-700');
-
-                    // Recarrega o formulário para descartar alterações
-                    form.reset();
-                }
-            });
+                });
+            } else {
+                // Cancela a edição
+                const inputs = form.querySelectorAll('input:not([type="hidden"]), select');
+                inputs.forEach(input => input.disabled = true);
+            
+                // Reseta o botão de edição
+                const editarBtn = form.querySelector('.editar-btn');
+                editarBtn.innerHTML = `
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"></path>
+                        <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Editar
+                `;
+                editarBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                editarBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+            
+                // Reseta o botão de cancelamento para exclusão
+                this.innerHTML = `
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Excluir
+                `;
+                this.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                this.classList.add('bg-red-600', 'hover:bg-red-700');
+            
+                // Recarrega o formulário para descartar alterações
+                form.reset();
+            }
         });
+    });
     </script>
 
 </body>
