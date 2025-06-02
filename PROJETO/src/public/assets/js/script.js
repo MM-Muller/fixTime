@@ -7,26 +7,42 @@ $('#cpf').mask('000.000.000-00', {reverse: true});
 $('#cpf-perfil').mask('000.000.000-00', {reverse: true});
 
 function consultarCep() {
-  const cep = document.getElementById('cep_oficina').value.replace(/\D/g, ''); // remove tudo que não for número
+  const cep = document.getElementById('cep_oficina').value.replace(/\D/g, '');
 
-  if (cep.length === 8) { // confere se tem 8 números
-      fetch(`https://viacep.com.br/ws/${cep}/json/`)
-          .then(response => response.json())
-          .then(data => {
-              if (!data.erro) { // substitui os endereços de acordo com o que aparece na API
-                  document.getElementById('endereco_oficina').value = data.logradouro; // rua
-                  document.getElementById('bairro_oficina').value = data.bairro;
-                  document.getElementById('cidade_oficina').value = data.localidade;
-                  document.getElementById('estado_oficina').value = data.uf;
-              } else {
-                  alert('CEP não encontrado!');
-              }
-          })
-          .catch(error => {
-              console.error('Erro ao consultar o CEP:', error);
+  if (cep.length === 8) {
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      .then(response => response.json())
+      .then(data => {
+        if (!data.erro) {
+          document.getElementById('endereco_oficina').value = data.logradouro;
+          document.getElementById('bairro_oficina').value = data.bairro;
+          document.getElementById('cidade_oficina').value = data.localidade;
+          document.getElementById('estado_oficina').value = data.uf;
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'CEP não encontrado!',
+            text: 'Verifique se digitou corretamente.',
+            confirmButtonColor: '#3085d6'
           });
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao consultar o CEP:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Não foi possível consultar o CEP. Tente novamente mais tarde.',
+          confirmButtonColor: '#3085d6'
+        });
+      });
   } else {
-      alert('CEP inválido!');
+    Swal.fire({
+      icon: 'warning',
+      title: 'CEP inválido!',
+      text: 'O CEP deve conter exatamente 8 dígitos numéricos.',
+      confirmButtonColor: '#3085d6'
+    });
   }
 }
 

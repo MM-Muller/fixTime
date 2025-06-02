@@ -2,9 +2,9 @@
 function connect_db()
 {
     // Configurações do banco de dados
-    $db_name = "fixTime";    // Nome do banco de dados
+    $db_name = "fixTime_teste";    // Nome do banco de dados
     $user = "root";          // Usuário do banco de dados
-    $pass = "";              // Senha do banco de dados (vazia para ambiente de desenvolvimento)
+    $pass = "master100";              // Senha do banco de dados (vazia para ambiente de desenvolvimento)
     $server = "localhost:3306"; // Endereço e porta do servidor MySQL
 
     // Cria uma nova conexão com o banco de dados usando a classe mysqli

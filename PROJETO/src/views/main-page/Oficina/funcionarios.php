@@ -417,69 +417,77 @@ if (isset($_SESSION['alert'])) {
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
         
         <!-- Script para aplicar máscaras nos campos -->
-        <script>
-            $(document).ready(function() {
-                // Aplica máscaras nos campos de telefone e CPF
-                $('#telefone_funcionario').mask('(00) 00000-0000');
-                $('#cpf_funcionario').mask('000.000.000-00', {reverse: true});
-                $('input[id^="telefone-"]').each(function() {
-                    $(this).mask('(00) 00000-0000');
+<script>
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/[^\d]+/g, '');
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+        let soma = 0, resto;
+        for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[9])) return false;
+        soma = 0;
+        for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf[10])) return false;
+        return true;
+    }
+
+    $(document).ready(function () {
+        $('#telefone_funcionario').mask('(00) 00000-0000');
+        $('#cpf_funcionario').mask('000.000.000-00', {reverse: true});
+        $('input[id^="telefone-"]').each(function () {
+            $(this).mask('(00) 00000-0000');
+        });
+        $('input[id^="cpf-"]').each(function () {
+        $(this).mask('000.000.000-00', {reverse: true});
+        });
+
+        $('#formFuncionario').on('submit', function (e) {
+            e.preventDefault();
+
+            const cpf = $('#cpf_funcionario').val();
+            if (!validarCPF(cpf)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'CPF inválido',
+                    text: 'Por favor, insira um CPF válido.',
+                    confirmButtonColor: '#3085d6'
                 });
+                return;
+            }
 
-                // Intercepta o envio do formulário
-                $('#formFuncionario').on('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Valida os campos
-                    if ($('#nome_funcionario').val().trim() === '' ||
-                        $('#cargo_funcionario').val().trim() === '' ||
-                        $('#telefone_funcionario').val().trim() === '' ||
-                        $('#email_funcionario').val().trim() === '' ||
-                        $('#cpf_funcionario').val().trim() === '' ||
-                        $('#data_admissao').val().trim() === '') {
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erro!',
-                            text: 'Preencha todos os campos corretamente.',
-                            confirmButtonColor: '#3085d6'
-                        });
-                        return;
-                    }
-
-                    // Envia o formulário via AJAX
-                    $.ajax({
-                        type: 'POST',
-                        url: $(this).attr('action'),
-                        data: $(this).serialize(),
-                        dataType: 'json',
-                        success: function(response) {
-                            Swal.fire({
-                                icon: response.type,
-                                title: response.title,
-                                text: response.text,
-                                confirmButtonColor: '#3085d6'
-                            }).then((result) => {
-                                if (result.isConfirmed && response.type === 'success') {
-                                    window.location.reload();
-                                }
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro!',
-                                text: 'Erro ao cadastrar funcionário. Por favor, tente novamente.',
-                                confirmButtonColor: '#3085d6'
-                            });
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    Swal.fire({
+                        icon: response.type,
+                        title: response.title,
+                        text: response.text,
+                        confirmButtonColor: '#3085d6'
+                    }).then((result) => {
+                        if (result.isConfirmed && response.type === 'success') {
+                            window.location.reload();
                         }
                     });
-                });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: 'Erro ao cadastrar funcionário. Por favor, tente novamente.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
             });
-        </script>
+        });
+    });
 
-        <!-- Script para controle do menu hamburguer e interações -->
-        <script>
+
             // Controle do menu hamburguer para dispositivos móveis
             const hamburgerButton = document.getElementById('hamburgerButton');
             const closeHamburgerButton = document.getElementById('closeHamburgerButton');
@@ -549,6 +557,17 @@ if (isset($_SESSION['alert'])) {
                             return;
                         }
 
+                        const cpfInput = form.querySelector('input[name="cpf_funcionario"]');
+                        if (cpfInput && !validarCPF(cpfInput.value)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'CPF inválido',
+                                text: 'Por favor, insira um CPF válido.',
+                                confirmButtonColor: '#3085d6'
+                            });
+                            return;
+                        }
+
                         // Envia o formulário via AJAX
                         $.ajax({
                             type: 'POST',
@@ -588,8 +607,8 @@ if (isset($_SESSION['alert'])) {
                     if (this.textContent.trim() === 'Excluir') {
                         // Confirma a exclusão do funcionário
                         Swal.fire({
-                            title: 'Tem certeza?',
-                            text: "Você não poderá reverter esta ação!",
+                            title: 'Tem certeza? Você não poderá reverter esta ação!',
+                            text: "Verifique se o funcionário não esta associado a nenhum serviço.",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#3085d6',

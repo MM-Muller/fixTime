@@ -14,6 +14,32 @@ session_start();
 // Obtém o ID da oficina da sessão
 $oficina_id = $_SESSION['id_oficina'];
 
+function validarCNPJ($cnpj) {
+    $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
+
+    if (strlen($cnpj) != 14 || preg_match('/(\d)\1{13}/', $cnpj)) return false;
+
+    $soma1 = 0;
+    $peso1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    for ($i = 0; $i < 12; $i++) {
+        $soma1 += $cnpj[$i] * $peso1[$i];
+    }
+    $resto1 = $soma1 % 11;
+    $digito1 = ($resto1 < 2) ? 0 : 11 - $resto1;
+
+    $soma2 = 0;
+    $peso2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    for ($i = 0; $i < 13; $i++) {
+        $soma2 += $cnpj[$i] * $peso2[$i];
+    }
+    $resto2 = $soma2 % 11;
+    $digito2 = ($resto2 < 2) ? 0 : 11 - $resto2;
+
+    return ($cnpj[12] == $digito1 && $cnpj[13] == $digito2);
+}
+
+
+
 // Processa o formulário quando enviado via POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verifica se o botão de excluir perfil foi acionado
@@ -40,7 +66,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
-        // Prepara e executa a query para excluir o perfil
+        $deleteAvaliacoes = $conexao->prepare("
+            DELETE a FROM avaliacao a
+            INNER JOIN servico s ON a.id_servico = s.id_servico
+            WHERE s.id_oficina = ?
+        ");
+        $deleteAvaliacoes->bind_param("i", $oficina_id);
+        $deleteAvaliacoes->execute();
+        $deleteAvaliacoes->close();
+
+        $deleteServicos = $conexao->prepare("DELETE FROM servico WHERE id_oficina = ?");
+        $deleteServicos->bind_param("i", $oficina_id);
+        $deleteServicos->execute();
+        $deleteServicos->close();
+
+        $deleteServicos = $conexao->prepare("DELETE FROM oficina_servicos WHERE id_oficina = ?");
+        $deleteServicos->bind_param("i", $oficina_id);
+        $deleteServicos->execute();
+        $deleteServicos->close();
+
         $sqlDelete = "DELETE FROM oficina WHERE id_oficina = ?";
         $stmtDelete = $conexao->prepare($sqlDelete);
         $stmtDelete->bind_param("i", $oficina_id);
@@ -74,6 +118,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $categoria = trim($_POST['categoria'] ?? '');
         $cep = trim($_POST['cep'] ?? '');
         $cnpj = trim($_POST['cnpj'] ?? '');
+
+        if (!validarCNPJ($cnpj)) {
+            echo json_encode([
+                'type' => 'error',
+                'title' => 'CNPJ inválido',
+                'text' => 'Por favor, insira um CNPJ válido.'
+            ]);
+            exit;
+        }
+
         $endereco = trim($_POST['endereco'] ?? '');
         $numero = trim($_POST['numero'] ?? '');
         $complemento = trim($_POST['complemento'] ?? '');
@@ -458,10 +512,9 @@ $conexao->close();
             // Manipula o botão de exclusão
             excluirBtn.addEventListener('click', function() {
                 Swal.fire({
-                    title: 'Excluir Perfil',
+                    title: 'Tem certeza que deseja excluir o perfil da oficina?',
                     html: `
-                        <p>Tem certeza que deseja excluir o perfil da oficina?</p>
-                        <p class="text-sm text-gray-500 mt-2">Esta ação não pode ser desfeita.</p>
+                        <p class="text-md text-gray-500 mt-2">Todos os agendamentos serão cancelados e as avaliações excluídas.</p>
                         <p class="text-sm text-red-500 mt-2">Observação: Você precisará excluir todos os funcionários cadastrados antes de excluir o perfil.</p>
                     `,
                     icon: 'warning',

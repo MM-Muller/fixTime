@@ -35,13 +35,20 @@ if ($result->num_rows > 0) {
 }
 
 // Busca os dados dos serviços associados à oficina
-$sql = "SELECT s.*, v.modelo, v.placa, v.ano, v.cor, c.nome_usuario, c.telefone_usuario, c.email_usuario, a.estrelas, a.data_avaliacao
+$sql = "SELECT 
+            s.*, 
+            v.modelo, v.placa, v.ano, v.cor, 
+            c.nome_usuario, c.telefone_usuario, c.email_usuario, 
+            a.estrelas, a.data_avaliacao,
+            f.nome_funcionario 
         FROM servico s
         JOIN veiculos v ON s.id_veiculo = v.id
         JOIN cliente c ON v.id_usuario = c.id_usuario
         LEFT JOIN avaliacao a ON s.id_servico = a.id_servico
+        LEFT JOIN funcionarios f ON s.id_funcionario_responsavel = f.id_funcionario
         WHERE s.id_oficina = ?
         ORDER BY s.data_agendada DESC, s.horario ASC";
+
 
 $stmt_servicos = $conexao->prepare($sql);
 
@@ -72,10 +79,16 @@ $stmtFuncionarios->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST['funcionario_responsavel'])) {
     $id_servico = (int) $_POST['id_servico'];
-    $id_funcionario = (int) $_POST['funcionario_responsavel'];
+    $id_funcionario_raw = $_POST['funcionario_responsavel'];
+    $id_funcionario = ($id_funcionario_raw === '' || $id_funcionario_raw === '0') ? null : (int) $id_funcionario_raw;
 
     $update_stmt = $conexao->prepare("UPDATE servico SET id_funcionario_responsavel = ? WHERE id_servico = ?");
-    $update_stmt->bind_param("ii", $id_funcionario, $id_servico);
+
+    if (is_null($id_funcionario)) {
+        $update_stmt->bind_param("si", $null = null, $id_servico);
+    } else {
+        $update_stmt->bind_param("ii", $id_funcionario, $id_servico);
+    }
 
     if ($update_stmt->execute()) {
         header("Location: agendamentos-oficina.php?sucesso=1");
@@ -260,7 +273,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
                             <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
 
                             <div class="grid grid-cols-6 gap-4">
-                                <div class="col-span-2">
+                                <div class="col-span-6">
+                                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
+                                    <select id="funcionario_responsavel<?= $servico['id_servico'] ?>" 
+                                            name="funcionario_responsavel" 
+                                            class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" 
+                                            disabled required>
+
+                                        <!-- Primeira opção: valor atual ou "Nenhum funcionário atribuído" -->
+                                        <option selected hidden value="<?= $servico['id_funcionario'] ?? '' ?>">
+                                            <?= !empty($servico['nome_funcionario']) ? htmlspecialchars($servico['nome_funcionario']) : 'Nenhum funcionário atribuído' ?>
+                                        </option>
+
+                                        <!-- Demais funcionários disponíveis -->
+                                        <?php foreach ($funcionarios as $func): ?>
+                                            <option value="<?= $func['id_funcionario'] ?>">
+                                                <?= htmlspecialchars($func['id_funcionario']) ?> - <?= htmlspecialchars($func['nome_funcionario']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+
+                                        <!-- Última opção: valor vazio -->
+                                        <option value="">Nenhum funcionário atribuído</option>
+                                    </select>
+                                </div>
+
+                                        
+
+                                <div class="col-span-6">
                                     <div class="flex gap-2">
                                         <button type="button" id="editarBtn<?= $servico['id_servico'] ?>" class="text-white inline-flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center cursor-pointer w-full">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -269,7 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
                                             </svg>
                                             Editar
                                         </button>
-                                        <button type="submit" id="salvarBtn<?= $servico['id_servico'] ?>" style="display: none;" class="text-white inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-4 text-center cursor-pointer w-full">
+                                        <button type="submit" id="salvarBtn<?= $servico['id_servico'] ?>" style="display: none;" class="text-white inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-4 text-center cursor-pointer w-full">
                                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                             </svg>
@@ -278,17 +317,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
                                     </div>
                                 </div>
 
-                                <div class="col-span-4">
-                                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
-                                    <select id="funcionario_responsavel<?= $servico['id_servico'] ?>" name="funcionario_responsavel" class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" disabled required>
-                                        <option value="">
-                                            <?= !empty($servico['nome_funcionario']) ? $servico['nome_funcionario'] : 'Nenhum funcionário atribuído' ?>
-                                        </option>
-                                        <?php foreach ($funcionarios as $func): ?>
-                                            <option class=" "value="<?= $func['id_funcionario'] ?>"><?= htmlspecialchars($func['id_funcionario']) ?> - <?= htmlspecialchars($func['nome_funcionario']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
                             </div>
                         </form>
 

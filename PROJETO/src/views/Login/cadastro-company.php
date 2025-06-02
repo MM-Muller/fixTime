@@ -11,12 +11,44 @@ if (!isset($conexao) || !$conexao) {
 // Inicia a sessão para gerenciar dados do usuário
 session_start();
 
+function validarCNPJ($cnpj) {
+    $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
+
+    if (strlen($cnpj) != 14 || preg_match('/(\d)\1{13}/', $cnpj)) return false;
+
+    $soma1 = 0;
+    $peso1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    for ($i = 0; $i < 12; $i++) {
+        $soma1 += $cnpj[$i] * $peso1[$i];
+    }
+    $resto1 = $soma1 % 11;
+    $digito1 = ($resto1 < 2) ? 0 : 11 - $resto1;
+
+    $soma2 = 0;
+    $peso2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    for ($i = 0; $i < 13; $i++) {
+        $soma2 += $cnpj[$i] * $peso2[$i];
+    }
+    $resto2 = $soma2 % 11;
+    $digito2 = ($resto2 < 2) ? 0 : 11 - $resto2;
+
+    return ($cnpj[12] == $digito1 && $cnpj[13] == $digito2);
+}
+
+
 // Processa o formulário quando enviado via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Sanitiza e escapa todos os dados do formulário para prevenir SQL injection
   $categoria = $conexao->real_escape_string($_POST['categoria']);
   $nome_oficina = $conexao->real_escape_string($_POST['nome_oficina']);
   $cnpj = $conexao->real_escape_string($_POST['cnpj']);
+  if (!validarCNPJ($cnpj)) {
+    $_SESSION['error_message'] = 'CNPJ inválido. Verifique os dados e tente novamente.';
+    header("Location: /fixTime/PROJETO/src/views/Login/cadastro-company.php");
+    return;
+  }
+
+
   $cep_oficina = $conexao->real_escape_string($_POST['cep_oficina']);
   $endereco_oficina = $conexao->real_escape_string($_POST['endereco_oficina']);
   $numero_oficina = $conexao->real_escape_string($_POST['numero_oficina']);
@@ -225,29 +257,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
   <script src="/fixTime/PROJETO/src/public/assets/js/script.js"></script>
 
-  <?php if (isset($_SESSION['error_message'])): ?>
-  <script>
-    Swal.fire({
-      icon: 'error',
-      title: 'Erro',
-      text: '<?php echo $_SESSION['error_message']; ?>',
-      confirmButtonText: 'OK'
-    });
-    <?php unset($_SESSION['error_message']); ?>
-  </script>
-  <?php endif; ?>
+<?php if (isset($_SESSION['error_message'])): ?>
+<script>
+  Swal.fire({
+    icon: 'error',
+    title: 'Erro',
+    text: <?php echo json_encode($_SESSION['error_message']); ?>,
+    confirmButtonText: 'OK'
+  });
+</script>
+<?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
 
-  <?php if (isset($_SESSION['success_message'])): ?>
-  <script>
-    Swal.fire({
-      icon: 'success',
-      title: 'Sucesso',
-      text: '<?php echo $_SESSION['success_message']; ?>',
-      confirmButtonText: 'OK'
-    });
-    <?php unset($_SESSION['success_message']); ?>
-  </script>
-  <?php endif; ?>
+<?php if (isset($_SESSION['success_message'])): ?>
+<script>
+  Swal.fire({
+    icon: 'success',
+    title: 'Sucesso',
+    text: <?php echo json_encode($_SESSION['success_message']); ?>,
+    confirmButtonText: 'OK'
+  });
+</script>
+<?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
+
 
   <script>
     // Configuração das máscaras de input e validação de senha

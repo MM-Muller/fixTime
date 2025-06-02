@@ -309,91 +309,84 @@ $conexao->close();
     </script>
 
     <script>
-        // Controle do formulário de perfil
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
+    document.addEventListener('DOMContentLoaded', function () {
+    const editarBtn = document.getElementById('editarPerfilBtn');
+    const excluirBtn = document.getElementById('excluirPerfilBtn');
+    const form = document.getElementById('formPerfil');
+    let modoEdicao = false;
 
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
+        // Função para validar CPF
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/[^\d]+/g, '');
+            if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+            let soma = 0, resto;
+
+            for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf[9])) return false;
+
+            soma = 0;
+            for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+            resto = (soma * 10) % 11;
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf[10])) return false;
+
+            return true;
+        }
+
+        // Botão editar/salvar
+        editarBtn.addEventListener('click', function () {
+            if (!modoEdicao) {
+                document.querySelectorAll('input').forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('cursor-not-allowed');
+                });
+                editarBtn.textContent = 'Salvar';
+                modoEdicao = true;
+            
+                $('#telefone-perfil').mask('(00) 00000-0000');
+                $('#cpf-perfil').mask('000.000.000-00', { reverse: true });
+            } else {
+                const cpf = document.getElementById('cpf-perfil').value;
+                if (!validarCPF(cpf)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'CPF inválido',
+                        text: 'Por favor, insira um CPF válido.',
+                        confirmButtonText: 'OK'
                     });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
+                    return;
                 }
-            });
+            
+                form.submit();
+            }
         });
-    </script>
-
-    <script>
-        // Controle dos botões de edição e exclusão
-        document.addEventListener('DOMContentLoaded', function() {
-            const editarBtn = document.getElementById('editarPerfilBtn');
-            const excluirBtn = document.getElementById('excluirPerfilBtn');
-            const form = document.getElementById('formPerfil');
-            let modoEdicao = false;
-
-            // Manipula o botão de edição
-            editarBtn.addEventListener('click', function() {
-                if (!modoEdicao) {
-                    // Habilita edição dos campos
-                    document.querySelectorAll('input').forEach(input => {
-                        input.disabled = false;
-                        input.classList.remove('cursor-not-allowed');
-                    });
-
-                    editarBtn.textContent = 'Salvar';
-                    modoEdicao = true;
-
-                    // Aplica máscaras nos campos
-                    $('#telefone-perfil').mask('(00) 00000-0000');
-                    $('#cpf-perfil').mask('000.000.000-00', {
-                        reverse: true
-                    });
-                } else {
-                    // Envia o formulário
-                    form.submit();
-                }
-            });
 
             // Manipula o botão de exclusão
-            excluirBtn.addEventListener('click', function() {
-                Swal.fire({
-                    title: 'Excluir Perfil',
-                    html: `
-                        <p>Tem certeza que deseja excluir seu perfil?</p>
-                        <p class="text-sm text-gray-500 mt-2">Esta ação não pode ser desfeita.</p>
-                        <p class="text-sm text-red-500 mt-2">Observação: Você precisará excluir todos os seus veículos cadastrados antes de excluir o perfil.</p>
-                    `,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Sim, excluir!',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('inputExcluirPerfil').value = '1';
-                        form.submit();
-                    }
-                });
+        excluirBtn.addEventListener('click', function () {
+            Swal.fire({
+                title: 'Excluir Perfil',
+                html: `
+                    <p>Tem certeza que deseja excluir seu perfil?</p>
+                    <p class="text-sm text-gray-500 mt-2">Esta ação não pode ser desfeita.</p>
+                    <p class="text-sm text-red-500 mt-2">Observação: Você precisará excluir todos os seus veículos cadastrados antes de excluir o perfil.</p>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sim, excluir!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('inputExcluirPerfil').value = '1';
+                    form.submit();
+                }
             });
         });
+    });
+
     </script>
 
     <!-- Scripts externos -->

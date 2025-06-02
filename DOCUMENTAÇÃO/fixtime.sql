@@ -108,10 +108,10 @@ CREATE TABLE IF NOT EXISTS servico (
     descricao_servico VARCHAR(1000) NULL,
     id_veiculo INT NOT NULL,
     id_oficina INT NOT NULL,
-    id_funcionario_responsavel INT NULL, -- Nova coluna adicionada
+    id_funcionario_responsavel INT NULL, 
     FOREIGN KEY (id_veiculo) REFERENCES veiculos(id),
     FOREIGN KEY (id_oficina) REFERENCES oficina(id_oficina),
-    FOREIGN KEY (id_funcionario_responsavel) REFERENCES funcionarios(id_funcionario), -- Chave estrangeira para id_funcionario_responsavel
+    FOREIGN KEY (id_funcionario_responsavel) REFERENCES funcionarios(id_funcionario), 
     UNIQUE (id_oficina, data_agendada, horario)
 );
 
