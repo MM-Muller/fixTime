@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
 
                             <div class="grid grid-cols-6 gap-4">
                                 <div class="col-span-6">
-                                    <label for="funcionario_responsavel" class="block mb-1 text-sm font-medium text-gray-900">Funcionário responsável</label>
+                                    <label for="funcionario_responsavel" class="block mb-1  text-sm font-medium text-gray-900">Funcionário responsável</label>
                                     <select id="funcionario_responsavel<?= $servico['id_servico'] ?>" 
                                             name="funcionario_responsavel" 
                                             class="bg-gray-50 border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none cursor-not-allowed" 
