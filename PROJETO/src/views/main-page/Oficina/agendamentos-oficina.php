@@ -272,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_servico'], $_POST[
                         <form id="formFuncionario<?= $servico['id_servico'] ?>" method="POST" action="">
                             <input type="hidden" name="id_servico" value="<?= $servico['id_servico'] ?>">
 
-                            <div class="grid grid-cols-6 gap-4">
+                            <div class="grid grid-cols-6 gap-6">
                                 <div class="col-span-6">
                                     <label for="funcionario_responsavel" class="block mb-1  text-sm font-medium text-gray-900">Funcionário responsável</label>
                                     <select id="funcionario_responsavel<?= $servico['id_servico'] ?>" 
